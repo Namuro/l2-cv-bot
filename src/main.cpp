@@ -1,7 +1,22 @@
 #include <iostream>
-#include <opencv2/opencv.hpp>
+
+#include "Screenshot.h"
 
 int main(int argc, char* argv[])
 {
-    std::cout << cv::getBuildInformation() << std::endl;
+    Screenshot screen;
+    auto rect = screen.WindowRect("Test");
+
+    if (!rect.has_value()) {
+        std::cout << "Rect is null" << std::endl;
+    }
+    else {
+        std::cout
+        << rect->width
+        << " " << rect->height
+        << " " << rect->x
+        << " " << rect->y
+        << " " <<
+        std::endl;
+    }
 }
