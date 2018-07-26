@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
     auto rect = screen.WindowRect("Test");
 
     if (!rect.has_value()) {
-        std::cout << "Rect is null" << std::endl;
+        std::cout << "Window not found" << std::endl;
     }
     else {
         std::cout

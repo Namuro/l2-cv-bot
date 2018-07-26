@@ -12,6 +12,6 @@ public:
     std::optional<cv::Rect> WindowRect(const std::string &window_title);
 
 private:
-    std::optional<const wchar_t *> Screenshot::Widen(const std::string &string);
+    std::optional<std::wstring> Screenshot::Widen(const std::string &string);
     static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lparam);
 };
