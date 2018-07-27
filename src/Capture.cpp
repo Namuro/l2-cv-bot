@@ -45,7 +45,7 @@ std::optional<cv::Mat> Capture::Grab(cv::Rect rect)
         return {};
     }
 
-    auto result = ::GetDIBits(
+    auto lines_copied = ::GetDIBits(
         m_memdc.get(),
         m_bitmap.get(),
         0,
@@ -55,7 +55,7 @@ std::optional<cv::Mat> Capture::Grab(cv::Rect rect)
         DIB_RGB_COLORS
     );
 
-    if (result == 0 || result == ERROR_INVALID_PARAMETER) {
+    if (lines_copied == 0 || lines_copied == ERROR_INVALID_PARAMETER) {
         return {};
     }
 

@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
         auto rect = Window::Rect("Test");
 
         if (!rect.has_value()) {
-            continue;
+            break;
         }
 
         auto window = capture.Grab(rect.value());
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
             continue;
         }
 
-        cv::imshow("Test", window.value());
+        cv::imshow("l2-cv-bot", window.value());
 
         if (cv::waitKey(1) == 27) {
             break;
