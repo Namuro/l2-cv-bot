@@ -14,7 +14,7 @@ struct DCDeleter
 struct DCReleaser
 {
     using pointer = HDC;
-    HWND hwnd = nullptr;
+    HWND hwnd;
 
     DCReleaser() : hwnd(nullptr) {}
     explicit DCReleaser(HWND hwnd) : hwnd(hwnd) {}
@@ -56,6 +56,7 @@ class Capture
 public:
     Capture();
 
-    std::optional<cv::Mat> Capture::Grab(cv::Rect rect);
-    std::optional<cv::Mat> Capture::Grab() { return Grab(cv::Rect(m_x, m_y, m_w, m_h)); }
+    std::optional<cv::Mat> Grab(cv::Rect rect);
+    std::optional<cv::Mat> Grab() { return Grab(cv::Rect(m_x, m_y, m_w, m_h)); }
+    bool Clear();
 };

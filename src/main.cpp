@@ -14,6 +14,7 @@ int main(int argc, char* argv[])
     }
 
     if (rect.has_value()) {
+        capture.Clear();
         auto window = capture.Grab(rect.value());
 
         if (window.has_value()) {

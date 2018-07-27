@@ -28,7 +28,7 @@ Capture::Capture() :
     // calculate data size
     const auto colors = m_bmi.bmiHeader.biBitCount / 8;
     const auto alignment = 4;
-    const auto width = (int)std::ceil(m_w * colors / (double)alignment) * alignment;
+    const auto width = static_cast<int>(std::ceil(m_w * colors / static_cast<double>(alignment))) * alignment;
     m_bmi.bmiHeader.biSizeImage = width * m_h;
 
     // allocate data for cv::Mat image
@@ -62,4 +62,9 @@ std::optional<cv::Mat> Capture::Grab(cv::Rect rect)
     rect.x = 0;
     rect.y = 0;
     return cv::Mat(m_h, m_w, CV_8UC3, m_data.get())(rect);
+}
+
+bool Capture::Clear()
+{
+    return BitBlt(m_memdc.get(), 0, 0, m_w, m_h, nullptr, m_x, m_y, BLACKNESS) == TRUE;
 }
