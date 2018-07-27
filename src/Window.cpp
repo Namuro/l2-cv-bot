@@ -59,7 +59,7 @@ std::optional<cv::Rect> Window::Rect(const std::string &window_title)
     return HWNDRect(found_hwnd);
 }
 
-std::optional<cv::Rect> Window::HWNDRect(HWND hwnd)
+std::optional<cv::Rect> Window::HWNDRect(const HWND hwnd)
 {
     if (hwnd == nullptr) {
         return {};

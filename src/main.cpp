@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "Options.h"
 #include "Window.h"
 #include "Capture.h"
 
