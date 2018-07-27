@@ -1,9 +1,9 @@
-#include "Screenshot.h"
+#include "Window.h"
 
-std::optional<cv::Rect> Screenshot::WindowRect(const std::string &window_title)
+std::optional<cv::Rect> Window::Rect(const std::string &window_title)
 {
-    // convert std::string to std::wstring for Windows API
-    auto wide_window_title = Widen(window_title);
+    // convert string to wstring for Windows API
+    auto wide_window_title = WidenString(window_title);
 
     if (!wide_window_title.has_value()) {
         return {};
@@ -11,12 +11,21 @@ std::optional<cv::Rect> Screenshot::WindowRect(const std::string &window_title)
 
     auto needed_title = wide_window_title.value().c_str();
 
-    // save all HWNDs
+    // collect all HWNDs
     std::vector<HWND> hwnds;
-    ::EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&hwnds));
+
+    ::EnumWindows([](HWND hwnd, LPARAM lparam) -> BOOL {
+        if (hwnd != nullptr && ::IsWindowVisible(hwnd) && ::IsWindowEnabled(hwnd)) {
+            auto hwnds = reinterpret_cast<std::vector<HWND> *>(lparam);
+            hwnds->push_back(hwnd);
+        }
+
+        return TRUE;
+    }, reinterpret_cast<LPARAM>(&hwnds));
+
+    HWND found_hwnd = nullptr;
 
     // search for exact title match
-    HWND found_hwnd = nullptr;
     std::map<HWND, std::wstring> hwnd_titles;
     wchar_t title[256];
 
@@ -47,33 +56,32 @@ std::optional<cv::Rect> Screenshot::WindowRect(const std::string &window_title)
     }
 
     // get found window's rect
-    if (found_hwnd == nullptr) {
+    return HWNDRect(found_hwnd);
+}
+
+std::optional<cv::Rect> Window::HWNDRect(HWND hwnd)
+{
+    if (hwnd == nullptr) {
         return {};
     }
 
     RECT rect = {};
 
-    if (!::GetClientRect(found_hwnd, reinterpret_cast<LPRECT>(&rect))) {
+    if (!::GetClientRect(hwnd, reinterpret_cast<LPRECT>(&rect))) {
         return {};
     }
 
     if (::SetLastError(ERROR_SUCCESS);
-        ::MapWindowPoints(found_hwnd, nullptr, reinterpret_cast<LPPOINT>(&rect), 2) == 0 &&
-            ::GetLastError() != ERROR_SUCCESS
+        ::MapWindowPoints(hwnd, nullptr, reinterpret_cast<LPPOINT>(&rect), 2) == 0 &&
+        ::GetLastError() != ERROR_SUCCESS
     ) {
         return {};
     }
 
-    cv::Rect found_rect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
-
-    if (found_rect.width > 0 && found_rect.height > 0) {
-        return found_rect;
-    }
-
-    return {};
+    return cv::Rect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
 }
 
-std::optional<std::wstring> Screenshot::Widen(const std::string &string)
+std::optional<std::wstring> Window::WidenString(const std::string &string)
 {
     if (string.empty()) {
         return std::wstring();
@@ -108,14 +116,4 @@ std::optional<std::wstring> Screenshot::Widen(const std::string &string)
     }
 
     return wstring;
-}
-
-BOOL CALLBACK Screenshot::EnumWindowsProc(HWND hwnd, LPARAM lparam)
-{
-    if (hwnd != nullptr && ::IsWindowVisible(hwnd) && ::IsWindowEnabled(hwnd)) {
-        auto hwnds = reinterpret_cast<std::vector<HWND> *>(lparam);
-        hwnds->push_back(hwnd);
-    }
-
-    return TRUE;
 }

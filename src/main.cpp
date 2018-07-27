@@ -1,22 +1,23 @@
 #include <iostream>
 
-#include "Screenshot.h"
+#include "Window.h"
+#include "Capture.h"
 
 int main(int argc, char* argv[])
 {
-    Screenshot screen;
-    auto rect = screen.WindowRect("Test");
+    Capture capture;
+    auto rect = Window::Rect("Test");
+    auto screen = capture.Grab();
 
-    if (!rect.has_value()) {
-        std::cout << "Window not found" << std::endl;
+    if (screen.has_value()) {
+        cv::imwrite("screen.bmp", screen.value());
     }
-    else {
-        std::cout
-        << rect->width
-        << " " << rect->height
-        << " " << rect->x
-        << " " << rect->y
-        << " " <<
-        std::endl;
+
+    if (rect.has_value()) {
+        auto window = capture.Grab(rect.value());
+
+        if (window.has_value()) {
+            cv::imwrite("window.bmp", window.value());
+        }
     }
 }

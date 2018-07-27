@@ -7,7 +7,8 @@ project(${TARGET})
 add_executable(
     ${TARGET}
     src/main.cpp
-    src/Screenshot.cpp
+    src/Window.cpp
+    src/Capture.cpp
 )
 
 # Configure compiler
