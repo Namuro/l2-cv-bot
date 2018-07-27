@@ -1,6 +1,6 @@
 ## WIP
 
-Simple L2 bot that uses CV to find possible targets and monitor HP/MP/CP.
+Simple Lineage 2 bot that uses CV to find possible targets and monitor HP/MP/CP.
 
 ### Features:
 

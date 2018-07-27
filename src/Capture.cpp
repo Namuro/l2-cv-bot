@@ -66,5 +66,5 @@ std::optional<cv::Mat> Capture::Grab(cv::Rect rect)
 
 bool Capture::Clear()
 {
-    return BitBlt(m_memdc.get(), 0, 0, m_w, m_h, nullptr, m_x, m_y, BLACKNESS) == TRUE;
+    return ::BitBlt(m_memdc.get(), 0, 0, m_w, m_h, nullptr, m_x, m_y, BLACKNESS) == TRUE;
 }
