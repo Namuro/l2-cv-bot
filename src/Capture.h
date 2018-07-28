@@ -1,10 +1,12 @@
 #pragma once
+
 #define WIN32_MEAN_AND_LEAN
+#include <Windows.h>
+#include <opencv2/opencv.hpp>
 
 #include <optional>
 #include <string>
-#include <Windows.h>
-#include <opencv2/opencv.hpp>
+#include <algorithm>
 
 struct DCDeleter
 {

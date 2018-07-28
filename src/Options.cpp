@@ -1,16 +1,5 @@
 #include "Options.h"
 
-std::optional<std::string> Options::Find(const std::string &option, bool next) const
-{
-    auto found = std::find(m_options.begin(), m_options.end(), option);
-
-    if (found != m_options.end() && (!next || ++found != m_options.end())) {
-        return *found;
-    }
-
-    return {};
-}
-
 std::string Options::String(const std::string &option, const std::string &default) const
 {
     auto found = Find(option);
@@ -87,4 +76,15 @@ std::vector<std::string> Options::StringVector(const std::string &option, const 
     }
 
     return vector;
+}
+
+std::optional<std::string> Options::Find(const std::string &option, bool next) const
+{
+    auto found = std::find(m_options.begin(), m_options.end(), option);
+
+    if (found != m_options.end() && (!next || ++found != m_options.end())) {
+        return *found;
+    }
+
+    return {};
 }

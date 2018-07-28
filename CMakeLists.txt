@@ -7,6 +7,7 @@ project(${TARGET})
 add_executable(
     ${TARGET}
     src/main.cpp
+    src/FPS.h
     src/Options.cpp
     src/Window.cpp
     src/Capture.cpp
