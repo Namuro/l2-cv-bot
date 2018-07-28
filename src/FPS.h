@@ -1,7 +1,6 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
-
 #include <algorithm>
 
 template <int Cap>
@@ -18,8 +17,10 @@ public:
 
     double Get()
     {
+        // add to ring buffer
         m_frames[m_i++ % m_frames.max_size()] = (cv::getTickCount() - m_ticks) / cv::getTickFrequency();
 
+        // calculate average FPS
         double sum = 0;
         frames::size_type count = 0;
 
