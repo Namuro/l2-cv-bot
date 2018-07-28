@@ -27,9 +27,10 @@ std::optional<cv::Rect> Window::Rect(const std::string &window_title)
 
     // search for exact title match
     std::map<HWND, std::wstring> hwnd_titles;
-    wchar_t title[256];
 
     for (auto &hwnd : hwnds) {
+        wchar_t title [256];
+
         if (::GetWindowTextW(hwnd, reinterpret_cast<LPWSTR>(title), sizeof(title) - 1) == 0) {
             continue;
         }

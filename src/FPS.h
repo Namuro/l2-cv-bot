@@ -27,7 +27,7 @@ public:
         for (auto time : m_frames) {
             if (time > 0) {
                 sum += time;
-                count++;
+                ++count;
             }
         }
 

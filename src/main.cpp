@@ -7,28 +7,27 @@
 
 int main(int argc, char* argv[])
 {
+    Options options(argc, argv);
     Capture capture;
-    auto screen = capture.Grab();
-
-    if (screen.has_value()) {
-        cv::imwrite("screen.bmp", screen.value());
-    }
-
     FPS<100> fps;
+
+    auto title = options.String("--window", "Lineage II");
 
     while (true) {
         fps.Begin();
         capture.Clear();
 
-        auto rect = Window::Rect("Lineage II");
+        auto rect = Window::Rect(title);
 
         if (!rect.has_value()) {
+            std::cout << "Can't find window \"" << title << "\"" << std::endl;
             break;
         }
 
         auto window = capture.Grab(rect.value());
 
         if (!window.has_value()) {
+            std::cout << "Failed to grab window" << std::endl;
             continue;
         }
 

@@ -16,7 +16,7 @@ Capture::Capture() :
     m_bmi.bmiHeader.biWidth = m_w;
     m_bmi.bmiHeader.biHeight = -m_h;
     m_bmi.bmiHeader.biPlanes = 1;
-    m_bmi.bmiHeader.biBitCount = ::GetDeviceCaps(m_srcdc.get(), BITSPIXEL); // for best performance bbp must be same as source's
+    m_bmi.bmiHeader.biBitCount = static_cast<WORD>(::GetDeviceCaps(m_srcdc.get(), BITSPIXEL)); // for best performance bbp must be same as source's
     m_bmi.bmiHeader.biCompression = BI_RGB;
 
     // allocate data for cv::Mat image

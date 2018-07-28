@@ -31,3 +31,10 @@ if(MSVC)
         fixup_bundle(${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/${TARGET}.exe \"\" ${OpenCV_LIBS})
     " COMPONENT Runtime)
 endif()
+
+# Enable more warnings
+if(MSVC)
+    target_compile_options(${TARGET} PRIVATE /W4)
+else()
+    target_compile_options(${TARGET} PRIVATE -Wall -Wextra -pedantic)
+endif()
