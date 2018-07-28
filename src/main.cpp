@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         fps.Begin();
         capture.Clear();
 
-        auto rect = Window::Rect("Test");
+        auto rect = Window::Rect("Lineage II");
 
         if (!rect.has_value()) {
             break;

@@ -16,7 +16,7 @@ Capture::Capture() :
     m_bmi.bmiHeader.biWidth = m_w;
     m_bmi.bmiHeader.biHeight = -m_h;
     m_bmi.bmiHeader.biPlanes = 1;
-    m_bmi.bmiHeader.biBitCount = ::GetDeviceCaps(m_srcdc.get(), BITSPIXEL); // for best performance bbp must be same as source
+    m_bmi.bmiHeader.biBitCount = ::GetDeviceCaps(m_srcdc.get(), BITSPIXEL); // for best performance bbp must be same as source's
     m_bmi.bmiHeader.biCompression = BI_RGB;
 
     // allocate data for cv::Mat image
@@ -41,6 +41,7 @@ std::optional<cv::Mat> Capture::Grab(cv::Rect rect)
         return {};
     }
 
+    // copy pixels from source context to memory context
     if (!::BitBlt(m_memdc.get(), 0, 0, rect.width, rect.height, m_srcdc.get(), rect.x, rect.y, SRCCOPY | CAPTUREBLT)) {
         return {};
     }
@@ -50,7 +51,8 @@ std::optional<cv::Mat> Capture::Grab(cv::Rect rect)
     rect.width = std::min(m_w, rect.width);
     rect.height = std::min(m_h, rect.height);
 
-    return cv::Mat(m_h, m_w, CV_8UC4, m_data.get())(rect);
+    // adjust cv::Mat type to be compatible with bitmap's bbp
+    return cv::Mat(m_h, m_w, CV_MAKETYPE(CV_8U, m_bmi.bmiHeader.biBitCount / 8), m_data.get())(rect);
 }
 
 bool Capture::Clear()

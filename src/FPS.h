@@ -17,7 +17,7 @@ public:
 
     double Get()
     {
-        // add to ring buffer
+        // add frame time to ring buffer
         m_frames[m_i++ % m_frames.max_size()] = (cv::getTickCount() - m_ticks) / cv::getTickFrequency();
 
         // calculate average FPS
