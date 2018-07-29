@@ -8,8 +8,8 @@ class FPS
 {
     using frames = std::array<double, Cap>;
 
-    int64 m_i = 0;
-    int64 m_ticks = 0;
+    int64_t m_i = 0;
+    int64_t m_ticks = 0;
     frames m_frames = {};
 
 public:

@@ -11,6 +11,7 @@ add_executable(
     src/Window.cpp
     src/Capture.cpp
     src/FPS.h
+    src/Eyes.cpp
 )
 
 # Configure compiler
