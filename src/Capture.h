@@ -40,13 +40,13 @@ struct GDIOBJDeselector
     void operator()(HGDIOBJ object) const { ::SelectObject(hdc, object); }
 };
 
-using srcdc_handle = std::unique_ptr<HDC, DCReleaser>;
-using memdc_handle = std::unique_ptr<HDC, DCDeleter>;
-using bitmap_handle = std::unique_ptr<HBITMAP, BITMAPDeleter>;
-using gdiobj_handle = std::unique_ptr<HGDIOBJ, GDIOBJDeselector>;
-
 class Capture
 {
+    using srcdc_handle = std::unique_ptr<HDC, DCReleaser>;
+    using memdc_handle = std::unique_ptr<HDC, DCDeleter>;
+    using bitmap_handle = std::unique_ptr<HBITMAP, BITMAPDeleter>;
+    using gdiobj_handle = std::unique_ptr<HGDIOBJ, GDIOBJDeselector>;
+
     int m_x, m_y, m_w, m_h = 0;
     BITMAPINFO m_bmi = {};
 
