@@ -53,7 +53,7 @@ std::vector<Target> Eyes::DetectTargets(const cv::Mat &hsv) const
     std::vector<struct Target> targets;
 
     // find correct contours
-    for (auto &contour : contours) {
+    for (const auto &contour : contours) {
         const auto rect = cv::boundingRect(contour);
 
         // check contour size & proportions
@@ -90,7 +90,7 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
     cv::inRange(hsv, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, mask);
     
     // remove noise
-    auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(m_target_hp_min_width, m_target_hp_min_height));
+    const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(m_target_hp_min_width, m_target_hp_min_height));
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel);
 
@@ -98,7 +98,7 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-    for (auto &contour : contours) {
+    for (const auto &contour : contours) {
         const auto rect = cv::boundingRect(contour);
 
         // check contour size & proportions

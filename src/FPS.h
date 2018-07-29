@@ -24,7 +24,7 @@ public:
         double sum = 0;
         frames::size_type count = 0;
 
-        for (auto time : m_frames) {
+        for (const auto &time : m_frames) {
             if (time > 0) {
                 sum += time;
                 ++count;

@@ -16,7 +16,7 @@ std::optional<cv::Rect> Window::Rect(const std::string &window_title)
 
     ::EnumWindows([](HWND hwnd, LPARAM lparam) -> BOOL {
         if (hwnd != nullptr && ::IsWindowVisible(hwnd) && ::IsWindowEnabled(hwnd)) {
-            auto hwnds = reinterpret_cast<std::vector<HWND> *>(lparam);
+            const auto hwnds = reinterpret_cast<std::vector<HWND> *>(lparam);
             hwnds->push_back(hwnd);
         }
 
@@ -28,7 +28,7 @@ std::optional<cv::Rect> Window::Rect(const std::string &window_title)
     // search for exact title match
     std::map<HWND, std::wstring> hwnd_titles;
 
-    for (auto &hwnd : hwnds) {
+    for (const auto &hwnd : hwnds) {
         wchar_t title [256];
 
         if (::GetWindowTextW(hwnd, reinterpret_cast<LPWSTR>(title), sizeof(title) - 1) == 0) {
@@ -45,9 +45,9 @@ std::optional<cv::Rect> Window::Rect(const std::string &window_title)
 
     // search for partial title match
     if (found_hwnd == nullptr) {
-        for (auto &pair : hwnd_titles) {
-            auto hwnd = pair.first;
-            auto title = pair.second.c_str();
+        for (const auto &pair : hwnd_titles) {
+            const auto hwnd = pair.first;
+            const auto title = pair.second.c_str();
 
             if (std::wcsstr(title, needed_title) != nullptr) {
                 found_hwnd = hwnd;

@@ -9,7 +9,7 @@
 
 int main(int argc, char* argv[])
 {
-    Options options(argc, argv);
+    const Options options(argc, argv);
     Capture capture;
     FPS<100> fps;
     Eyes eyes;
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
         }
 
         // draw targets debug info
-        for (auto &target : targets) {
+        for (const auto &target : targets) {
             cv::rectangle(image, target.rect, cv::Scalar(255, 255, 0), 1);
             cv::circle(image, target.center, 10, cv::Scalar(0, 255, 255), 1);
 
@@ -56,21 +56,21 @@ int main(int argc, char* argv[])
             cv::putText(image, ss.str(), cv::Point(target.rect.x, target.rect.y - 5), cv::FONT_HERSHEY_PLAIN, 0.8, cv::Scalar(255, 255, 255), 1, cv::LINE_AA);
         }
 
-        // draw target hp bar
+        // draw target HP bar rect
         const auto target_hp_bar = eyes.TargetHPBar();
 
         if (target_hp_bar.has_value()) {
             cv::rectangle(image, target_hp_bar.value(), cv::Scalar(255, 0, 255), 1);
         }
 
-        // draw fps
+        // draw FPS
         std::stringstream ss;
         ss << std::floor(fps.Get());
         cv::putText(image, ss.str(), cv::Point(0, image.rows), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255, 255, 0), 2, cv::LINE_AA);
 
         cv::imshow("l2-cv-bot", image);
 
-        auto key = cv::waitKey(1) & 0xff;
+        const auto key = cv::waitKey(1) & 0xff;
 
         if (key == 27) { // 27 = ESC
             break;
