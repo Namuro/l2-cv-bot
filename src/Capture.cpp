@@ -16,11 +16,8 @@ Capture::Capture() :
     m_bmi.bmiHeader.biWidth = m_w;
     m_bmi.bmiHeader.biHeight = -m_h;
     m_bmi.bmiHeader.biPlanes = 1;
-    m_bmi.bmiHeader.biBitCount = static_cast<WORD>(::GetDeviceCaps(m_srcdc.get(), BITSPIXEL)); // for best performance bbp must be same as source's
+    m_bmi.bmiHeader.biBitCount = 32;
     m_bmi.bmiHeader.biCompression = BI_RGB;
-
-    // allocate data for cv::Mat image
-    m_data = std::unique_ptr<uchar[]>(new uchar[m_w * m_h * m_bmi.bmiHeader.biBitCount / 8]());
 
     // initialize & select bitmap
     m_bitmap = bitmap_handle(::CreateDIBSection(
@@ -51,8 +48,8 @@ std::optional<cv::Mat> Capture::Grab(cv::Rect rect)
     rect.width = std::min(m_w, rect.width);
     rect.height = std::min(m_h, rect.height);
 
-    // adjust cv::Mat type to be compatible with bitmap's bbp
-    return cv::Mat(m_h, m_w, CV_MAKETYPE(CV_8U, m_bmi.bmiHeader.biBitCount / 8), m_data.get())(rect);
+    // return compatible cv::Mat
+    return cv::Mat(m_h, m_w, CV_8UC4, m_data)(rect);
 }
 
 bool Capture::Clear()

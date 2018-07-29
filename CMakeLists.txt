@@ -7,10 +7,10 @@ project(${TARGET})
 add_executable(
     ${TARGET}
     src/main.cpp
-    src/FPS.h
     src/Options.cpp
     src/Window.cpp
     src/Capture.cpp
+    src/FPS.h
 )
 
 # Configure compiler
@@ -32,7 +32,7 @@ if(MSVC)
     " COMPONENT Runtime)
 endif()
 
-# Enable more warnings
+# Show more warnings
 if(MSVC)
     target_compile_options(${TARGET} PRIVATE /W4)
 else()

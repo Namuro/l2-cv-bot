@@ -54,7 +54,7 @@ class Capture
     memdc_handle m_memdc;
     gdiobj_handle m_object;
     bitmap_handle m_bitmap;
-    std::unique_ptr<uchar[]> m_data;
+    uchar *m_data;
 
 public:
     Capture();
