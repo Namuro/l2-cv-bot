@@ -2,13 +2,13 @@
 
 std::string Options::String(const std::string &option, const std::string &default) const
 {
-    auto found = Find(option);
+    const auto found = Find(option);
     return found.has_value() ? found.value() : std::string(default);
 }
 
 int Options::Int(const std::string &option, int default) const
 {
-    auto found = Find(option);
+    const auto found = Find(option);
     
     if (!found.has_value()) {
         return default;
@@ -24,7 +24,7 @@ int Options::Int(const std::string &option, int default) const
 
 double Options::Double(const std::string &option, double default) const
 {
-    auto found = Find(option);
+    const auto found = Find(option);
 
     if (!found.has_value()) {
         return default;
@@ -40,13 +40,13 @@ double Options::Double(const std::string &option, double default) const
 
 bool Options::Bool(const std::string &option, bool default) const
 {
-    auto found = Find(option);
+    const auto found = Find(option);
 
     if (!found.has_value()) {
         return default;
     }
 
-    auto value = found.value();
+    const auto value = found.value();
 
     if (value == "1" || value == "true" || value == "yes" || value == "y" || value == "on") {
         return true;
@@ -60,7 +60,7 @@ bool Options::Bool(const std::string &option, bool default) const
 
 std::vector<std::string> Options::StringVector(const std::string &option, const std::vector<std::string> &default) const
 {
-    auto found = Find(option);
+    const auto found = Find(option);
 
     if (!found.has_value()) {
         return std::vector<std::string>(default);

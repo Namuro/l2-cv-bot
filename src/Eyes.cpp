@@ -20,7 +20,7 @@ std::vector<Target> Eyes::DetectTargets(const cv::Mat &hsv) const
     cv::dilate(white, mask, kernel);
 
     // join words in target names
-    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(15, 5));
+    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(20, 5));
     cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
 
     // remove noise
@@ -34,14 +34,14 @@ std::vector<Target> Eyes::DetectTargets(const cv::Mat &hsv) const
     std::vector<Target> targets;
 
     for (auto &contour : contours) {
-        auto rect = cv::boundingRect(contour);
+        const auto rect = cv::boundingRect(contour);
 
         if (rect.height >= m_target_min_height && rect.height <= m_target_max_height &&
             rect.width >= m_target_min_width && rect.width <= m_target_max_width &&
             rect.width > rect.height * 1.25
         ) {
-            auto target_image = white(rect);
-            auto threshold = cv::countNonZero(target_image) / target_image.total();
+            const auto target_image = white(rect);
+            const auto threshold = cv::countNonZero(target_image) / target_image.total();
 
             if (threshold <= m_target_color_threshold) {
                 Target target = {};

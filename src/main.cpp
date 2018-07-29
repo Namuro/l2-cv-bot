@@ -14,35 +14,35 @@ int main(int argc, char* argv[])
     FPS<100> fps;
     Eyes eyes;
 
-    auto title = options.String("--window", "Lineage II");
-    auto debug = options.Bool("--debug", true);
+    const auto title = options.String("--window", "Lineage II");
+    const auto debug = options.Bool("--debug", true);
 
     while (true) {
         fps.Begin();
         capture.Clear();
 
-        auto rect = Window::Rect(title);
+        const auto rect = Window::Rect(title);
 
         if (!rect.has_value()) {
             std::cout << "Can't find window \"" << title << "\"" << std::endl;
             break;
         }
 
-        auto window = capture.Grab(rect.value());
+        const auto window = capture.Grab(rect.value());
 
         if (!window.has_value()) {
             std::cout << "Failed to grab window" << std::endl;
             continue;
         }
 
-        auto image = window.value();
+        const auto image = window.value();
         eyes.Blink(image);
 
         if (!debug) {
             continue;
         }
 
-        auto targets = eyes.Targets();
+        const auto targets = eyes.Targets();
 
         for (auto &target : targets) {
             cv::rectangle(image, target.rect, cv::Scalar(255, 255, 0), 1);
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
             // target id
             std::stringstream ss;
             ss << "id" << target.id;
-            cv::putText(image, ss.str(), cv::Point(target.rect.x, target.rect.y - 5), cv::FONT_HERSHEY_PLAIN, 0.75, cv::Scalar(255, 255, 255), 1, cv::LINE_AA);
+            cv::putText(image, ss.str(), cv::Point(target.rect.x, target.rect.y - 5), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(255, 255, 255), 1, cv::LINE_AA);
         }
 
         // fps

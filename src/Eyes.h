@@ -28,7 +28,7 @@ public:
     int m_target_max_height = 20;
     int m_target_min_width = 20;
     int m_target_max_width = 250;
-    cv::Scalar m_target_color_from_hsv = cv::Scalar(0, 0, 240);
+    cv::Scalar m_target_color_from_hsv = cv::Scalar(0, 0, 235);
     cv::Scalar m_target_color_to_hsv = cv::Scalar(0, 0, 255);
     double m_target_color_threshold = 0.2;
 

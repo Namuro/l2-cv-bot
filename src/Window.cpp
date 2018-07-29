@@ -3,13 +3,13 @@
 std::optional<cv::Rect> Window::Rect(const std::string &window_title)
 {
     // convert string to wstring for Windows API
-    auto wide_window_title = WidenString(window_title);
+    const auto wide_window_title = WidenString(window_title);
 
     if (!wide_window_title.has_value()) {
         return {};
     }
 
-    auto needed_title = wide_window_title.value().c_str();
+    const auto needed_title = wide_window_title.value().c_str();
 
     // collect all HWNDs
     std::vector<HWND> hwnds;
@@ -88,7 +88,7 @@ std::optional<std::wstring> Window::WidenString(const std::string &string)
         return std::wstring();
     }
 
-    auto chars_needed = ::MultiByteToWideChar(
+    const auto chars_needed = ::MultiByteToWideChar(
         CP_UTF8,
         0,
         reinterpret_cast<LPCCH>(&string[0]),
@@ -103,7 +103,7 @@ std::optional<std::wstring> Window::WidenString(const std::string &string)
 
     std::wstring wstring(chars_needed, '\0');
 
-    auto chars_converted = ::MultiByteToWideChar(
+    const auto chars_converted = ::MultiByteToWideChar(
         CP_UTF8,
         0,
         reinterpret_cast<LPCCH>(&string[0]),
