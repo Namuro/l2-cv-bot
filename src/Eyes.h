@@ -7,37 +7,41 @@
 
 struct Target
 {
-    cv::Rect rect;
-    cv::Point center;
-    uint32_t id;
-    float hp;
+    int hp = 0;
 };
 
 struct Me
 {
-    float hp;
-    float mp;
-    float cp;
+    int hp = 0;
+    int mp = 0;
+    int cp = 0;
+};
+
+struct PossibleTarget
+{
+    uint32_t id = 0;
+    cv::Point center = {};
+    cv::Rect rect = {};
 };
 
 struct MyBars
 {
-    cv::Rect hp_bar;
-    cv::Rect mp_bar;
-    cv::Rect cp_bar;
+    cv::Rect hp_bar = {};
+    cv::Rect mp_bar = {};
+    cv::Rect cp_bar = {};
 };
 
 class Eyes
 {
-    std::vector<Target> m_targets;
-    std::optional<Me> m_me;
-    std::optional<Target> m_target;
+    std::vector<PossibleTarget> m_possible_targets;
+    Me m_me = {};
+    Target m_target = {};
 
     std::optional<MyBars> m_my_bars;
     std::optional<cv::Rect> m_target_hp_bar;
 
 public:
-    // targets detection
+    // possible targets detection
     int m_target_min_height = 10;
     int m_target_max_height = 20;
     int m_target_min_width = 20;
@@ -68,16 +72,19 @@ public:
 
     void Blink(const cv::Mat &rgb);
     void Reset();
-    std::vector<Target> Targets() const { return m_targets; }
-    std::optional<Target> Target() const { return m_target; }
-    std::optional<Me> Me() const { return m_me; }
+    std::vector<PossibleTarget> PossibleTargets() const { return m_possible_targets; }
+    Me Me() const { return m_me; }
+    Target Target() const { return m_target; }
     std::optional<cv::Rect> TargetHPBar() const { return m_target_hp_bar; }
     std::optional<MyBars> MyBars() const { return m_my_bars; }
 
 private:
-    std::vector<struct Target> DetectTargets(const cv::Mat &hsv) const;
+    std::vector<PossibleTarget> DetectPossibleTargets(const cv::Mat &hsv) const;
     std::optional<cv::Rect> DetectTargetHPBar(const cv::Mat &hsv) const;
     std::optional<struct MyBars> DetectMyBars(const cv::Mat &hsv) const;
+    struct Me MyValues(const cv::Mat &hsv) const;
+    struct Target TargetValues(const cv::Mat &hsv) const;
     std::vector<std::vector<cv::Point>> BarContours(const cv::Mat &mask) const;
+    static int BarValue(const cv::Mat &bar);
     static uint32_t Hash(const cv::Mat &image);
 };

@@ -32,28 +32,52 @@ int main(int argc, char* argv[])
 
         if (!window.has_value()) {
             std::cout << "Failed to grab window" << std::endl;
-            continue;
+            break;
         }
 
         const auto image = window.value();
 
         eyes.Blink(image);
 
-        const auto targets = eyes.Targets();
+        const auto possible_targets = eyes.PossibleTargets();
+        const auto target = eyes.Target();
+        const auto me = eyes.Me();
 
         if (!debug) {
             continue;
         }
 
+        // draw my HP/MP/CP values & target HP
+        cv::putText(
+            image,
+            "My HP " + std::to_string(me.hp) + "% " +
+            "MP " + std::to_string(me.mp) + "% " +
+            "CP: " + std::to_string(me.cp) + "% "
+            "Target HP " + std::to_string(target.hp) + "%",
+            cv::Point(0, 100),
+            cv::FONT_HERSHEY_COMPLEX,
+            0.5,
+            cv::Scalar(0, 255, 255),
+            1,
+            cv::LINE_AA
+        );
+
         // draw targets debug info
-        for (const auto &target : targets) {
-            cv::rectangle(image, target.rect, cv::Scalar(255, 255, 0), 1);
-            cv::circle(image, target.center, 10, cv::Scalar(0, 255, 255), 1);
+        for (const auto &possible_target : possible_targets) {
+            cv::rectangle(image, possible_target.rect, cv::Scalar(255, 255, 0), 1);
+            cv::circle(image, possible_target.center, 10, cv::Scalar(0, 255, 255), 1);
 
             // draw target id
-            std::stringstream ss;
-            ss << "id" << target.id;
-            cv::putText(image, ss.str(), cv::Point(target.rect.x, target.rect.y - 5), cv::FONT_HERSHEY_PLAIN, 0.8, cv::Scalar(255, 255, 255), 1, cv::LINE_AA);
+            cv::putText(
+                image,
+                "id" + std::to_string(possible_target.id),
+                cv::Point(possible_target.rect.x, possible_target.rect.y - 5),
+                cv::FONT_HERSHEY_PLAIN,
+                0.8,
+                cv::Scalar(255, 255, 255),
+                1,
+                cv::LINE_AA
+            );
         }
 
         // draw target HP bar rect
@@ -63,19 +87,26 @@ int main(int argc, char* argv[])
             cv::rectangle(image, target_hp_bar.value(), cv::Scalar(255, 0, 255), 1);
         }
 
-        // draw my bars
+        // draw my bars rects
         const auto my_bars = eyes.MyBars();
 
         if (my_bars.has_value()) {
-            cv::rectangle(image, my_bars.value().hp_bar, cv::Scalar(0, 255, 0), 1);
-            cv::rectangle(image, my_bars.value().mp_bar, cv::Scalar(0, 255, 0), 1);
-            cv::rectangle(image, my_bars.value().cp_bar, cv::Scalar(0, 255, 0), 1);
+            cv::rectangle(image, my_bars.value().hp_bar, cv::Scalar(0, 0, 255), 1);
+            cv::rectangle(image, my_bars.value().mp_bar, cv::Scalar(255, 255, 0), 1);
+            cv::rectangle(image, my_bars.value().cp_bar, cv::Scalar(0, 255, 255), 1);
         }
 
         // draw FPS
-        std::stringstream ss;
-        ss << std::floor(fps.Get());
-        cv::putText(image, ss.str(), cv::Point(0, image.rows), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255, 255, 0), 2, cv::LINE_AA);
+        cv::putText(
+            image,
+            std::to_string(static_cast<int>(fps.Get())),
+            cv::Point(0, image.rows),
+            cv::FONT_HERSHEY_PLAIN,
+            2,
+            cv::Scalar(255, 255, 0),
+            2,
+            cv::LINE_AA
+        );
 
         cv::imshow("l2-cv-bot", image);
 
