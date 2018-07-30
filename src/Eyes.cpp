@@ -23,6 +23,9 @@ void Eyes::Blink(const cv::Mat &rgb)
     if (m_target.hp == 0) {
         m_possible_targets = DetectPossibleTargets(hsv);
     }
+    else {
+        m_possible_targets = {};
+    }
 }
 
 void Eyes::Reset()

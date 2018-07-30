@@ -1,8 +1,10 @@
 ## WIP
 
-Simple Lineage 2 bot that uses CV to find possible targets and monitor HP/MP/CP.
+Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP.
 
-### Features:
+![Preview](preview.png)
+
+## Features:
 
 * NPC detection
 * HP/MP/CP monitoring
@@ -11,7 +13,16 @@ Simple Lineage 2 bot that uses CV to find possible targets and monitor HP/MP/CP.
 * ~~Captcha alarm~~
 * ~~Multi-monitor support~~
 
-### Building on Windows using CMake & MSVC (Visual Studio 2017):
+## Command line options
+
+```
+--window    Lineage II window title or part of the title. Default: "Lineage 2"
+--debug     Show window with debug information & more debug messages in console.
+```
+
+## Building:
+
+Using CMake & MSVC (Visual Studio 2017) on Windows:
 
 1. [Download](https://cmake.org/download/) and install CMake
 2. [Download](https://opencv.org/releases.html) OpenCV binaries or [build](https://github.com/opencv/opencv) OpenCV manually
