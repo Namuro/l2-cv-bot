@@ -63,6 +63,15 @@ int main(int argc, char* argv[])
             cv::rectangle(image, target_hp_bar.value(), cv::Scalar(255, 0, 255), 1);
         }
 
+        // draw my bars
+        const auto my_bars = eyes.MyBars();
+
+        if (my_bars.has_value()) {
+            cv::rectangle(image, my_bars.value().hp_bar, cv::Scalar(0, 255, 0), 1);
+            cv::rectangle(image, my_bars.value().mp_bar, cv::Scalar(0, 255, 0), 1);
+            cv::rectangle(image, my_bars.value().cp_bar, cv::Scalar(0, 255, 0), 1);
+        }
+
         // draw FPS
         std::stringstream ss;
         ss << std::floor(fps.Get());

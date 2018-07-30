@@ -51,15 +51,19 @@ public:
     int m_my_bar_max_height = 20;
     int m_my_bar_min_width = 140;
     int m_my_bar_max_width = 400;
-    cv::Scalar m_my_hp_color_from_hsv = cv::Scalar(2, 0, 120);
+    cv::Scalar m_my_hp_color_from_hsv = cv::Scalar(2, 90, 120);
     cv::Scalar m_my_hp_color_to_hsv = cv::Scalar(5, 220, 170);
+    cv::Scalar m_my_mp_color_from_hsv = cv::Scalar(105, 100, 130);
+    cv::Scalar m_my_mp_color_to_hsv = cv::Scalar(110, 255, 170);
+    cv::Scalar m_my_cp_color_from_hsv = cv::Scalar(16, 100, 120);
+    cv::Scalar m_my_cp_color_to_hsv = cv::Scalar(22, 255, 200);
 
     // target HP detection
     int m_target_hp_min_height = 3;
     int m_target_hp_max_height = 7;
     int m_target_hp_min_width = m_my_bar_min_width;
     int m_target_hp_max_width = m_my_bar_max_width;
-    cv::Scalar m_target_hp_color_from_hsv = cv::Scalar(0, 0, 90);
+    cv::Scalar m_target_hp_color_from_hsv = cv::Scalar(0, 60, 90);
     cv::Scalar m_target_hp_color_to_hsv = cv::Scalar(2, 220, 170);
 
     void Blink(const cv::Mat &rgb);
@@ -74,5 +78,6 @@ private:
     std::vector<struct Target> DetectTargets(const cv::Mat &hsv) const;
     std::optional<cv::Rect> DetectTargetHPBar(const cv::Mat &hsv) const;
     std::optional<struct MyBars> DetectMyBars(const cv::Mat &hsv) const;
+    std::vector<std::vector<cv::Point>> BarContours(const cv::Mat &mask) const;
     static uint32_t Hash(const cv::Mat &image);
 };

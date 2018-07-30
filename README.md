@@ -7,6 +7,7 @@ Simple Lineage 2 bot that uses CV to find possible targets and monitor HP/MP/CP.
 * NPC detection
 * ~~HP/MP/CP monitoring~~
 * ~~Mouse & keyboard emulation~~
+* ~~Stuck resolving~~
 * ~~Captcha alarm~~
 * ~~Multi-monitor support~~
 
