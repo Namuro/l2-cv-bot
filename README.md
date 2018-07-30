@@ -17,7 +17,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 ```
 --window    Lineage II window title or part of the title. Default: "Lineage 2"
---debug     Show window with debug information & more debug messages in console.
+--debug     Show window with debug information & print more debug messages in console.
 ```
 
 ## Building:

@@ -67,7 +67,7 @@ public:
     int m_target_hp_max_height = 7;
     int m_target_hp_min_width = m_my_bar_min_width;
     int m_target_hp_max_width = m_my_bar_max_width;
-    cv::Scalar m_target_hp_color_from_hsv = cv::Scalar(0, 60, 90);
+    cv::Scalar m_target_hp_color_from_hsv = cv::Scalar(0, 60, 80);
     cv::Scalar m_target_hp_color_to_hsv = cv::Scalar(2, 220, 170);
 
     void Blink(const cv::Mat &rgb);

@@ -99,7 +99,7 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
     cv::inRange(hsv, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, mask);
     
     // remove noise
-    const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(m_target_hp_min_width, m_target_hp_min_height));
+    const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(25, m_target_hp_min_height));
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel);
 
