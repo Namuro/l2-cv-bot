@@ -251,8 +251,9 @@ uint32_t Eyes::Hash(const cv::Mat &image)
 {
     // djb2 hash
     uint32_t hash = 5381;
+    const auto total = image.total();
 
-    for (size_t i = 0; i < image.total(); i++) {
+    for (size_t i = 0; i < total; i++) {
         hash = ((hash << 5) + hash) ^ *(image.data + i);
     }
 
