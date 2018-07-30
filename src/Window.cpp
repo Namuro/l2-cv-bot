@@ -1,6 +1,6 @@
 #include "Window.h"
 
-std::optional<cv::Rect> Window::Rect(const std::string &window_title)
+std::optional<Window::Rect> Window::FindRect(const std::string &window_title)
 {
     // convert string to wstring for Windows API
     const auto wide_window_title = WidenString(window_title);
@@ -12,26 +12,26 @@ std::optional<cv::Rect> Window::Rect(const std::string &window_title)
     const auto needed_title = wide_window_title.value().c_str();
 
     // collect all HWNDs
-    std::vector<HWND> hwnds;
+    std::vector<::HWND> hwnds;
 
-    ::EnumWindows([](HWND hwnd, LPARAM lparam) -> BOOL {
+    ::EnumWindows([](::HWND hwnd, ::LPARAM lparam) -> ::BOOL {
         if (hwnd != nullptr && ::IsWindowVisible(hwnd) && ::IsWindowEnabled(hwnd)) {
-            const auto hwnds = reinterpret_cast<std::vector<HWND> *>(lparam);
+            const auto hwnds = reinterpret_cast<std::vector<::HWND> *>(lparam);
             hwnds->push_back(hwnd);
         }
 
         return TRUE;
-    }, reinterpret_cast<LPARAM>(&hwnds));
+    }, reinterpret_cast<::LPARAM>(&hwnds));
 
-    HWND found_hwnd = nullptr;
+    ::HWND found_hwnd = nullptr;
 
     // search for exact title match
-    std::map<HWND, std::wstring> hwnd_titles;
+    std::map<::HWND, std::wstring> hwnd_titles;
 
     for (const auto &hwnd : hwnds) {
-        wchar_t title [256];
+        wchar_t title[256];
 
-        if (::GetWindowTextW(hwnd, reinterpret_cast<LPWSTR>(title), sizeof(title) - 1) == 0) {
+        if (::GetWindowTextW(hwnd, reinterpret_cast<::LPWSTR>(title), sizeof(title) - 1) == 0) {
             continue;
         }
 
@@ -57,29 +57,29 @@ std::optional<cv::Rect> Window::Rect(const std::string &window_title)
     }
 
     // get found window's rect
-    return HWNDRect(found_hwnd);
+    return GetHWNDRect(found_hwnd);
 }
 
-std::optional<cv::Rect> Window::HWNDRect(const HWND hwnd)
+std::optional<Window::Rect> Window::GetHWNDRect(const ::HWND hwnd)
 {
     if (hwnd == nullptr) {
         return {};
     }
 
-    RECT rect = {};
+    ::RECT rect = {};
 
-    if (!::GetClientRect(hwnd, reinterpret_cast<LPRECT>(&rect))) {
+    if (!::GetClientRect(hwnd, reinterpret_cast<::LPRECT>(&rect))) {
         return {};
     }
 
-    if (::SetLastError(ERROR_SUCCESS);
-        ::MapWindowPoints(hwnd, nullptr, reinterpret_cast<LPPOINT>(&rect), 2) == 0 &&
-        ::GetLastError() != ERROR_SUCCESS
-    ) {
+    ::POINT lt = { rect.left, rect.top };
+    ::POINT rb = { rect.right, rect.bottom };
+
+    if (!::ClientToScreen(hwnd, &lt) || !::ClientToScreen(hwnd, &rb)) {
         return {};
     }
 
-    return cv::Rect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+    return Rect{ lt.x, lt.y, rb.x - lt.x, rb.y - lt.y };
 }
 
 std::optional<std::wstring> Window::WidenString(const std::string &string)
@@ -91,7 +91,7 @@ std::optional<std::wstring> Window::WidenString(const std::string &string)
     const auto chars_needed = ::MultiByteToWideChar(
         CP_UTF8,
         0,
-        reinterpret_cast<LPCCH>(&string[0]),
+        reinterpret_cast<::LPCCH>(&string[0]),
         static_cast<int>(string.size()),
         nullptr,
         0
@@ -106,7 +106,7 @@ std::optional<std::wstring> Window::WidenString(const std::string &string)
     const auto chars_converted = ::MultiByteToWideChar(
         CP_UTF8,
         0,
-        reinterpret_cast<LPCCH>(&string[0]),
+        reinterpret_cast<::LPCCH>(&string[0]),
         static_cast<int>(string.size()),
         &wstring[0],
         chars_needed

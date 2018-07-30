@@ -1,11 +1,15 @@
 #include <iostream>
+
 #include <opencv2/opencv.hpp>
 
+#include "Utils.h"
 #include "Options.h"
 #include "Window.h"
 #include "Capture.h"
 #include "FPS.h"
 #include "Eyes.h"
+#include "Input.h"
+#include "Hands.h"
 
 int main(int argc, char* argv[])
 {
@@ -21,27 +25,32 @@ int main(int argc, char* argv[])
         fps.Begin();
         capture.Clear();
 
-        const auto rect = Window::Rect(title);
+        const auto rect = Window::FindRect(title);
 
         if (!rect.has_value()) {
             std::cout << "Can't find window \"" << title << "\"" << std::endl;
             break;
         }
 
-        const auto window = capture.Grab(rect.value());
+        const auto window = capture.Grab(
+            rect.value().x,
+            rect.value().y,
+            rect.value().width,
+            rect.value().height
+        );
 
         if (!window.has_value()) {
             std::cout << "Failed to grab window" << std::endl;
             break;
         }
 
-        const auto image = window.value();
+        const auto image = BitmapToImage(window.value());
 
         eyes.Blink(image);
 
-        const auto possible_targets = eyes.PossibleTargets();
-        const auto target = eyes.Target();
-        const auto me = eyes.Me();
+        const auto possible_targets = eyes.GetPossibleTargets();
+        const auto target = eyes.GetTarget();
+        const auto myself = eyes.GetMyself();
 
         if (!debug) {
             continue;
@@ -50,9 +59,9 @@ int main(int argc, char* argv[])
         // draw my HP/MP/CP values & target HP
         cv::putText(
             image,
-            "My HP " + std::to_string(me.hp) + "% " +
-            "MP " + std::to_string(me.mp) + "% " +
-            "CP: " + std::to_string(me.cp) + "% "
+            "My HP " + std::to_string(myself.hp) + "% " +
+            "MP " + std::to_string(myself.mp) + "% " +
+            "CP: " + std::to_string(myself.cp) + "% "
             "Target HP " + std::to_string(target.hp) + "%",
             cv::Point(0, 100),
             cv::FONT_HERSHEY_COMPLEX,
@@ -81,14 +90,14 @@ int main(int argc, char* argv[])
         }
 
         // draw target HP bar rect
-        const auto target_hp_bar = eyes.TargetHPBar();
+        const auto target_hp_bar = eyes.GetTargetHPBar();
 
         if (target_hp_bar.has_value()) {
             cv::rectangle(image, target_hp_bar.value(), cv::Scalar(255, 0, 255), 1);
         }
 
         // draw my bars rects
-        const auto my_bars = eyes.MyBars();
+        const auto my_bars = eyes.GetMyselfBars();
 
         if (my_bars.has_value()) {
             cv::rectangle(image, my_bars.value().hp_bar, cv::Scalar(0, 0, 255), 1);

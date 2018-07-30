@@ -4,8 +4,8 @@ Capture::Capture() :
     // get screen dimensions
     m_x(::GetSystemMetrics(SM_XVIRTUALSCREEN)),
     m_y(::GetSystemMetrics(SM_YVIRTUALSCREEN)),
-    m_w(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
-    m_h(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
+    m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
+    m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
 
     // initialize contexts
     m_srcdc(srcdc_handle(::GetDC(nullptr), DCReleaser(nullptr))),
@@ -13,8 +13,8 @@ Capture::Capture() :
 {
     // setup bitmap info
     m_bmi.bmiHeader.biSize = sizeof(m_bmi.bmiHeader);
-    m_bmi.bmiHeader.biWidth = m_w;
-    m_bmi.bmiHeader.biHeight = -m_h;
+    m_bmi.bmiHeader.biWidth = m_width;
+    m_bmi.bmiHeader.biHeight = -m_height;
     m_bmi.bmiHeader.biPlanes = 1;
     m_bmi.bmiHeader.biBitCount = 32;
     m_bmi.bmiHeader.biCompression = BI_RGB;
@@ -32,27 +32,28 @@ Capture::Capture() :
     m_object = gdiobj_handle(::SelectObject(m_memdc.get(), m_bitmap.get()), GDIOBJDeselector(m_memdc.get()));
 }
 
-std::optional<cv::Mat> Capture::Grab(cv::Rect rect)
+std::optional<Capture::Bitmap> Capture::Grab(int x, int y, int width, int height)
 {
-    if (rect.width <= 0 || rect.height <= 0) {
+    if (width <= 0 || height <= 0) {
         return {};
     }
 
     // copy pixels from source context to memory context
-    if (!::BitBlt(m_memdc.get(), 0, 0, rect.width, rect.height, m_srcdc.get(), rect.x, rect.y, SRCCOPY | CAPTUREBLT)) {
+    if (!::BitBlt(m_memdc.get(), 0, 0, width, height, m_srcdc.get(), x, y, SRCCOPY | CAPTUREBLT)) {
         return {};
     }
 
-    rect.x = 0;
-    rect.y = 0;
-    rect.width = std::min(m_w, rect.width);
-    rect.height = std::min(m_h, rect.height);
-
-    // return compatible cv::Mat
-    return cv::Mat(m_h, m_w, CV_8UC4, m_data)(rect);
+    Bitmap bitmap = {};
+    bitmap.data = m_data;
+    bitmap.rows = m_height;
+    bitmap.cols = m_width;
+    bitmap.width = (std::min)(m_width, width);
+    bitmap.height = (std::min)(m_height, height);
+    bitmap.bbp = m_bmi.bmiHeader.biBitCount;
+    return bitmap;
 }
 
 bool Capture::Clear()
 {
-    return ::BitBlt(m_memdc.get(), 0, 0, m_w, m_h, nullptr, m_x, m_y, BLACKNESS) == TRUE;
+    return ::BitBlt(m_memdc.get(), 0, 0, m_width, m_height, nullptr, m_x, m_y, BLACKNESS) == TRUE;
 }

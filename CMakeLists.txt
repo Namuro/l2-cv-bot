@@ -7,11 +7,14 @@ project(${TARGET})
 add_executable(
     ${TARGET}
     src/main.cpp
+    src/Utils.h
     src/Options.cpp
     src/Window.cpp
     src/Capture.cpp
     src/FPS.h
     src/Eyes.cpp
+    src/Input.cpp
+    src/Hands.cpp
 )
 
 # Configure compiler

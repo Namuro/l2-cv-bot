@@ -1,7 +1,8 @@
 #pragma once
 
-#include <opencv2/opencv.hpp>
 #include <algorithm>
+
+#include <opencv2/opencv.hpp>
 
 template <int Cap>
 class FPS
