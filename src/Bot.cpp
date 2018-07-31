@@ -82,14 +82,48 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
     const auto target = m_eyes.Target();
     const auto me = m_eyes.Me();
 
-    // draw my HP/MP/CP & target HP values
+    // draw help
+    cv::putText(
+        image,
+        "Press Space to reset HP/MP/CP bars positions",
+        cv::Point(5, image.rows - 215),
+        cv::FONT_HERSHEY_COMPLEX,
+        0.4,
+        cv::Scalar(255, 255, 255),
+        1,
+        cv::LINE_AA
+    );
+
+    cv::putText(
+        image,
+        "Press ESC to exit",
+        cv::Point(5, image.rows - 195),
+        cv::FONT_HERSHEY_COMPLEX,
+        0.4,
+        cv::Scalar(255, 255, 255),
+        1,
+        cv::LINE_AA
+    );
+
+    // draw my HP/MP/CP values
     cv::putText(
         image,
         "My HP " + std::to_string(me.hp) + "% " +
         "MP " + std::to_string(me.mp) + "% " +
-        "CP: " + std::to_string(me.cp) + "% "
+        "CP: " + std::to_string(me.cp) + "% ",
+        cv::Point(5, 100),
+        cv::FONT_HERSHEY_COMPLEX,
+        0.5,
+        cv::Scalar(0, 255, 255),
+        1,
+        cv::LINE_AA
+    );
+
+    // draw target HP value
+    cv::putText(
+        image,
         "Target HP " + std::to_string(target.hp) + "%",
-        cv::Point(0, 100),
+        cv::Point(5, 125),
         cv::FONT_HERSHEY_COMPLEX,
         0.5,
         cv::Scalar(0, 255, 255),
@@ -135,7 +169,7 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
     cv::putText(
         image,
         std::to_string(static_cast<int>(m_fps.Get())),
-        cv::Point(0, image.rows),
+        cv::Point(5, image.rows - 5),
         cv::FONT_HERSHEY_PLAIN,
         2,
         cv::Scalar(255, 255, 0),
