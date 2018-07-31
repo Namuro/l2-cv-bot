@@ -13,9 +13,19 @@ class Window
 public:
     struct Rect { int x, y, width, height = 0; };
 
-    static std::optional<Rect> FindRect(const std::string &window_title);
+private:
+    ::HWND m_hwnd;
+    Rect m_rect = {};
+
+public:
+    Window(::HWND hwnd, Rect rect) : m_hwnd(hwnd), m_rect(rect) {}
+
+    decltype(m_rect) Rect() const { return m_rect; }
+    bool SetForeground() const { return SetForegroundWindow(m_hwnd); }
+
+    static std::optional<Window> Find(const std::string &window_title);
 
 private:
-    static std::optional<Rect> GetHWNDRect(const HWND hwnd);
+    static std::optional<struct Rect> HWNDRect(const HWND hwnd);
     static std::optional<std::wstring> WidenString(const std::string &string);
 };

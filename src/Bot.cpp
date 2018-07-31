@@ -19,31 +19,33 @@ void Bot::Run()
 
     const auto title = m_options.String("--window", "Lineage II");
     const auto debug = m_options.Bool("--debug", true);
+    auto foreground = false;
 
     while (true) {
         m_fps.Begin();
         m_capture.Clear();
 
-        const auto rect = Window::FindRect(title);
+        const auto window = Window::Find(title);
 
-        if (!rect.has_value()) {
+        if (!window.has_value()) {
             std::cout << "Can't find window \"" << title << "\"" << std::endl;
             break;
         }
 
-        const auto window = m_capture.Grab(
-            rect.value().x,
-            rect.value().y,
-            rect.value().width,
-            rect.value().height
-        );
+        if (!foreground) {
+            window.value().SetForeground();
+            foreground = true;
+        }
 
-        if (!window.has_value()) {
+        const auto rect = window.value().Rect();
+        const auto bitmap = m_capture.Grab(rect.x, rect.y, rect.width, rect.height);
+
+        if (!bitmap.has_value()) {
             std::cout << "Failed to grab window" << std::endl;
             break;
         }
 
-        const auto image = BitmapToImage(window.value());
+        const auto image = BitmapToImage(bitmap.value());
 
         if (!image.has_value()) {
             std::cout << "Failed to convert bitmap to image" << std::endl;

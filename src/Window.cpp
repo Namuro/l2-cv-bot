@@ -1,6 +1,6 @@
 #include "Window.h"
 
-std::optional<Window::Rect> Window::FindRect(const std::string &window_title)
+std::optional<Window> Window::Find(const std::string &window_title)
 {
     // convert string to wstring for Windows API
     const auto wide_window_title = WidenString(window_title);
@@ -57,10 +57,16 @@ std::optional<Window::Rect> Window::FindRect(const std::string &window_title)
     }
 
     // get found window's rect
-    return GetHWNDRect(found_hwnd);
+    const auto rect = HWNDRect(found_hwnd);
+
+    if (!rect.has_value()) {
+        return {};
+    }
+
+    return Window(found_hwnd, rect.value());
 }
 
-std::optional<Window::Rect> Window::GetHWNDRect(const ::HWND hwnd)
+std::optional<struct Window::Rect> Window::HWNDRect(const ::HWND hwnd)
 {
     if (hwnd == nullptr) {
         return {};
@@ -79,7 +85,8 @@ std::optional<Window::Rect> Window::GetHWNDRect(const ::HWND hwnd)
         return {};
     }
 
-    return Rect{ lt.x, lt.y, rb.x - lt.x, rb.y - lt.y };
+    struct Rect result = { lt.x, lt.y, rb.x - lt.x, rb.y - lt.y };
+    return result;
 }
 
 std::optional<std::wstring> Window::WidenString(const std::string &string)
