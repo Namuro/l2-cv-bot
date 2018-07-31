@@ -13,6 +13,14 @@
 
 int main(int argc, char* argv[])
 {
+    //Input input;
+    //input.MouseMove(100, 100);
+    //input.MouseMove(200, 200);
+    //input.MouseMove(300, 300);
+    //input.Send();
+    //Sleep(5000);
+    //return 0;
+    //Input input;
     const Options options(argc, argv);
     Capture capture;
     FPS<100> fps;
@@ -48,20 +56,20 @@ int main(int argc, char* argv[])
 
         eyes.Blink(image);
 
-        const auto possible_targets = eyes.GetPossibleTargets();
-        const auto target = eyes.GetTarget();
-        const auto myself = eyes.GetMyself();
+        const auto npcs = eyes.NPCs();
+        const auto target = eyes.Target();
+        const auto me = eyes.Me();
 
         if (!debug) {
             continue;
         }
 
-        // draw my HP/MP/CP values & target HP
+        // draw my HP/MP/CP & target HP values
         cv::putText(
             image,
-            "My HP " + std::to_string(myself.hp) + "% " +
-            "MP " + std::to_string(myself.mp) + "% " +
-            "CP: " + std::to_string(myself.cp) + "% "
+            "My HP " + std::to_string(me.hp) + "% " +
+            "MP " + std::to_string(me.mp) + "% " +
+            "CP: " + std::to_string(me.cp) + "% "
             "Target HP " + std::to_string(target.hp) + "%",
             cv::Point(0, 100),
             cv::FONT_HERSHEY_COMPLEX,
@@ -71,16 +79,16 @@ int main(int argc, char* argv[])
             cv::LINE_AA
         );
 
-        // draw targets debug info
-        for (const auto &possible_target : possible_targets) {
-            cv::rectangle(image, possible_target.rect, cv::Scalar(255, 255, 0), 1);
-            cv::circle(image, possible_target.center, 10, cv::Scalar(0, 255, 255), 1);
+        // draw NPCs debug info
+        for (const auto &npc : npcs) {
+            cv::rectangle(image, npc.rect, cv::Scalar(255, 255, 0), 1);
+            cv::circle(image, npc.center, 10, cv::Scalar(0, 255, 255), 1);
 
-            // draw target id
+            // draw NPC id
             cv::putText(
                 image,
-                "id" + std::to_string(possible_target.id),
-                cv::Point(possible_target.rect.x, possible_target.rect.y - 5),
+                "id" + std::to_string(npc.id),
+                cv::Point(npc.rect.x, npc.rect.y - 5),
                 cv::FONT_HERSHEY_PLAIN,
                 0.8,
                 cv::Scalar(255, 255, 255),
@@ -89,15 +97,15 @@ int main(int argc, char* argv[])
             );
         }
 
-        // draw target HP bar rect
-        const auto target_hp_bar = eyes.GetTargetHPBar();
+        // draw target HP bar
+        const auto target_hp_bar = eyes.TargetHPBar();
 
         if (target_hp_bar.has_value()) {
             cv::rectangle(image, target_hp_bar.value(), cv::Scalar(255, 0, 255), 1);
         }
 
-        // draw my bars rects
-        const auto my_bars = eyes.GetMyselfBars();
+        // draw my bars
+        const auto my_bars = eyes.MyBars();
 
         if (my_bars.has_value()) {
             cv::rectangle(image, my_bars.value().hp_bar, cv::Scalar(0, 0, 255), 1);

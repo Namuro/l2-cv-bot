@@ -6,19 +6,32 @@
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
 
+struct HOOKUnhooker
+{
+    using pointer = ::HHOOK;
+    void operator()(::HHOOK hook) const { ::UnhookWindowsHookEx(hook); }
+};
+
 class Input
 {
     int m_width, m_height = 0;
     std::vector<std::pair<::INPUT, int>> m_inputs;
+    std::unique_ptr<::HHOOK, HOOKUnhooker> m_hook;
+    void (*m_esc_callback)() = nullptr;
+    static ::HHOOK s_hook; // workaround
 
 public:
     struct Point { int x, y = 0; };
 
-    Input() :
-        m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
-        m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)) {}
+    Input();
 
-    Point MousePosition() const;
+    Point GetMousePos() const
+    {
+        ::POINT point;
+        ::GetCursorPos(&point);
+        return { point.x, point.y };
+    }
+
     void MouseMove(int x, int y, int delay = 0);
     void MouseLeftDown(int delay = 0);
     void MouseLeftUp(int delay = 0);
@@ -26,5 +39,10 @@ public:
     void MouseRightUp(int delay = 0);
     void KeyboardKeyDown(char key, int delay = 0);
     void KeyboardKeyUp(char key, int delay = 0);
-    void Send(bool with_delays = false);
+    void Send();
+    void Reset() { m_inputs.clear(); }
+    void RegisterESCKeyCallback(decltype(m_esc_callback) callback) { m_esc_callback = callback; }
+
+private:
+    static ::LRESULT CALLBACK KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam);
 };

@@ -11,36 +11,36 @@ void Eyes::Blink(const cv::Mat &rgb)
     }
 
     // detect my bars once
-    if (!m_myself_bars.has_value()) {
-        m_myself_bars = DetectMyselfBars(hsv);
+    if (!m_my_bars.has_value()) {
+        m_my_bars = DetectMyBars(hsv);
     }
 
-    // find out bar values (HP/MP/CP)
-    m_myself = CalcMyselfValues(hsv);
+    // find out bars values (HP/MP/CP)
+    m_me = CalcMyValues(hsv);
     m_target = CalcTargetValues(hsv);
 
-    // detect possible targets if there's no current target
+    // detect NPCs if there's no current target
     if (m_target.hp == 0) {
-        m_possible_targets = DetectPossibleTargets(hsv);
+        m_npcs = DetectNPCs(hsv);
     }
     else {
-        m_possible_targets = {};
+        m_npcs = {};
     }
 }
 
 void Eyes::Reset()
 {
-    m_myself_bars = {};
+    m_my_bars = {};
     m_target_hp_bar = {};
 }
 
-std::vector<Eyes::PossibleTarget> Eyes::DetectPossibleTargets(const cv::Mat &hsv) const
+std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
 {
     // TL;DR: search for NPC names
 
     // extract white regions (NPC names)
     cv::Mat white;
-    cv::inRange(hsv, m_target_color_from_hsv, m_target_color_to_hsv, white);
+    cv::inRange(hsv, m_npc_name_color_from_hsv, m_npc_name_color_to_hsv, white);
 
     // increase white regions size
     cv::Mat mask;
@@ -59,35 +59,35 @@ std::vector<Eyes::PossibleTarget> Eyes::DetectPossibleTargets(const cv::Mat &hsv
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-    std::vector<PossibleTarget> targets;
+    std::vector<NPC> npcs;
 
     // find correct contours
     for (const auto &contour : contours) {
         const auto rect = cv::boundingRect(contour);
 
         // check rect size & proportions
-        if (rect.height < m_target_min_height || rect.height > m_target_max_height ||
-            rect.width < m_target_min_width || rect.width > m_target_max_width ||
+        if (rect.height < m_npc_name_min_height || rect.height > m_npc_name_max_height ||
+            rect.width < m_npc_name_min_width || rect.width > m_npc_name_max_width ||
             rect.width < rect.height * 2
         ) {
             continue;
         }
 
-        const auto name_image = white(rect);
-        const auto threshold = cv::countNonZero(name_image) / name_image.total();
+        const auto target_image = white(rect);
+        const auto threshold = cv::countNonZero(target_image) / target_image.total();
 
-        if (threshold > m_target_color_threshold) {
+        if (threshold > m_npc_name_color_threshold) {
             continue;
         }
 
-        PossibleTarget target = {};
-        target.rect = rect;
-        target.center = cv::Point(rect.x + rect.width / 2, rect.y + rect.height / 2 + 15);
-        target.id = Hash(name_image);
-        targets.push_back(target);
+        NPC npc = {};
+        npc.rect = rect;
+        npc.center = cv::Point(rect.x + rect.width / 2, rect.y + rect.height / 2 + 15);
+        npc.id = Hash(target_image);
+        npcs.push_back(npc);
     }
 
-    return targets;
+    return npcs;
 }
 
 std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
@@ -124,13 +124,13 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
     return {};
 }
 
-std::optional<Eyes::MyselfBars> Eyes::DetectMyselfBars(const cv::Mat &hsv) const
+std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
 {
     // TL;DR: search for HP bar, then detect CP bar above and MP bar below
 
     // exract HP bar color
     cv::Mat mask;
-    cv::inRange(hsv, m_myself_hp_color_from_hsv, m_myself_hp_color_to_hsv, mask);
+    cv::inRange(hsv, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, mask);
 
     const auto contours = FindBarContours(mask);
 
@@ -139,8 +139,8 @@ std::optional<Eyes::MyselfBars> Eyes::DetectMyselfBars(const cv::Mat &hsv) const
         const auto rect = cv::boundingRect(contour);
 
         // check rect size & proportions
-        if (rect.height < m_myself_bar_min_height || rect.height > m_myself_bar_max_height ||
-            rect.width < m_myself_bar_min_width || rect.width > m_myself_bar_max_width
+        if (rect.height < m_my_bar_min_height || rect.height > m_my_bar_max_height ||
+            rect.width < m_my_bar_min_width || rect.width > m_my_bar_max_width
         ) {
             continue;
         }
@@ -150,10 +150,10 @@ std::optional<Eyes::MyselfBars> Eyes::DetectMyselfBars(const cv::Mat &hsv) const
         const auto bars = hsv(bars_rect);
 
         cv::Mat mp;
-        cv::inRange(bars, m_myself_mp_color_from_hsv, m_myself_mp_color_to_hsv, mp);
+        cv::inRange(bars, m_my_mp_color_from_hsv, m_my_mp_color_to_hsv, mp);
 
         cv::Mat cp;
-        cv::inRange(bars, m_myself_cp_color_from_hsv, m_myself_cp_color_to_hsv, cp);
+        cv::inRange(bars, m_my_cp_color_from_hsv, m_my_cp_color_to_hsv, cp);
 
         cv::Mat mp_cp;
         cv::bitwise_or(cp, mp, mp_cp);
@@ -165,38 +165,38 @@ std::optional<Eyes::MyselfBars> Eyes::DetectMyselfBars(const cv::Mat &hsv) const
             continue;
         }
 
-        MyselfBars myself_bars = {};
-        myself_bars.hp_bar = rect;
-        myself_bars.mp_bar = cv::boundingRect(bar_contours[0]) + bars_rect.tl();
-        myself_bars.cp_bar = cv::boundingRect(bar_contours[1]) + bars_rect.tl();
-        return myself_bars;
+        struct MyBars my_bars = {};
+        my_bars.hp_bar = rect;
+        my_bars.mp_bar = cv::boundingRect(bar_contours[0]) + bars_rect.tl();
+        my_bars.cp_bar = cv::boundingRect(bar_contours[1]) + bars_rect.tl();
+        return my_bars;
     }
 
     return {};
 }
 
-Eyes::Myself Eyes::CalcMyselfValues(const cv::Mat &hsv) const
+struct Eyes::Me Eyes::CalcMyValues(const cv::Mat &hsv) const
 {
-    if (!m_myself_bars.has_value()) {
+    if (!m_my_bars.has_value()) {
         return {};
     }
 
-    auto hp_bar = hsv(m_myself_bars.value().hp_bar);
-    auto mp_bar = hsv(m_myself_bars.value().mp_bar);
-    auto cp_bar = hsv(m_myself_bars.value().cp_bar);
+    auto hp_bar = hsv(m_my_bars.value().hp_bar);
+    auto mp_bar = hsv(m_my_bars.value().mp_bar);
+    auto cp_bar = hsv(m_my_bars.value().cp_bar);
 
-    cv::inRange(hp_bar, m_myself_hp_color_from_hsv, m_myself_hp_color_to_hsv, hp_bar);
-    cv::inRange(mp_bar, m_myself_mp_color_from_hsv, m_myself_mp_color_to_hsv, mp_bar);
-    cv::inRange(cp_bar, m_myself_cp_color_from_hsv, m_myself_cp_color_to_hsv, cp_bar);
+    cv::inRange(hp_bar, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, hp_bar);
+    cv::inRange(mp_bar, m_my_mp_color_from_hsv, m_my_mp_color_to_hsv, mp_bar);
+    cv::inRange(cp_bar, m_my_cp_color_from_hsv, m_my_cp_color_to_hsv, cp_bar);
 
-    Myself myself = {};
-    myself.hp = CalcBarPercentValue(hp_bar);
-    myself.mp = CalcBarPercentValue(mp_bar);
-    myself.cp = CalcBarPercentValue(cp_bar);
-    return myself;
+    struct Me me = {};
+    me.hp = CalcBarPercentValue(hp_bar);
+    me.mp = CalcBarPercentValue(mp_bar);
+    me.cp = CalcBarPercentValue(cp_bar);
+    return me;
 }
 
-Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
+struct Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
 {
     if (!m_target_hp_bar.has_value()) {
         return {};
@@ -213,7 +213,7 @@ Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
 std::vector<std::vector<cv::Point>> Eyes::FindBarContours(const cv::Mat &mask) const
 {
     // remove noise
-    auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(1, m_myself_bar_min_height));
+    auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(1, m_my_bar_min_height));
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel);
 

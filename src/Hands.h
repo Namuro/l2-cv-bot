@@ -7,5 +7,5 @@ class Hands
     Input m_input;
 
 public:
-    void MoveMouse(int x, int y) const;
+    void MoveMouseSmoothly(int x, int y);
 };

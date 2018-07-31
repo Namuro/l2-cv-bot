@@ -8,8 +8,8 @@ Capture::Capture() :
     m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
 
     // initialize contexts
-    m_srcdc(srcdc_handle(::GetDC(nullptr), DCReleaser(nullptr))),
-    m_memdc(memdc_handle(::CreateCompatibleDC(nullptr), DCDeleter()))
+    m_srcdc(::GetDC(nullptr), DCReleaser(nullptr)),
+    m_memdc(::CreateCompatibleDC(nullptr), DCDeleter())
 {
     // setup bitmap info
     m_bmi.bmiHeader.biSize = sizeof(m_bmi.bmiHeader);
@@ -20,16 +20,16 @@ Capture::Capture() :
     m_bmi.bmiHeader.biCompression = BI_RGB;
 
     // initialize & select bitmap
-    m_bitmap = bitmap_handle(::CreateDIBSection(
+    m_bitmap = { ::CreateDIBSection(
         m_memdc.get(),
         &m_bmi,
         DIB_RGB_COLORS,
         reinterpret_cast<void **>(&m_data),
         nullptr,
         0
-    ), BITMAPDeleter());
+    ), BITMAPDeleter() };
 
-    m_object = gdiobj_handle(::SelectObject(m_memdc.get(), m_bitmap.get()), GDIOBJDeselector(m_memdc.get()));
+    m_object = { ::SelectObject(m_memdc.get(), m_bitmap.get()), GDIOBJDeselector(m_memdc.get()) };
 }
 
 std::optional<Capture::Bitmap> Capture::Grab(int x, int y, int width, int height)
@@ -49,7 +49,7 @@ std::optional<Capture::Bitmap> Capture::Grab(int x, int y, int width, int height
     bitmap.cols = m_width;
     bitmap.width = (std::min)(m_width, width);
     bitmap.height = (std::min)(m_height, height);
-    bitmap.bbp = m_bmi.bmiHeader.biBitCount;
+    bitmap.bits = m_bmi.bmiHeader.biBitCount;
     return bitmap;
 }
 

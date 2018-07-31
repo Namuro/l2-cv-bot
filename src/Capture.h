@@ -41,18 +41,13 @@ struct GDIOBJDeselector
 
 class Capture
 {
-    using srcdc_handle = std::unique_ptr<::HDC, DCReleaser>;
-    using memdc_handle = std::unique_ptr<::HDC, DCDeleter>;
-    using bitmap_handle = std::unique_ptr<::HBITMAP, BITMAPDeleter>;
-    using gdiobj_handle = std::unique_ptr<::HGDIOBJ, GDIOBJDeselector>;
-
     int m_x, m_y, m_width, m_height = 0;
     ::BITMAPINFO m_bmi = {};
 
-    srcdc_handle m_srcdc;
-    memdc_handle m_memdc;
-    gdiobj_handle m_object;
-    bitmap_handle m_bitmap;
+    std::unique_ptr<::HDC, DCReleaser> m_srcdc;
+    std::unique_ptr<::HDC, DCDeleter> m_memdc;
+    std::unique_ptr<::HGDIOBJ, GDIOBJDeselector> m_object;
+    std::unique_ptr<::HBITMAP, BITMAPDeleter> m_bitmap;
     unsigned char *m_data;
 
 public:
@@ -62,7 +57,7 @@ public:
         int cols = 0;
         int width = 0;
         int height = 0;
-        int bbp = 0;
+        int bits = 0;
     };
 
     Capture();

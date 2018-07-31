@@ -1,10 +1,23 @@
 #include "Input.h"
 
-Input::Point Input::MousePosition() const
+::HHOOK Input::s_hook;
+
+Input::Input() :
+    m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
+    m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
+    m_hook(::SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardCallback, nullptr, 0), HOOKUnhooker())
 {
-    ::POINT point;
-    ::GetCursorPos(&point);
-    return { point.x, point.y };
+    s_hook = m_hook.get(); // workaround to pass to static KeyboardCallback
+
+    // listen for Windows messages
+    std::thread([]() {
+        ::MSG msg;
+
+        while (::GetMessage(&msg, nullptr, 0, 0)) {
+            ::TranslateMessage(&msg);
+            ::DispatchMessage(&msg);
+        }
+    }).detach();
 }
 
 void Input::MouseMove(int x, int y, int delay)
@@ -59,20 +72,14 @@ void Input::KeyboardKeyUp(char key, int delay)
 
 }
 
-void Input::Send(bool with_delays)
+void Input::Send()
 {
     if (m_inputs.empty()) {
         return;
     }
 
-    if (!with_delays) {
-        ::SendInput(static_cast<::UINT>(m_inputs.size()), reinterpret_cast<::LPINPUT>(m_inputs.data()), sizeof(::INPUT));
-        m_inputs.clear();
-        return;
-    }
-
     // call SendInput in background thread
-    std::thread([](const std::vector<std::pair<::INPUT, int>> inputs) {
+    std::thread([](const std::vector<std::pair<::INPUT, int>> inputs) { // m_inputs copied
         for (const auto &pair : inputs) {
             ::INPUT input = pair.first;
             const ::DWORD delay = pair.second;
@@ -85,5 +92,27 @@ void Input::Send(bool with_delays)
         }
     }, m_inputs).detach();
 
-    m_inputs.clear();
+    Reset();
+}
+
+::LRESULT CALLBACK Input::KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam)
+{
+    // called on main thread so no locks required
+    if (code == HC_ACTION) {
+        const auto pkb = reinterpret_cast<::PKBDLLHOOKSTRUCT>(lparam);
+
+        switch (wparam) {
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+            if (pkb->vkCode == VK_ESCAPE) {
+                
+            }
+
+            break;
+        default:
+            break;
+        }
+    }
+
+    return ::CallNextHookEx(s_hook, code, wparam, lparam);
 }

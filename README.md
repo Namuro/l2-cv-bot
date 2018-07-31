@@ -4,11 +4,12 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 ![Preview](preview.png)
 
-## Features:
+## Features
 
 * NPC detection
 * HP/MP/CP monitoring
 * ~~Mouse & keyboard emulation~~
+* ~~Runtime config per client support~~
 * ~~Stuck resolving~~
 * ~~Captcha alarm~~
 * ~~Multi-monitor support~~
@@ -16,11 +17,17 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 ## Command line options
 
 ```
---window    Lineage II window title or part of the title. Default: "Lineage 2"
+--window    Lineage II window title or part of the title. Default: "Lineage II"
 --debug     Show window with debug information. Press ESC to exit or Space to reset bar positions. Default: true
 ```
 
-## Building:
+## Customization
+
+Current version developed and tested using Windows 10 and Gracia Epilogue client, so with on another Windows or Lineage II client it might not work.
+
+To customize for your client, you need to edit properties in `Eyes.h` file and build project. Note that all colors must be in HSV color model.
+
+## Building
 
 Using CMake & MSVC (Visual Studio 2017) on Windows:
 
