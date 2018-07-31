@@ -35,7 +35,6 @@ void Input::MouseMove(int x, int y, int delay)
     input.mi.dy = y * 0xffff / m_height + 1;
     input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK;
     m_inputs.push_back({ input, delay });
-    m_mouse_position = { x, y };
 }
 
 void Input::MouseLeftDown(int delay)
@@ -101,7 +100,7 @@ void Input::Send()
             // save mouse position
             if (input.type == INPUT_MOUSE && input.mi.dwFlags & MOUSEEVENTF_MOVE) {
                 std::lock_guard guard(m_mouse_position_mtx);
-                m_mouse_position = { input.mi.dx, input.mi.dy };
+                m_mouse_position = MousePosition();
             }
         }
     }, m_inputs).detach();

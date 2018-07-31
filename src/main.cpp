@@ -13,13 +13,6 @@
 
 int main(int argc, char* argv[])
 {
-    //Input input;
-    //input.MouseMove(100, 100);
-    //input.MouseMove(200, 200);
-    //input.MouseMove(300, 300);
-    //input.Send();
-    //Sleep(5000);
-    //return 0;
     Input input;
     auto esc_pressed = false;
     auto space_pressed = false;
