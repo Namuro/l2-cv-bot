@@ -1,8 +1,5 @@
 #include "Input.h"
 
-decltype(Input::s_kb_callback) Input::s_kb_callback;
-decltype(Input::s_hook) Input::s_hook;
-
 void Input::MouseMove(int x, int y, int delay)
 {
     ::INPUT input = {};
@@ -77,36 +74,3 @@ void Input::Send()
 
     Reset();
 }
-
-::LRESULT CALLBACK Input::KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam)
-{
-    // called on main thread so no locks required for s_key_callback
-    if (code == HC_ACTION && s_kb_callback) {
-        const auto pkb = reinterpret_cast<::PKBDLLHOOKSTRUCT>(lparam);
-
-        switch (wparam) {
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-            s_kb_callback(static_cast<int>(pkb->vkCode));
-            break;
-        default:
-            break;
-        }
-    }
-
-    return ::CallNextHookEx(s_hook, code, wparam, lparam);
-}
-
-//std::thread([]() {
-//    ::MSG msg = {};
-//    ::BOOL ret = FALSE;
-
-//    while ((ret = ::GetMessage(&msg, nullptr, 0, 0)) != 0) {
-//        if (ret == -1) {
-//            break;
-//        }
-
-//        ::TranslateMessage(&msg);
-//        ::DispatchMessage(&msg);
-//    }
-//}).detach();

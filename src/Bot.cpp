@@ -2,21 +2,6 @@
 
 void Bot::Run()
 {
-    auto esc_pressed = false;
-    auto space_pressed = false;
-
-    // register global key press callback
-    m_input.RegisterKeyboardCallback([&esc_pressed, &space_pressed](int key) {
-        switch (key) {
-        case VK_ESCAPE:
-            esc_pressed = true;
-            break;
-        case VK_SPACE:
-            space_pressed = true;
-            break;
-        }
-    });
-
     const auto title = m_options.String("--window", "Lineage II");
     const auto debug = m_options.Bool("--debug", true);
     auto foreground = false;
@@ -33,7 +18,7 @@ void Bot::Run()
         }
 
         if (!foreground) {
-            window.value().SetForeground();
+            window.value().BringToForeground();
             foreground = true;
         }
 
@@ -54,19 +39,17 @@ void Bot::Run()
 
         const auto world = m_eyes.Blink(image.value());
 
+        auto esc_pressed = m_input.KeyboardKeyPressed(VK_ESCAPE);
+        auto space_pressed = m_input.KeyboardKeyPressed(VK_SPACE);
+
         if (debug) {
             if (world.has_value()) {
                 DrawWorldInfo(image.value(), world.value());
             }
 
             const auto key = ShowDebugWindow(image.value());
-
-            if (key == VK_ESCAPE) {
-                esc_pressed = true;
-            }
-            else if (key == VK_SPACE) {
-                space_pressed = true;
-            }
+            esc_pressed = esc_pressed || key == VK_ESCAPE;
+            space_pressed = space_pressed || key == VK_SPACE;
         }
 
         if (esc_pressed || !debug && m_input.MouseMoved()) {
@@ -87,7 +70,7 @@ void Bot::DrawWorldInfo(const cv::Mat &image, const Eyes::World &world) const
     // draw help
     cv::putText(
         image,
-        "Press Space to reset HP/MP/CP bars positions",
+        "Press Space to reset HP/MP/CP bars position",
         cv::Point(5, image.rows - 215),
         cv::FONT_HERSHEY_COMPLEX,
         0.4,

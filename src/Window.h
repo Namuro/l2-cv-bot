@@ -21,7 +21,7 @@ public:
     Window(::HWND hwnd, Rect rect) : m_hwnd(hwnd), m_rect(rect) {}
 
     decltype(m_rect) Rect() const { return m_rect; }
-    bool SetForeground() const { return SetForegroundWindow(m_hwnd); }
+    bool BringToForeground() const { return SetForegroundWindow(m_hwnd); }
 
     static std::optional<Window> Find(const std::string &window_title);
 
