@@ -11,31 +11,28 @@
 class Eyes
 {
 public:
-    struct Target { int hp = 0; };
-    struct Me { int hp, mp, cp = 0; };
-    struct MyBars { cv::Rect hp_bar, mp_bar, cp_bar = {}; };
+    struct Target { int hp; };
+    struct Me { int hp, mp, cp; };
+    struct MyBars { cv::Rect hp_bar, mp_bar, cp_bar; };
 
     struct NPC
     {
-        uint32_t id = 0;
-        cv::Point center = {};
-        cv::Rect rect = {};
+        uint32_t id;
+        cv::Point center;
+        cv::Rect rect;
     };
 
-    //struct World
-    //{
-    //    Me me;
-    //    Target target;
-    //    std::vector<NPC> npcs;
-    //};
+    struct World
+    {
+        Me me;
+        Target target;
+        std::vector<NPC> npcs;
+    };
 
 private:
     std::optional<MyBars> m_my_bars;
     std::optional<cv::Rect> m_target_hp_bar;
-    std::vector<NPC> m_npcs;
-    Me m_me = {};
-    Target m_target = {};
-    std::time_t m_wakeup_time = 0;
+    std::time_t m_wakeup_time;
 
 public:
     // NPC detection
@@ -67,7 +64,9 @@ public:
     cv::Scalar m_target_hp_color_from_hsv = cv::Scalar(0, 60, 80);
     cv::Scalar m_target_hp_color_to_hsv = cv::Scalar(2, 220, 170);
 
-    void Blink(const cv::Mat &rgb);
+    Eyes() : m_wakeup_time(0) {}
+
+    std::optional<World> Blink(const cv::Mat &rgb);
     void Reset();
 
     void Sleep(int seconds = 0)
@@ -77,11 +76,15 @@ public:
             : (std::numeric_limits<std::time_t>::max)();
     }
 
-    void WakeUp(int seconds = -1) { m_wakeup_time = std::time(nullptr) + seconds; }
+    void WakeUp(int after = -1)
+    {
+        if (!Sleeping()) {
+            return;
+        }
 
-    decltype(m_npcs) NPCs() const { return m_npcs; }
-    decltype(m_me) Me() const { return m_me; }
-    decltype(m_target) Target() const { return m_target; }
+        m_wakeup_time = std::time(nullptr) + after;
+    }
+
     decltype(m_target_hp_bar) TargetHPBar() const { return m_target_hp_bar; }
     decltype(m_my_bars) MyBars() const { return m_my_bars; }
 
@@ -89,9 +92,10 @@ private:
     std::vector<NPC> DetectNPCs(const cv::Mat &hsv) const;
     std::optional<cv::Rect> DetectTargetHPBar(const cv::Mat &hsv) const;
     std::optional<struct MyBars> DetectMyBars(const cv::Mat &hsv) const;
-    struct Me CalcMyValues(const cv::Mat &hsv) const;
-    struct Target CalcTargetValues(const cv::Mat &hsv) const;
+    Me CalcMyValues(const cv::Mat &hsv) const;
+    Target CalcTargetValues(const cv::Mat &hsv) const;
     std::vector<std::vector<cv::Point>> FindBarContours(const cv::Mat &mask) const;
+    bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
 
     static int CalcBarPercentValue(const cv::Mat &bar);
     static uint32_t Hash(const cv::Mat &image);

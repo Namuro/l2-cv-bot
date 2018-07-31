@@ -7,11 +7,13 @@
 template <int Cap>
 class FPS
 {
-    int64_t m_i = 0;
-    int64_t m_ticks = 0;
-    std::array<double, Cap> m_frames = {};
+    int64_t m_i;
+    int64_t m_ticks;
+    std::array<double, Cap> m_frames;
 
 public:
+    FPS() : m_i(0), m_ticks(0), m_frames() {}
+
     void Begin() { m_ticks = cv::getTickCount(); }
 
     double Get()

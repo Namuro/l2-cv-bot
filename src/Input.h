@@ -10,7 +10,7 @@
 class Input
 {
 public:
-    struct Point { int x, y = 0; };
+    struct Point { int x, y; };
 
 private:
     struct HOOKUnhooker
@@ -23,19 +23,20 @@ private:
     static std::function<void(int)> s_kb_callback;
     static ::HHOOK s_hook;
 
-    int m_width, m_height = 0;
+    int m_width, m_height;
     std::vector<std::pair<::INPUT, int>> m_inputs;
     std::unique_ptr<::HHOOK, HOOKUnhooker> m_hook;
     Point m_mouse_position;
     std::mutex m_mouse_position_mtx;
-    std::atomic_bool m_ready = true;
+    std::atomic_bool m_ready;
 
 public:
     Input() :
         m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
         m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
-        m_hook(::SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardCallback, nullptr, 0), HOOKUnhooker()),
-        m_mouse_position(MousePosition()) { s_hook = m_hook.get(); }
+        m_hook({ ::SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardCallback, nullptr, 0), HOOKUnhooker() }),
+        m_mouse_position(MousePosition()),
+        m_ready(true) { s_hook = m_hook.get(); }
 
     Point MousePosition() const
     {
@@ -63,7 +64,13 @@ public:
     void RegisterKeyboardCallback(decltype(s_kb_callback) callback) { s_kb_callback = callback; }
 
 private:
-    void AddInput(::INPUT input, int delay) { if (Ready()) m_inputs.push_back({ input, delay }); }
+    void AddInput(::INPUT input, int delay) {
+        if (!Ready()) {
+            return;
+        }
+
+        m_inputs.push_back({ input, delay });
+    }
 
     static ::LRESULT CALLBACK KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam);
 };

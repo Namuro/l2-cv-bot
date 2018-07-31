@@ -1,9 +1,10 @@
 #include "Eyes.h"
 
-void Eyes::Blink(const cv::Mat &rgb)
+std::optional<Eyes::World> Eyes::Blink(const cv::Mat &rgb)
 {
-    if (std::time(nullptr) < m_wakeup_time) {
-        return;
+    // still sleeping
+    if (Sleeping()) {
+        return {};
     }
 
     cv::Mat hsv;
@@ -19,17 +20,18 @@ void Eyes::Blink(const cv::Mat &rgb)
         m_my_bars = DetectMyBars(hsv);
     }
 
-    // find out bars values (HP/MP/CP)
-    m_me = CalcMyValues(hsv);
-    m_target = CalcTargetValues(hsv);
+    World world = {};
 
-    // detect NPCs if there's no current target
-    if (m_target.hp == 0) {
-        m_npcs = DetectNPCs(hsv);
+    // find out bar values (HP/MP/CP)
+    world.me = CalcMyValues(hsv);
+    world.target = CalcTargetValues(hsv);
+
+    // detect NPCs if there's no current target or it's dead
+    if (world.target.hp == 0) {
+        world.npcs = DetectNPCs(hsv);
     }
-    else {
-        m_npcs = {};
-    }
+
+    return world;
 }
 
 void Eyes::Reset()
@@ -179,7 +181,7 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
     return {};
 }
 
-struct Eyes::Me Eyes::CalcMyValues(const cv::Mat &hsv) const
+Eyes::Me Eyes::CalcMyValues(const cv::Mat &hsv) const
 {
     if (!m_my_bars.has_value()) {
         return {};
@@ -193,14 +195,14 @@ struct Eyes::Me Eyes::CalcMyValues(const cv::Mat &hsv) const
     cv::inRange(mp_bar, m_my_mp_color_from_hsv, m_my_mp_color_to_hsv, mp_bar);
     cv::inRange(cp_bar, m_my_cp_color_from_hsv, m_my_cp_color_to_hsv, cp_bar);
 
-    struct Me me = {};
+    Me me = {};
     me.hp = CalcBarPercentValue(hp_bar);
     me.mp = CalcBarPercentValue(mp_bar);
     me.cp = CalcBarPercentValue(cp_bar);
     return me;
 }
 
-struct Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
+Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
 {
     if (!m_target_hp_bar.has_value()) {
         return {};
@@ -209,7 +211,7 @@ struct Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
     auto hp_bar = hsv(m_target_hp_bar.value());
     cv::inRange(hp_bar, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, hp_bar);
 
-    struct Target target = {};
+    Target target = {};
     target.hp = CalcBarPercentValue(hp_bar);
     return target;
 }

@@ -10,7 +10,7 @@ class Options
     std::vector<std::string> m_options;
 
 public:
-    Options(int argc, char *argv[]) : m_options(std::vector<std::string>(&argv[0], &argv[0] + argc)) {}
+    Options(int argc, char *argv[]) : m_options(&argv[0], &argv[0] + argc) {}
 
     bool Has(const std::string &option) const { return Find(option, false).has_value(); }
     std::string String(const std::string &option, const std::string &default = "") const;

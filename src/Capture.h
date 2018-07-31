@@ -41,8 +41,8 @@ class Capture
         void operator()(::HGDIOBJ object) const { ::SelectObject(hdc, object); }
     };
 
-    int m_x, m_y, m_width, m_height = 0;
-    ::BITMAPINFO m_bmi = {};
+    int m_x, m_y, m_width, m_height;
+    ::BITMAPINFO m_bmi;
 
     std::unique_ptr<::HDC, DCReleaser> m_srcdc;
     std::unique_ptr<::HDC, DCDeleter> m_memdc;
@@ -52,12 +52,12 @@ class Capture
 
 public:
     struct Bitmap {
-        unsigned char *data = nullptr;
-        int rows = 0;
-        int cols = 0;
-        int width = 0;
-        int height = 0;
-        int bits = 0;
+        unsigned char *data;
+        int rows;
+        int cols;
+        int width;
+        int height;
+        int bits;
     };
 
     Capture();

@@ -52,9 +52,13 @@ void Bot::Run()
             break;
         }
 
-        m_eyes.Blink(image.value());
+        const auto world = m_eyes.Blink(image.value());
 
         if (debug) {
+            if (world.has_value()) {
+                DrawWorldInfo(image.value(), world.value());
+            }
+
             const auto key = ShowDebugWindow(image.value());
 
             if (key == VK_ESCAPE) {
@@ -78,12 +82,8 @@ void Bot::Run()
     cv::destroyAllWindows();
 }
 
-int Bot::ShowDebugWindow(const cv::Mat &image)
+void Bot::DrawWorldInfo(const cv::Mat &image, const Eyes::World &world) const
 {
-    const auto npcs = m_eyes.NPCs();
-    const auto target = m_eyes.Target();
-    const auto me = m_eyes.Me();
-
     // draw help
     cv::putText(
         image,
@@ -110,9 +110,9 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
     // draw my HP/MP/CP values
     cv::putText(
         image,
-        "My HP " + std::to_string(me.hp) + "% " +
-        "MP " + std::to_string(me.mp) + "% " +
-        "CP: " + std::to_string(me.cp) + "% ",
+        "My HP " + std::to_string(world.me.hp) + "% " +
+        "MP " + std::to_string(world.me.mp) + "% " +
+        "CP: " + std::to_string(world.me.cp) + "% ",
         cv::Point(5, 100),
         cv::FONT_HERSHEY_COMPLEX,
         0.5,
@@ -124,7 +124,7 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
     // draw target HP value
     cv::putText(
         image,
-        "Target HP " + std::to_string(target.hp) + "%",
+        "Target HP " + std::to_string(world.target.hp) + "%",
         cv::Point(5, 125),
         cv::FONT_HERSHEY_COMPLEX,
         0.5,
@@ -134,7 +134,7 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
     );
 
     // draw NPCs debug info
-    for (const auto &npc : npcs) {
+    for (const auto &npc : world.npcs) {
         cv::rectangle(image, npc.rect, cv::Scalar(255, 255, 0), 1);
         cv::circle(image, npc.center, 10, cv::Scalar(0, 255, 255), 1);
 
@@ -150,7 +150,10 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
             cv::LINE_AA
         );
     }
+}
 
+int Bot::ShowDebugWindow(const cv::Mat &image)
+{
     // draw target HP bar
     const auto target_hp_bar = m_eyes.TargetHPBar();
 

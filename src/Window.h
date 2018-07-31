@@ -15,7 +15,7 @@ public:
 
 private:
     ::HWND m_hwnd;
-    Rect m_rect = {};
+    Rect m_rect;
 
 public:
     Window(::HWND hwnd, Rect rect) : m_hwnd(hwnd), m_rect(rect) {}

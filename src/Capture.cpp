@@ -1,6 +1,8 @@
 #include "Capture.h"
 
 Capture::Capture() :
+    m_bmi(),
+
     // get screen dimensions
     m_x(::GetSystemMetrics(SM_XVIRTUALSCREEN)),
     m_y(::GetSystemMetrics(SM_YVIRTUALSCREEN)),
