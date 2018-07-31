@@ -3,6 +3,7 @@
 #include <vector>
 #include <tuple>
 #include <optional>
+#include <ctime>
 
 #include <opencv2/opencv.hpp>
 
@@ -39,6 +40,7 @@ private:
     std::vector<NPC> m_npcs;
     Me m_me;
     Target m_target;
+    std::time_t m_wakeup_time = 0;
 
     std::optional<MyBars> m_my_bars;
     std::optional<cv::Rect> m_target_hp_bar;
@@ -75,6 +77,7 @@ public:
 
     void Blink(const cv::Mat &rgb);
     void Reset();
+    void Sleep(int seconds) { m_wakeup_time = std::time(nullptr) + seconds; }
 
     decltype(m_npcs) NPCs() const { return m_npcs; }
     decltype(m_me) Me() const { return m_me; }

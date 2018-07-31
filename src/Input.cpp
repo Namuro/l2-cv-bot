@@ -3,30 +3,6 @@
 decltype(Input::s_kb_callback) Input::s_kb_callback;
 decltype(Input::s_hook) Input::s_hook;
 
-Input::Input() :
-    m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
-    m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
-    m_hook(::SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardCallback, nullptr, 0), HOOKUnhooker()),
-    m_mouse_position(MousePosition())
-{
-    s_hook = m_hook.get(); // workaround to pass to static KeyboardCallback
-
-    // listen for keyboard messages
-    std::thread([]() {
-        ::MSG msg = {};
-        ::BOOL ret = FALSE;
-
-        while ((ret = ::GetMessage(&msg, nullptr, 0, 0)) != 0) {
-            if (ret == -1) {
-                break;
-            }
-
-            ::TranslateMessage(&msg);
-            ::DispatchMessage(&msg);
-        }
-    }).detach();
-}
-
 void Input::MouseMove(int x, int y, int delay)
 {
     ::INPUT input = {};
@@ -69,16 +45,6 @@ void Input::MouseRightUp(int delay)
     m_inputs.push_back({ input, delay });
 }
 
-void Input::KeyboardKeyDown(char key, int delay)
-{
-
-}
-
-void Input::KeyboardKeyUp(char key, int delay)
-{
-
-}
-
 void Input::Send()
 {
     if (m_inputs.empty()) {
@@ -86,7 +52,7 @@ void Input::Send()
     }
 
     // call SendInput in background thread
-    std::thread([this](const std::vector<std::pair<::INPUT, int>> inputs) { // m_inputs -> inputs copy
+    std::thread([this](const decltype(m_inputs) inputs) { // m_inputs -> inputs copy
         for (const auto &pair : inputs) {
             ::INPUT input = pair.first;
             const ::DWORD delay = pair.second;
@@ -126,3 +92,17 @@ void Input::Send()
 
     return ::CallNextHookEx(s_hook, code, wparam, lparam);
 }
+
+//std::thread([]() {
+//    ::MSG msg = {};
+//    ::BOOL ret = FALSE;
+
+//    while ((ret = ::GetMessage(&msg, nullptr, 0, 0)) != 0) {
+//        if (ret == -1) {
+//            break;
+//        }
+
+//        ::TranslateMessage(&msg);
+//        ::DispatchMessage(&msg);
+//    }
+//}).detach();

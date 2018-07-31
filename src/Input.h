@@ -30,7 +30,11 @@ private:
     std::mutex m_mouse_position_mtx;
 
 public:
-    Input();
+    Input() :
+        m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
+        m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
+        m_hook(::SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardCallback, nullptr, 0), HOOKUnhooker()),
+        m_mouse_position(MousePosition()) { s_hook = m_hook.get(); }
 
     Point MousePosition() const
     {
@@ -52,8 +56,6 @@ public:
     void MouseLeftUp(int delay = 0);
     void MouseRightDown(int delay = 0);
     void MouseRightUp(int delay = 0);
-    void KeyboardKeyDown(char key, int delay = 0);
-    void KeyboardKeyUp(char key, int delay = 0);
     void Send();
     void Reset() { m_inputs.clear(); }
     void RegisterKeyboardCallback(decltype(s_kb_callback) callback) { s_kb_callback = callback; }

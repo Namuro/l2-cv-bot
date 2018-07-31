@@ -2,6 +2,10 @@
 
 void Eyes::Blink(const cv::Mat &rgb)
 {
+    if (std::time(nullptr) < m_wakeup_time) {
+        return;
+    }
+
     cv::Mat hsv;
     cv::cvtColor(rgb, hsv, cv::COLOR_BGR2HSV);
 

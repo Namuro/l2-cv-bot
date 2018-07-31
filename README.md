@@ -14,13 +14,6 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 * ~~Captcha alarm~~
 * ~~Multi-monitor support~~
 
-## Command line options
-
-```
---window    Lineage II window title or part of the title. Default: "Lineage II"
---debug     Show window with debug information. Press ESC to exit or Space to reset bar positions. Default: true
-```
-
 ## How to use
 
 1. Run Lineage II client, select your character and teleport to any exp/farm location
@@ -29,6 +22,13 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 4. Press ESC or just move mouse (if bot not running in debug mode) 
 
 *Note that ESC and Space key bindings may not work in Lineage II window, so you just need to select any other window/desktop and then press keys.*
+
+## Command line options
+
+```
+--window    Lineage II window title or part of the title. Default: "Lineage II"
+--debug     Show window with debug information. Press ESC to exit or Space to reset bar positions. Default: true
+```
 
 ## Customization
 
