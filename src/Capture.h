@@ -7,40 +7,40 @@
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
 
-struct DCDeleter
-{
-    using pointer = ::HDC;
-    void operator()(::HDC hdc) const { ::DeleteDC(hdc); }
-};
-
-struct DCReleaser
-{
-    using pointer = ::HDC;
-    ::HWND hwnd;
-
-    DCReleaser() : hwnd(nullptr) {}
-    explicit DCReleaser(::HWND hwnd) : hwnd(hwnd) {}
-    void operator()(::HDC hdc) const { ::ReleaseDC(hwnd, hdc); }
-};
-
-struct BITMAPDeleter
-{
-    using pointer = ::HBITMAP;
-    void operator()(::HBITMAP bitmap) const { ::DeleteObject(bitmap); }
-};
-
-struct GDIOBJDeselector
-{
-    using pointer = ::HGDIOBJ;
-    ::HDC hdc;
-
-    GDIOBJDeselector() : hdc(nullptr) {}
-    explicit GDIOBJDeselector(::HDC hdc) : hdc(hdc) {}
-    void operator()(::HGDIOBJ object) const { ::SelectObject(hdc, object); }
-};
-
 class Capture
 {
+    struct DCDeleter
+    {
+        using pointer = ::HDC;
+        void operator()(::HDC hdc) const { ::DeleteDC(hdc); }
+    };
+
+    struct DCReleaser
+    {
+        using pointer = ::HDC;
+        ::HWND hwnd;
+
+        DCReleaser() : hwnd(nullptr) {}
+        explicit DCReleaser(::HWND hwnd) : hwnd(hwnd) {}
+        void operator()(::HDC hdc) const { ::ReleaseDC(hwnd, hdc); }
+    };
+
+    struct BITMAPDeleter
+    {
+        using pointer = ::HBITMAP;
+        void operator()(::HBITMAP bitmap) const { ::DeleteObject(bitmap); }
+    };
+
+    struct GDIOBJDeselector
+    {
+        using pointer = ::HGDIOBJ;
+        ::HDC hdc;
+
+        GDIOBJDeselector() : hdc(nullptr) {}
+        explicit GDIOBJDeselector(::HDC hdc) : hdc(hdc) {}
+        void operator()(::HGDIOBJ object) const { ::SelectObject(hdc, object); }
+    };
+
     int m_x, m_y, m_width, m_height = 0;
     ::BITMAPINFO m_bmi = {};
 

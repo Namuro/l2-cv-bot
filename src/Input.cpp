@@ -6,11 +6,12 @@ decltype(Input::s_hook) Input::s_hook;
 Input::Input() :
     m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
     m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
-    m_hook(::SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardCallback, nullptr, 0), HOOKUnhooker())
+    m_hook(::SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardCallback, nullptr, 0), HOOKUnhooker()),
+    m_mouse_position(MousePosition())
 {
     s_hook = m_hook.get(); // workaround to pass to static KeyboardCallback
 
-    // listen for Windows messages
+    // listen for keyboard messages
     std::thread([]() {
         ::MSG msg = {};
         ::BOOL ret = FALSE;
@@ -32,8 +33,9 @@ void Input::MouseMove(int x, int y, int delay)
     input.type = INPUT_MOUSE;
     input.mi.dx = x * 0xffff / m_width + 1;
     input.mi.dy = y * 0xffff / m_height + 1;
-    input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE | MOUSEEVENTF_VIRTUALDESK;
+    input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK;
     m_inputs.push_back({ input, delay });
+    m_mouse_position = { x, y };
 }
 
 void Input::MouseLeftDown(int delay)
@@ -85,7 +87,7 @@ void Input::Send()
     }
 
     // call SendInput in background thread
-    std::thread([](const std::vector<std::pair<::INPUT, int>> inputs) { // m_inputs copied
+    std::thread([this](const std::vector<std::pair<::INPUT, int>> inputs) { // m_inputs -> inputs copy
         for (const auto &pair : inputs) {
             ::INPUT input = pair.first;
             const ::DWORD delay = pair.second;
@@ -95,6 +97,12 @@ void Input::Send()
             }
 
             ::SendInput(1, reinterpret_cast<::LPINPUT>(&input), sizeof(::INPUT));
+
+            // save mouse position
+            if (input.type == INPUT_MOUSE && input.mi.dwFlags & MOUSEEVENTF_MOVE) {
+                std::lock_guard guard(m_mouse_position_mtx);
+                m_mouse_position = { input.mi.dx, input.mi.dy };
+            }
         }
     }, m_inputs).detach();
 
@@ -103,7 +111,7 @@ void Input::Send()
 
 ::LRESULT CALLBACK Input::KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam)
 {
-    // called on main thread so no locks required
+    // called on main thread so no locks required for s_key_callback
     if (code == HC_ACTION && s_key_callback) {
         const auto pkb = reinterpret_cast<::PKBDLLHOOKSTRUCT>(lparam);
 

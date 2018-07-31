@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
         const auto key = cv::waitKey(1) & 0xff;
 
-        if (esc_pressed || key == 27) { // 27 = ESC
+        if (!debug && input.MouseMoved() || esc_pressed || key == 27) { // 27 = ESC
             std::cout << "Bye!" << std::endl;
             break;
         }

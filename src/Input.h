@@ -2,34 +2,49 @@
 
 #include <vector>
 #include <thread>
+#include <mutex>
 
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
 
-struct HOOKUnhooker
-{
-    using pointer = ::HHOOK;
-    void operator()(::HHOOK hook) const { ::UnhookWindowsHookEx(hook); }
-};
-
 class Input
 {
-    int m_width, m_height = 0;
-    std::vector<std::pair<::INPUT, int>> m_inputs;
-    std::unique_ptr<::HHOOK, HOOKUnhooker> m_hook;
-    static std::function<void(int)> s_key_callback; // workaround
-    static ::HHOOK s_hook; // workaround
-
 public:
     struct Point { int x, y = 0; };
 
+private:
+    struct HOOKUnhooker
+    {
+        using pointer = ::HHOOK;
+        void operator()(::HHOOK hook) const { ::UnhookWindowsHookEx(hook); }
+    };
+
+    // workaround
+    static std::function<void(int)> s_key_callback; 
+    static ::HHOOK s_hook;
+
+    int m_width, m_height = 0;
+    std::vector<std::pair<::INPUT, int>> m_inputs;
+    std::unique_ptr<::HHOOK, HOOKUnhooker> m_hook;
+    Point m_mouse_position;
+    std::mutex m_mouse_position_mtx;
+
+public:
     Input();
 
-    Point GetMousePos() const
+    Point MousePosition() const
     {
         ::POINT point;
         ::GetCursorPos(&point);
         return { point.x, point.y };
+    }
+
+    bool MouseMoved(int dx = 100, int dy = 100)
+    {
+        const auto position = MousePosition();
+        std::lock_guard guard(m_mouse_position_mtx);
+        return std::abs(position.x - m_mouse_position.x) >= dx ||
+            std::abs(position.y - m_mouse_position.y) >= dy;
     }
 
     void MouseMove(int x, int y, int delay = 0);

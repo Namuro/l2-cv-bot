@@ -75,6 +75,7 @@ public:
 
     void Blink(const cv::Mat &rgb);
     void Reset();
+
     decltype(m_npcs) NPCs() const { return m_npcs; }
     decltype(m_me) Me() const { return m_me; }
     decltype(m_target) Target() const { return m_target; }
@@ -88,6 +89,7 @@ private:
     struct Me CalcMyValues(const cv::Mat &hsv) const;
     struct Target CalcTargetValues(const cv::Mat &hsv) const;
     std::vector<std::vector<cv::Point>> FindBarContours(const cv::Mat &mask) const;
+
     static int CalcBarPercentValue(const cv::Mat &bar);
     static uint32_t Hash(const cv::Mat &image);
 };
