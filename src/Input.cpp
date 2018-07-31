@@ -1,6 +1,6 @@
 #include "Input.h"
 
-decltype(Input::s_key_callback) Input::s_key_callback;
+decltype(Input::s_kb_callback) Input::s_kb_callback;
 decltype(Input::s_hook) Input::s_hook;
 
 Input::Input() :
@@ -111,13 +111,13 @@ void Input::Send()
 ::LRESULT CALLBACK Input::KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam)
 {
     // called on main thread so no locks required for s_key_callback
-    if (code == HC_ACTION && s_key_callback) {
+    if (code == HC_ACTION && s_kb_callback) {
         const auto pkb = reinterpret_cast<::PKBDLLHOOKSTRUCT>(lparam);
 
         switch (wparam) {
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            s_key_callback(static_cast<int>(pkb->vkCode));
+            s_kb_callback(static_cast<int>(pkb->vkCode));
             break;
         default:
             break;

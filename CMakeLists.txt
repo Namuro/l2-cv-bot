@@ -7,6 +7,7 @@ project(${TARGET})
 add_executable(
     ${TARGET}
     src/main.cpp
+    src/Bot.cpp
     src/Utils.h
     src/Options.cpp
     src/Window.cpp

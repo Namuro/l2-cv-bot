@@ -20,7 +20,7 @@ private:
     };
 
     // workaround
-    static std::function<void(int)> s_key_callback; 
+    static std::function<void(int)> s_kb_callback;
     static ::HHOOK s_hook;
 
     int m_width, m_height = 0;
@@ -56,7 +56,7 @@ public:
     void KeyboardKeyUp(char key, int delay = 0);
     void Send();
     void Reset() { m_inputs.clear(); }
-    void RegisterKeyCallback(decltype(s_key_callback) callback) { s_key_callback = callback; }
+    void RegisterKeyboardCallback(decltype(s_kb_callback) callback) { s_kb_callback = callback; }
 
 private:
     static ::LRESULT CALLBACK KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam);
