@@ -4,23 +4,16 @@
 #include <tuple>
 #include <optional>
 #include <ctime>
+#include <limits>
 
 #include <opencv2/opencv.hpp>
 
 class Eyes
 {
 public:
-    struct Target
-    {
-        int hp = 0;
-    };
-
-    struct Me
-    {
-        int hp = 0;
-        int mp = 0;
-        int cp = 0;
-    };
+    struct Target { int hp = 0; };
+    struct Me { int hp, mp, cp = 0; };
+    struct MyBars { cv::Rect hp_bar, mp_bar, cp_bar = {}; };
 
     struct NPC
     {
@@ -29,21 +22,20 @@ public:
         cv::Rect rect = {};
     };
 
-    struct MyBars
-    {
-        cv::Rect hp_bar = {};
-        cv::Rect mp_bar = {};
-        cv::Rect cp_bar = {};
-    };
+    //struct World
+    //{
+    //    Me me;
+    //    Target target;
+    //    std::vector<NPC> npcs;
+    //};
 
 private:
-    std::vector<NPC> m_npcs;
-    Me m_me;
-    Target m_target;
-    std::time_t m_wakeup_time = 0;
-
     std::optional<MyBars> m_my_bars;
     std::optional<cv::Rect> m_target_hp_bar;
+    std::vector<NPC> m_npcs;
+    Me m_me = {};
+    Target m_target = {};
+    std::time_t m_wakeup_time = 0;
 
 public:
     // NPC detection
@@ -77,7 +69,15 @@ public:
 
     void Blink(const cv::Mat &rgb);
     void Reset();
-    void Sleep(int seconds) { m_wakeup_time = std::time(nullptr) + seconds; }
+
+    void Sleep(int seconds = 0)
+    {
+        m_wakeup_time = seconds > 0
+            ? std::time(nullptr) + seconds
+            : (std::numeric_limits<std::time_t>::max)();
+    }
+
+    void WakeUp(int seconds = -1) { m_wakeup_time = std::time(nullptr) + seconds; }
 
     decltype(m_npcs) NPCs() const { return m_npcs; }
     decltype(m_me) Me() const { return m_me; }

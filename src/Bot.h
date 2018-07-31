@@ -20,7 +20,7 @@ class Bot
     Input m_input;
     Capture m_capture;
     FPS<100> m_fps;
-    Eyes m_eyes;
+    Eyes m_eyes = {};
 
 public:
     Bot(int argc, char* argv[]) : m_options(argc, argv) {}

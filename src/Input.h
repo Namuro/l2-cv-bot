@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <thread>
 #include <mutex>
+#include <atomic>
 
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
@@ -28,6 +28,7 @@ private:
     std::unique_ptr<::HHOOK, HOOKUnhooker> m_hook;
     Point m_mouse_position;
     std::mutex m_mouse_position_mtx;
+    std::atomic_bool m_ready = true;
 
 public:
     Input() :
@@ -58,8 +59,11 @@ public:
     void MouseRightUp(int delay = 0);
     void Send();
     void Reset() { m_inputs.clear(); }
+    bool Ready() const { return m_ready.load(); }
     void RegisterKeyboardCallback(decltype(s_kb_callback) callback) { s_kb_callback = callback; }
 
 private:
+    void AddInput(::INPUT input, int delay) { if (Ready()) m_inputs.push_back({ input, delay }); }
+
     static ::LRESULT CALLBACK KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam);
 };
