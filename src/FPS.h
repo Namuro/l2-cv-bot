@@ -7,11 +7,9 @@
 template <int Cap>
 class FPS
 {
-    using frames = std::array<double, Cap>;
-
     int64_t m_i = 0;
     int64_t m_ticks = 0;
-    frames m_frames = {};
+    std::array<double, Cap> m_frames = {};
 
 public:
     void Begin() { m_ticks = cv::getTickCount(); }
@@ -23,7 +21,7 @@ public:
 
         // calculate average FPS
         double sum = 0;
-        frames::size_type count = 0;
+        decltype(m_frames)::size_type count = 0;
 
         for (const auto &time : m_frames) {
             if (time > 0) {

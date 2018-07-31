@@ -75,11 +75,11 @@ public:
 
     void Blink(const cv::Mat &rgb);
     void Reset();
-    std::vector<NPC> NPCs() const { return m_npcs; }
-    Me Me() const { return m_me; }
-    Target Target() const { return m_target; }
-    std::optional<cv::Rect> TargetHPBar() const { return m_target_hp_bar; }
-    std::optional<MyBars> MyBars() const { return m_my_bars; }
+    decltype(m_npcs) NPCs() const { return m_npcs; }
+    decltype(m_me) Me() const { return m_me; }
+    decltype(m_target) Target() const { return m_target; }
+    decltype(m_target_hp_bar) TargetHPBar() const { return m_target_hp_bar; }
+    decltype(m_my_bars) MyBars() const { return m_my_bars; }
 
 private:
     std::vector<NPC> DetectNPCs(const cv::Mat &hsv) const;

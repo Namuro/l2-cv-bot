@@ -1,6 +1,7 @@
 #include "Input.h"
 
-::HHOOK Input::s_hook;
+decltype(Input::s_key_callback) Input::s_key_callback;
+decltype(Input::s_hook) Input::s_hook;
 
 Input::Input() :
     m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
@@ -11,9 +12,14 @@ Input::Input() :
 
     // listen for Windows messages
     std::thread([]() {
-        ::MSG msg;
+        ::MSG msg = {};
+        ::BOOL ret = FALSE;
 
-        while (::GetMessage(&msg, nullptr, 0, 0)) {
+        while ((ret = ::GetMessage(&msg, nullptr, 0, 0)) != 0) {
+            if (ret == -1) {
+                break;
+            }
+
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
         }
@@ -98,16 +104,13 @@ void Input::Send()
 ::LRESULT CALLBACK Input::KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam)
 {
     // called on main thread so no locks required
-    if (code == HC_ACTION) {
+    if (code == HC_ACTION && s_key_callback) {
         const auto pkb = reinterpret_cast<::PKBDLLHOOKSTRUCT>(lparam);
 
         switch (wparam) {
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            if (pkb->vkCode == VK_ESCAPE) {
-                
-            }
-
+            s_key_callback(static_cast<int>(pkb->vkCode));
             break;
         default:
             break;

@@ -20,7 +20,22 @@ int main(int argc, char* argv[])
     //input.Send();
     //Sleep(5000);
     //return 0;
-    //Input input;
+    Input input;
+    auto esc_pressed = false;
+    auto space_pressed = false;
+
+    // register global key press callback
+    input.RegisterKeyCallback([&esc_pressed, &space_pressed](int key) {
+        switch (key) {
+        case VK_ESCAPE:
+            esc_pressed = true;
+            break;
+        case VK_SPACE:
+            space_pressed = true;
+            break;
+        }
+    });
+
     const Options options(argc, argv);
     Capture capture;
     FPS<100> fps;
@@ -129,11 +144,13 @@ int main(int argc, char* argv[])
 
         const auto key = cv::waitKey(1) & 0xff;
 
-        if (key == 27) { // 27 = ESC
+        if (esc_pressed || key == 27) { // 27 = ESC
+            std::cout << "Bye!" << std::endl;
             break;
         }
-        else if (key == 32) { // 32 = Space
+        else if (space_pressed || key == 32) { // 32 = Space
             eyes.Reset();
+            space_pressed = false;
         }
     }
 

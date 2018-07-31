@@ -17,7 +17,7 @@ class Input
     int m_width, m_height = 0;
     std::vector<std::pair<::INPUT, int>> m_inputs;
     std::unique_ptr<::HHOOK, HOOKUnhooker> m_hook;
-    void (*m_esc_callback)() = nullptr;
+    static std::function<void(int)> s_key_callback; // workaround
     static ::HHOOK s_hook; // workaround
 
 public:
@@ -41,7 +41,7 @@ public:
     void KeyboardKeyUp(char key, int delay = 0);
     void Send();
     void Reset() { m_inputs.clear(); }
-    void RegisterESCKeyCallback(decltype(m_esc_callback) callback) { m_esc_callback = callback; }
+    void RegisterKeyCallback(decltype(s_key_callback) callback) { s_key_callback = callback; }
 
 private:
     static ::LRESULT CALLBACK KeyboardCallback(int code, ::WPARAM wparam, ::LPARAM lparam);

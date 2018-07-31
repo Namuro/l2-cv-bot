@@ -25,7 +25,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 Current version developed and tested using Windows 10 and Gracia Epilogue client, so with on another Windows or Lineage II client it might not work.
 
-To customize for your client, you need to edit properties in `Eyes.h` file and build project. Note that all colors must be in HSV color model.
+To customize for your client, you need to edit properties in `Eyes.h` file and build project. Note that for colors you must use HSV color model.
 
 ## Building
 
