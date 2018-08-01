@@ -8,10 +8,11 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 * NPC detection
 * HP/MP/CP monitoring
-* Custom configuration support
+* Custom CV configuration support
 * ~~Mouse & keyboard emulation~~
+* ~~Custom skills/actions layout support~~
 * ~~Stuck resolving~~
-* ~~Captcha alarm~~
+* ~~Alarm subsystem (captcha, low HP, CP decreasing, etc.)~~
 * ~~Buff/debuff monitoring~~
 * ~~Multi-monitor support~~
 
@@ -19,10 +20,10 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 1. Run Lineage II client, select character and teleport to any exp/farm location
 2. Run `run.bat "<title of the Lineage II client window>"`
-3. Character's HP/CP/MP bars must be 100% at the moment of the bot start, but if not, you should wait when they will be 100% and then press Space to reset bars positions
-4. To stop press ESC or just move mouse (if not running in debug mode)
+3. Character's HP/CP/MP bars must be 100% at the moment of bot start, but if not, you should wait until they will be 100% and then press Space to reset bars position
+4. To stop press ESC or just move mouse (if not running in debug mode)*
 
-*Note that ESC and Space key bindings may not work in Lineage II window, so just select any other window/desktop and then press key.*
+**Note that ESC and Space key bindings may not work in Lineage II window, so just select any other window/desktop and then press key.*
 
 ## Command line options
 
@@ -30,7 +31,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 ```
 --window    Lineage II window title or part of the title. Default: "Lineage II"
---debug     Show window with debug information. Press ESC to exit or Space to reset bar positions. Default: true
+--debug     Show window with debug information. Press ESC to exit or Space to reset bars position. Default: true
 ```
 
 `run.bat` only accepts window title.

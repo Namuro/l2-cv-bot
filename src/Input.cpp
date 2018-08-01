@@ -44,6 +44,7 @@ void Input::MouseRightUp(int delay)
 
 void Input::Send()
 {
+    // dont allow to send new inputs before previous not completed
     if (!Ready() || m_inputs.empty()) {
         return;
     }

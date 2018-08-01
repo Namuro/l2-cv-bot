@@ -8,6 +8,7 @@ class Hands
 
 public:
     explicit Hands(Input &input) : m_input(input) {}
+
     bool Ready() const { return m_input.Ready(); }
 
 private:

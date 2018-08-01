@@ -133,8 +133,9 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
 std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
 {
     // TL;DR: search for HP bar, then detect CP bar above and MP bar below
+    // why start from HP? because sky is blue, sand is yellow... roses are red, there's no roses in Lineage II...
 
-    // exract HP bar color (why start from HP? because red color is most rare, sky is blue, sand is yellow...)
+    // exract HP bar color
     cv::Mat mask;
     cv::inRange(hsv, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, mask);
 
@@ -151,7 +152,7 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
             continue;
         }
 
-        // search other bars near HP bar
+        // search for other bars near HP bar
         const auto bars_rect = rect + cv::Point(0, -rect.height * 2) + cv::Size(0, rect.height * 4);
         const auto bars = hsv(bars_rect);
 
@@ -233,16 +234,13 @@ int Eyes::CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, 
     auto cols = bar.cols;
 
     // loop mid row until first pixel with color in desired range
-    while (channel > 0) {
+    for (; channel > 0; channel -= bar.channels(), cols--) {
         if (row[channel + 0] >= from_color[0] && row[channel + 0] <= to_color[0] &&
             row[channel + 1] >= from_color[1] && row[channel + 1] <= to_color[1] &&
             row[channel + 2] >= from_color[2] && row[channel + 2] <= to_color[2]
         ) {
             break;
         }
-
-        channel -= bar.channels();
-        cols--;
     }
 
     return cols * 100 / bar.cols;
