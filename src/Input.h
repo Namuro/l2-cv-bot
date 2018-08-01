@@ -33,7 +33,7 @@ public:
         return { point.x, point.y };
     }
 
-    bool MouseMoved(int dx = 100, int dy = 100)
+    bool MouseMoved(int dx, int dy)
     {
         const auto position = MousePosition();
         std::lock_guard guard(m_mouse_position_mtx);
@@ -46,12 +46,19 @@ public:
     void MouseLeftUp(int delay = 0);
     void MouseRightDown(int delay = 0);
     void MouseRightUp(int delay = 0);
+
     void Send();
     void Reset() { m_inputs.clear(); }
     bool Ready() const { return m_ready.load(); }
-    bool KeyboardKeyPressed(int key) const { return ::GetAsyncKeyState(key) & 0x8000; }
+
+    bool KeyboardEscapePressed() const { return KeyboardKeyPressed(VK_ESCAPE); }
+    bool KeyboardSpacePressed() const { return KeyboardKeyPressed(VK_SPACE); }
+    bool KeyboardPrtScnPressed() const { return KeyboardKeyPressed(VK_SNAPSHOT); }
+    bool KeyboardF12Pressed() const { return KeyboardKeyPressed(VK_F12); }
 
 private:
+    bool KeyboardKeyPressed(int key) const { return ::GetAsyncKeyState(key) & 0x8000; }
+
     void AddInput(::INPUT input, int delay) {
         if (!Ready()) {
             return;

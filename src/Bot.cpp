@@ -37,7 +37,7 @@ void Bot::Run()
             break;
         }
 
-        if (m_input.KeyboardKeyPressed(VK_SNAPSHOT)) {
+        if (m_input.KeyboardPrtScnPressed()) {
             cv::imwrite("shot.png", image.value());
         }
 
@@ -51,11 +51,11 @@ void Bot::Run()
             ShowDebugWindow(image.value());
         }
 
-        if (m_input.KeyboardKeyPressed(VK_ESCAPE) || !debug && m_input.MouseMoved()) {
+        if (m_input.KeyboardEscapePressed() || !debug && m_input.MouseMoved(100, 100)) {
             std::cout << "Bye!" << std::endl;
             break;
         }
-        else if (m_input.KeyboardKeyPressed(VK_SPACE)) {
+        else if (m_input.KeyboardSpacePressed()) {
             m_eyes.Reset();
         }
     }
@@ -174,7 +174,7 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
         cv::LINE_AA
     );
 
-    if (m_input.KeyboardKeyPressed(VK_F12)) {
+    if (m_input.KeyboardF12Pressed()) {
         cv::imwrite("preview.bmp", image);
     }
 

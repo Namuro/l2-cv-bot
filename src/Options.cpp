@@ -80,7 +80,7 @@ std::vector<std::string> Options::StringVector(const std::string &option, const 
 
 std::vector<int> Options::IntVector(const std::string &option, const std::vector<int> &default) const
 {
-    const auto strings = StringVector(option, {});
+    const auto strings = StringVector(option);
 
     if (strings.empty()) {
         return default;
