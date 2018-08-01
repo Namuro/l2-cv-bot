@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void Hands::SmoothMouseMove(int x, int y)
+void Hands::SmoothMouseMove(const Input::Point &point) const
 {
     
 }

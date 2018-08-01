@@ -1,11 +1,11 @@
 #include "Input.h"
 
-void Input::MouseMove(int x, int y, int delay)
+void Input::MouseMove(const Point &point, int delay)
 {
     ::INPUT input = {};
     input.type = INPUT_MOUSE;
-    input.mi.dx = XDX(x);
-    input.mi.dy = YDY(y);
+    input.mi.dx = XDX(point.x);
+    input.mi.dy = YDY(point.y);
     input.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK;
     AddInput(input, delay);
 }

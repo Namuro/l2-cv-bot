@@ -10,6 +10,7 @@
 class Input
 {
 public:
+    enum class Key : char { Escape, Space, PrtScn, F12 };
     struct Point { int x, y; };
 
 private:
@@ -41,7 +42,7 @@ public:
             std::abs(position.y - m_mouse_position.y) > dy;
     }
 
-    void MouseMove(int x, int y, int delay = 0);
+    void MouseMove(const Point &point, int delay = 0);
     void MouseLeftDown(int delay = 0);
     void MouseLeftUp(int delay = 0);
     void MouseRightDown(int delay = 0);
@@ -51,10 +52,7 @@ public:
     void Reset() { m_inputs.clear(); }
     bool Ready() const { return m_ready.load(); }
 
-    bool KeyboardEscapePressed() const { return KeyboardKeyPressed(VK_ESCAPE); }
-    bool KeyboardSpacePressed() const { return KeyboardKeyPressed(VK_SPACE); }
-    bool KeyboardPrtScnPressed() const { return KeyboardKeyPressed(VK_SNAPSHOT); }
-    bool KeyboardF12Pressed() const { return KeyboardKeyPressed(VK_F12); }
+    bool KeyboardKeyPressed(Key key) const { return ::GetAsyncKeyState(KeyToVK(key)) & 0x8000; }
 
 private:
     // mouse coordinates conversions for Windows API
@@ -63,7 +61,21 @@ private:
     int DXX(int dx) { return (dx * m_width) / 0xffff; }
     int DYY(int dy) { return (dy * m_height) / 0xffff; }
 
-    bool KeyboardKeyPressed(int key) const { return ::GetAsyncKeyState(key) & 0x8000; }
+    int KeyToVK(Key key) const
+    {
+        switch (key) {
+        case Key::Escape:
+            return VK_ESCAPE;
+        case Key::Space:
+            return VK_SPACE;
+        case Key::PrtScn:
+            return VK_SNAPSHOT;
+        case Key::F12:
+            return VK_F12;
+        }
+
+        return 0;
+    }
 
     void AddInput(::INPUT input, int delay) {
         if (!Ready()) {
