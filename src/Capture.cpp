@@ -34,14 +34,14 @@ Capture::Capture() :
     m_object = { ::SelectObject(m_memdc.get(), m_bitmap.get()), GDIOBJDeselector(m_memdc.get()) };
 }
 
-std::optional<Capture::Bitmap> Capture::Grab(int x, int y, int width, int height)
+std::optional<Capture::Bitmap> Capture::Grab(const Rect &rect)
 {
-    if (width <= 0 || height <= 0) {
+    if (rect.width <= 0 || rect.height <= 0) {
         return {};
     }
 
     // copy pixels from source context to memory context
-    if (!::BitBlt(m_memdc.get(), 0, 0, width, height, m_srcdc.get(), x, y, SRCCOPY | CAPTUREBLT)) {
+    if (!::BitBlt(m_memdc.get(), 0, 0, rect.width, rect.height, m_srcdc.get(), rect.x, rect.y, SRCCOPY | CAPTUREBLT)) {
         return {};
     }
 
@@ -49,8 +49,7 @@ std::optional<Capture::Bitmap> Capture::Grab(int x, int y, int width, int height
     bitmap.data = m_data;
     bitmap.rows = m_height;
     bitmap.cols = m_width;
-    bitmap.width = (std::min)(m_width, width);
-    bitmap.height = (std::min)(m_height, height);
+    bitmap.rect = Rect{ rect.x, rect.y, (std::min)(m_width, rect.width), (std::min)(m_height, rect.height) };
     bitmap.bits = m_bmi.bmiHeader.biBitCount;
     return bitmap;
 }

@@ -10,5 +10,5 @@ public:
     bool Ready() const { return m_input.Ready(); }
 
 private:
-    void MoveMouseSmoothly(int x, int y);
+    void SmoothMouseMove(int x, int y);
 };

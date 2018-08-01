@@ -23,7 +23,7 @@ void Bot::Run()
         }
 
         const auto rect = window.value().Rect();
-        const auto bitmap = m_capture.Grab(rect.x, rect.y, rect.width, rect.height);
+        const auto bitmap = m_capture.Grab(Capture::Rect{ rect.x, rect.y, rect.width, rect.height });
 
         if (!bitmap.has_value()) {
             std::cout << "Failed to grab window" << std::endl;

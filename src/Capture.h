@@ -51,18 +51,19 @@ class Capture
     unsigned char *m_data;
 
 public:
+    struct Rect { int x, y, width, height; };
+
     struct Bitmap {
         unsigned char *data;
+        int bits;
         int rows;
         int cols;
-        int width;
-        int height;
-        int bits;
+        Rect rect;
     };
 
     Capture();
 
-    std::optional<Bitmap> Grab(int x, int y, int width, int height);
-    std::optional<Bitmap> Grab() { return Grab(m_x, m_y, m_width, m_height); }
+    std::optional<Bitmap> Grab(const Rect &rect);
+    std::optional<Bitmap> Grab() { return Grab(Rect{ m_x, m_y, m_width, m_height }); }
     bool Clear();
 };

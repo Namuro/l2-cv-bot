@@ -11,16 +11,16 @@
 class Window
 {
 public:
-    struct Rect { int x, y, width, height = 0; };
+    struct Rect { int x, y, width, height; };
 
 private:
     ::HWND m_hwnd;
     Rect m_rect;
 
 public:
-    Window(::HWND hwnd, Rect rect) : m_hwnd(hwnd), m_rect(rect) {}
+    Window(::HWND hwnd, const Rect &rect) : m_hwnd(hwnd), m_rect(rect) {}
 
-    decltype(m_rect) Rect() const { return m_rect; }
+    const decltype(m_rect) &Rect() const { return m_rect; }
     bool BringToForeground() const { return SetForegroundWindow(m_hwnd); }
 
     static std::optional<Window> Find(const std::string &window_title);

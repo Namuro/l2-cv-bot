@@ -85,8 +85,8 @@ public:
         m_wakeup_time = std::time(nullptr) + after;
     }
 
-    decltype(m_target_hp_bar) TargetHPBar() const { return m_target_hp_bar; }
-    decltype(m_my_bars) MyBars() const { return m_my_bars; }
+    const decltype(m_target_hp_bar) &TargetHPBar() const { return m_target_hp_bar; }
+    const decltype(m_my_bars) &MyBars() const { return m_my_bars; }
 
 private:
     std::vector<NPC> DetectNPCs(const cv::Mat &hsv) const;

@@ -224,6 +224,7 @@ std::vector<std::vector<cv::Point>> Eyes::FindBarContours(const cv::Mat &mask) c
 
 int Eyes::CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color)
 {
+    CV_Assert(bar.rows >= 1);
     CV_Assert(bar.depth() == CV_8U);
     CV_Assert(bar.channels() >= 3);
 
