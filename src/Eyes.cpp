@@ -134,7 +134,7 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
 {
     // TL;DR: search for HP bar, then detect CP bar above and MP bar below
 
-    // exract HP bar color
+    // exract HP bar color (why start from HP? because red color is most rare, sky is blue, sand is yellow...)
     cv::Mat mask;
     cv::inRange(hsv, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, mask);
 
@@ -187,18 +187,10 @@ Eyes::Me Eyes::CalcMyValues(const cv::Mat &hsv) const
         return {};
     }
 
-    auto hp_bar = hsv(m_my_bars.value().hp_bar);
-    auto mp_bar = hsv(m_my_bars.value().mp_bar);
-    auto cp_bar = hsv(m_my_bars.value().cp_bar);
-
-    cv::inRange(hp_bar, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, hp_bar);
-    cv::inRange(mp_bar, m_my_mp_color_from_hsv, m_my_mp_color_to_hsv, mp_bar);
-    cv::inRange(cp_bar, m_my_cp_color_from_hsv, m_my_cp_color_to_hsv, cp_bar);
-
     Me me = {};
-    me.hp = CalcBarPercentValue(hp_bar);
-    me.mp = CalcBarPercentValue(mp_bar);
-    me.cp = CalcBarPercentValue(cp_bar);
+    me.hp = CalcBarPercentValue(hsv(m_my_bars.value().hp_bar), m_my_hp_color_from_hsv, m_my_hp_color_to_hsv);
+    me.mp = CalcBarPercentValue(hsv(m_my_bars.value().mp_bar), m_my_mp_color_from_hsv, m_my_mp_color_to_hsv);
+    me.cp = CalcBarPercentValue(hsv(m_my_bars.value().cp_bar), m_my_cp_color_from_hsv, m_my_cp_color_to_hsv);
     return me;
 }
 
@@ -208,11 +200,8 @@ Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
         return {};
     }
 
-    auto hp_bar = hsv(m_target_hp_bar.value());
-    cv::inRange(hp_bar, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, hp_bar);
-
     Target target = {};
-    target.hp = CalcBarPercentValue(hp_bar);
+    target.hp = CalcBarPercentValue(hsv(m_target_hp_bar.value()), m_target_hp_color_from_hsv, m_target_hp_color_to_hsv);
     return target;
 }
 
@@ -233,22 +222,29 @@ std::vector<std::vector<cv::Point>> Eyes::FindBarContours(const cv::Mat &mask) c
     return contours;
 }
 
-int Eyes::CalcBarPercentValue(const cv::Mat &bar)
+int Eyes::CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color)
 {
     CV_Assert(bar.depth() == CV_8U);
-    CV_Assert(bar.channels() == 1);
+    CV_Assert(bar.channels() >= 3);
 
     const auto row = bar.ptr<uchar>(bar.rows / 2);
-    auto col = bar.cols;
+    auto channel = (bar.cols - 1) * bar.channels();
+    auto cols = bar.cols;
 
-    // loop mid row until first white pixel
-    for (; col-- > 0;) {
-        if (row[col] == 255) {
+    // loop mid row until first pixel with color in desired range
+    while (channel > 0) {
+        if (row[channel + 0] >= from_color[0] && row[channel + 0] <= to_color[0] &&
+            row[channel + 1] >= from_color[1] && row[channel + 1] <= to_color[1] &&
+            row[channel + 2] >= from_color[2] && row[channel + 2] <= to_color[2]
+        ) {
             break;
         }
+
+        channel -= bar.channels();
+        cols--;
     }
 
-    return col * 100 / bar.cols;
+    return cols * 100 / bar.cols;
 }
 
 std::uint32_t Eyes::Hash(const cv::Mat &image)

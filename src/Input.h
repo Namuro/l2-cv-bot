@@ -33,12 +33,12 @@ public:
         return { point.x, point.y };
     }
 
-    bool MouseMoved(int dx, int dy)
+    bool MouseMoved(int dx = 0, int dy = 0)
     {
         const auto position = MousePosition();
         std::lock_guard guard(m_mouse_position_mtx);
-        return std::abs(position.x - m_mouse_position.x) >= dx ||
-            std::abs(position.y - m_mouse_position.y) >= dy;
+        return std::abs(position.x - m_mouse_position.x) > dx ||
+            std::abs(position.y - m_mouse_position.y) > dy;
     }
 
     void MouseMove(int x, int y, int delay = 0);
@@ -57,6 +57,12 @@ public:
     bool KeyboardF12Pressed() const { return KeyboardKeyPressed(VK_F12); }
 
 private:
+    // mouse coordinates conversions for Windows API
+    int XDX(int x) { return x * 0xffff / m_width + 1; }
+    int YDY(int y) { return y * 0xffff / m_height + 1; }
+    int DXX(int dx) { return (dx * m_width) / 0xffff; }
+    int DYY(int dy) { return (dy * m_height) / 0xffff; }
+
     bool KeyboardKeyPressed(int key) const { return ::GetAsyncKeyState(key) & 0x8000; }
 
     void AddInput(::INPUT input, int delay) {

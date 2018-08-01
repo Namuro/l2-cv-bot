@@ -51,7 +51,7 @@ void Bot::Run()
             ShowDebugWindow(image.value());
         }
 
-        if (m_input.KeyboardEscapePressed() || !debug && m_input.MouseMoved(100, 100)) {
+        if (!debug && m_input.MouseMoved(100, 100) || m_input.KeyboardEscapePressed()) {
             std::cout << "Bye!" << std::endl;
             break;
         }
