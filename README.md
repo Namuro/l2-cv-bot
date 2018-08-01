@@ -16,12 +16,12 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 ## How to use
 
-1. Run Lineage II client, select your character and teleport to any exp/farm location
+1. Run Lineage II client, select character and teleport to any exp/farm location
 2. Run `run.bat "<title of the Lineage II client window>"`
-3. Your HP/CP/MP bars must be 100% at the moment of the bot start, but if not, you should wait when they will be 100% and then press Space to reset bars positions
+3. Character's HP/CP/MP bars must be 100% at the moment of the bot start, but if not, you should wait when they will be 100% and then press Space to reset bars positions
 4. To stop press ESC or just move mouse (if not running in debug mode)
 
-*Note that ESC and Space key bindings may not work in Lineage II window, so you just need to select any other window/desktop and then press key.*
+*Note that ESC and Space key bindings may not work in Lineage II window, so just select any other window/desktop and then press key.*
 
 ## Command line options
 
@@ -38,7 +38,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 Current version developed and tested using Windows 10 and Gracia Epilogue client, so with another Windows or Lineage II client it may not work.
 
-To customize for your client, you need to edit `run.bat` file. Note that for colors you must use HSV color model.
+Edit `run.bat` file to customize for another client. Note that for colors must be used HSV color model.
 
 OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`.
 

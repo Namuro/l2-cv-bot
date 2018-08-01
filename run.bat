@@ -3,8 +3,8 @@ l2-cv-bot.exe ^
 
     %= NPC detection =%                 ^
     --npc_name_min_height       10      ^
-    --npc_name_max_height       20      ^
-    --npc_name_min_width        20      ^
+    --npc_name_max_height       18      ^
+    --npc_name_min_width        30      ^
     --npc_name_max_width        250     ^
     --npc_name_color_from_hsv   0,0,240 ^
     --npc_name_color_to_hsv     0,0,255 ^

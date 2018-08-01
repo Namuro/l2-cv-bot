@@ -37,8 +37,8 @@ private:
 public:
     // NPC detection
     int m_npc_name_min_height = 10;
-    int m_npc_name_max_height = 20;
-    int m_npc_name_min_width = 20;
+    int m_npc_name_max_height = 18;
+    int m_npc_name_min_width = 30;
     int m_npc_name_max_width = 250;
     cv::Scalar m_npc_name_color_from_hsv = cv::Scalar(0, 0, 240);
     cv::Scalar m_npc_name_color_to_hsv = cv::Scalar(0, 0, 255);
