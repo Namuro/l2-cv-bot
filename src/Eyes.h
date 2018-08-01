@@ -94,7 +94,7 @@ private:
     std::optional<struct MyBars> DetectMyBars(const cv::Mat &hsv) const;
     Me CalcMyValues(const cv::Mat &hsv) const;
     Target CalcTargetValues(const cv::Mat &hsv) const;
-    std::vector<std::vector<cv::Point>> FindBarContours(const cv::Mat &mask) const;
+    std::vector<std::vector<cv::Point>> FindMyBarContours(const cv::Mat &mask) const;
     bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
 
     static int CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color);

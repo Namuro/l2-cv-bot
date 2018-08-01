@@ -34,12 +34,12 @@ public:
         return { point.x, point.y };
     }
 
-    bool MouseMoved(int dx = 0, int dy = 0)
+    bool MouseMoved(int delta = 0)
     {
         const auto position = MousePosition();
         std::lock_guard guard(m_mouse_position_mtx);
-        return std::abs(position.x - m_mouse_position.x) > dx ||
-            std::abs(position.y - m_mouse_position.y) > dy;
+        return std::abs(position.x - m_mouse_position.x) > delta ||
+            std::abs(position.y - m_mouse_position.y) > delta;
     }
 
     void MouseMove(const Point &point, int delay = 0);
@@ -61,7 +61,16 @@ private:
     int DXX(int dx) { return (dx * m_width) / 0xffff; }
     int DYY(int dy) { return (dy * m_height) / 0xffff; }
 
-    int KeyToVK(Key key) const
+    void AddInput(::INPUT input, int delay)
+    {
+        if (!Ready()) {
+            return;
+        }
+
+        m_inputs.push_back({ input, delay });
+    }
+
+    static int KeyToVK(Key key)
     {
         switch (key) {
         case Key::Escape:
@@ -75,13 +84,5 @@ private:
         }
 
         return 0;
-    }
-
-    void AddInput(::INPUT input, int delay) {
-        if (!Ready()) {
-            return;
-        }
-
-        m_inputs.push_back({ input, delay });
     }
 };

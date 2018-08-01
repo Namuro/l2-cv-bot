@@ -16,8 +16,7 @@ int Options::Int(const std::string &option, int default) const
     
     try {
         return std::stoi(found.value());
-    }
-    catch (...) {
+    } catch (...) {
         return default;
     }
 }
@@ -32,8 +31,7 @@ double Options::Double(const std::string &option, double default) const
 
     try {
         return std::stod(found.value());
-    }
-    catch (...) {
+    } catch (...) {
         return default;
     }
 }
@@ -50,8 +48,7 @@ bool Options::Bool(const std::string &option, bool default) const
 
     if (value == "1" || value == "true" || value == "yes" || value == "y" || value == "on") {
         return true;
-    }
-    else if (value == "0" || value == "false" || value == "no" || value == "n" || value == "off") {
+    } else if (value == "0" || value == "false" || value == "no" || value == "n" || value == "off") {
         return false;
     }
 
@@ -91,8 +88,7 @@ std::vector<int> Options::IntVector(const std::string &option, const std::vector
     for (const auto &string : strings) {
         try {
             vector.push_back(std::stoi(string));
-        }
-        catch (...) {
+        } catch (...) {
             return default;
         }
     }

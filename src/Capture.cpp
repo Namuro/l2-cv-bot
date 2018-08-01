@@ -49,7 +49,8 @@ std::optional<Capture::Bitmap> Capture::Grab(const Rect &rect)
     bitmap.data = m_data;
     bitmap.rows = m_height;
     bitmap.cols = m_width;
-    bitmap.rect = Rect{ rect.x, rect.y, (std::min)(m_width, rect.width), (std::min)(m_height, rect.height) };
+    bitmap.width = (std::min)(m_width, rect.width);
+    bitmap.height = (std::min)(m_height, rect.height);
     bitmap.bits = m_bmi.bmiHeader.biBitCount;
     return bitmap;
 }

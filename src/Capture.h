@@ -55,10 +55,11 @@ public:
 
     struct Bitmap {
         unsigned char *data;
-        int bits;
         int rows;
         int cols;
-        Rect rect;
+        int width;
+        int height;
+        int bits;
     };
 
     Capture();

@@ -138,7 +138,7 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
     cv::Mat mask;
     cv::inRange(hsv, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, mask);
 
-    const auto contours = FindBarContours(mask);
+    const auto contours = FindMyBarContours(mask);
 
     // search for CP bar above and MP bar below
     for (const auto &contour : contours) {
@@ -164,7 +164,7 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
         cv::Mat mp_cp;
         cv::bitwise_or(cp, mp, mp_cp);
 
-        const auto bar_contours = FindBarContours(mp_cp);
+        const auto bar_contours = FindMyBarContours(mp_cp);
 
         // no CP or MP bar found
         if (bar_contours.size() != 2) {
@@ -205,7 +205,7 @@ Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
     return target;
 }
 
-std::vector<std::vector<cv::Point>> Eyes::FindBarContours(const cv::Mat &mask) const
+std::vector<std::vector<cv::Point>> Eyes::FindMyBarContours(const cv::Mat &mask) const
 {
     // remove noise
     auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(1, m_my_bar_min_height));

@@ -51,11 +51,10 @@ void Bot::Run()
             ShowDebugWindow(image.value());
         }
 
-        if (!debug && m_input.MouseMoved(100, 100) || m_input.KeyboardKeyPressed(Input::Key::Escape)) {
+        if (!debug && m_input.MouseMoved(100) || m_input.KeyboardKeyPressed(Input::Key::Escape)) {
             std::cout << "Bye!" << std::endl;
             break;
-        }
-        else if (m_input.KeyboardKeyPressed(Input::Key::Space)) {
+        } else if (m_input.KeyboardKeyPressed(Input::Key::Space)) {
             m_eyes.Reset();
         }
     }
