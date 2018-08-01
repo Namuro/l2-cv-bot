@@ -3,7 +3,7 @@
 std::string Options::String(const std::string &option, const std::string &default) const
 {
     const auto found = Find(option);
-    return found.has_value() ? found.value() : std::string(default);
+    return found.has_value() ? found.value() : default;
 }
 
 int Options::Int(const std::string &option, int default) const

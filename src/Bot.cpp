@@ -10,7 +10,6 @@ void Bot::Run()
 
     while (true) {
         m_capture.Clear();
-
         const auto window = Window::Find(title);
 
         if (!window.has_value()) {
@@ -38,28 +37,26 @@ void Bot::Run()
             break;
         }
 
-        const auto world = m_eyes.Blink(image.value());
+        if (m_input.KeyboardKeyPressed(VK_SNAPSHOT)) {
+            cv::imwrite("shot.png", image.value());
+        }
 
-        auto esc_pressed = m_input.KeyboardKeyPressed(VK_ESCAPE);
-        auto space_pressed = m_input.KeyboardKeyPressed(VK_SPACE);
+        const auto world = m_eyes.Blink(image.value());
 
         if (debug) {
             if (world.has_value()) {
                 DrawWorldInfo(image.value(), world.value());
             }
 
-            const auto key = ShowDebugWindow(image.value());
-            esc_pressed = esc_pressed || key == VK_ESCAPE;
-            space_pressed = space_pressed || key == VK_SPACE;
+            ShowDebugWindow(image.value());
         }
 
-        if (esc_pressed || !debug && m_input.MouseMoved()) {
+        if (m_input.KeyboardKeyPressed(VK_ESCAPE) || !debug && m_input.MouseMoved()) {
             std::cout << "Bye!" << std::endl;
             break;
         }
-        else if (space_pressed) {
+        else if (m_input.KeyboardKeyPressed(VK_SPACE)) {
             m_eyes.Reset();
-            space_pressed = false;
         }
     }
 
@@ -69,6 +66,17 @@ void Bot::Run()
 void Bot::DrawWorldInfo(const cv::Mat &image, const Eyes::World &world) const
 {
     // draw help
+    cv::putText(
+        image,
+        "Press PrtScn to take screenshot of the Lineage II window",
+        cv::Point(5, image.rows - 235),
+        cv::FONT_HERSHEY_COMPLEX,
+        0.4,
+        cv::Scalar(255, 255, 255),
+        1,
+        cv::LINE_AA
+    );
+
     cv::putText(
         image,
         "Press Space to reset HP/MP/CP bars position",
@@ -165,6 +173,10 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
         2,
         cv::LINE_AA
     );
+
+    if (m_input.KeyboardKeyPressed(VK_F12)) {
+        cv::imwrite("preview.bmp", image);
+    }
 
     cv::imshow("l2-cv-bot", image);
     return cv::waitKey(1) & 0xff;
