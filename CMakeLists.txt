@@ -34,6 +34,7 @@ if(MSVC)
     install(CODE "
         include(BundleUtilities)
         fixup_bundle(${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/${TARGET}.exe \"\" ${OpenCV_LIBS})
+        configure_file(${CMAKE_SOURCE_DIR}/run.bat ${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/run.bat COPYONLY)
     " COMPONENT Runtime)
 endif()
 

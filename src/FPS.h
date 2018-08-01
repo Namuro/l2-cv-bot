@@ -1,20 +1,17 @@
 #pragma once
 
-#include <algorithm>
-
-#include <opencv2/opencv.hpp>
+#include <chrono>
 
 template <int Cap>
 class FPS
 {
-    int64_t m_i;
-    int64_t m_ticks;
-    std::array<double, Cap> m_frame_times;
+    std::int64_t m_i;
+    std::chrono::time_point<std::chrono::steady_clock> m_time;
+    std::array<std::int64_t, Cap> m_times;
 
 public:
-    FPS() : m_i(0), m_ticks(0), m_frame_times() {}
+    FPS() : m_i(0), m_time(std::chrono::steady_clock::now()), m_times() {}
 
-    void Begin() { m_ticks = cv::getTickCount(); }
     double Get();
 };
 
@@ -22,18 +19,23 @@ template <int Cap>
 double FPS<Cap>::Get()
 {
     // add frame time to ring buffer
-    m_frame_times[m_i++ % m_frame_times.max_size()] = (cv::getTickCount() - m_ticks) / cv::getTickFrequency();
+    const auto now = std::chrono::steady_clock::now();
+    const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_time).count();
+    m_times[m_i++ % m_times.max_size()] = diff;
+    m_time = now;
 
     // incrementally calculate average FPS
-    double sum = 0;
-    decltype(m_frame_times)::size_type count = 0;
+    decltype(m_times)::size_type count = 0;
+    double average = 0.0;
 
-    for (const auto time : m_frame_times) {
-        if (time > 0) {
-            sum += time;
-            ++count;
+    for (const auto time : m_times) {
+        if (time <= 0) {
+            continue;
         }
+
+        average = (time + average * count) / (count + 1);
+        ++count;
     }
 
-    return 1 / (sum / count);
+    return 1 / average * 1000;
 }

@@ -8,8 +8,8 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 * NPC detection
 * HP/MP/CP monitoring
+* Custom configuration support
 * ~~Mouse & keyboard emulation~~
-* ~~Configs for various clients~~
 * ~~Stuck resolving~~
 * ~~Captcha alarm~~
 * ~~Multi-monitor support~~
@@ -17,24 +17,28 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 ## How to use
 
 1. Run Lineage II client, select your character and teleport to any exp/farm location
-2. Run `l2-cv-bot.exe --window <title of the Lineage II client window> --debug true`
-3. Your HP/CP/MP bars must be 100% at the moment of bot start, but if not, you should wait when they will be 100% and then press Space to reset bars positions
-4. To stop press ESC or just move mouse (if bot not running in debug mode) 
+2. Run `run.bat "<title of the Lineage II client window>"`
+3. Your HP/CP/MP bars must be 100% at the moment of the bot start, but if not, you should wait when they will be 100% and then press Space to reset bars positions
+4. To stop press ESC or just move mouse (if not running in debug mode) 
 
-*Note that ESC and Space key bindings may not work in Lineage II window, so you just need to select any other window/desktop and then press keys.*
+*Note that ESC and Space key bindings may not work in Lineage II window, so you just need to select any other window/desktop and then press key.*
 
 ## Command line options
+
+`l2-cv-bot.exe`:
 
 ```
 --window    Lineage II window title or part of the title. Default: "Lineage II"
 --debug     Show window with debug information. Press ESC to exit or Space to reset bar positions. Default: true
 ```
 
+`run.bat` only accepts window title.
+
 ## Customization
 
 Current version developed and tested using Windows 10 and Gracia Epilogue client, so with another Windows or Lineage II client it may not work.
 
-To customize for your client, you need to edit properties in `Eyes.h` file and rebuild project. Note that for colors you must use HSV color model.
+To customize for your client, you need to edit `run.bat` file. Note that for colors you must use HSV color model.
 
 OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`.
 

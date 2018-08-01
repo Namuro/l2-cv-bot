@@ -2,12 +2,13 @@
 
 void Bot::Run()
 {
+    ConfigureEyes();
+
     const auto title = m_options.String("--window", "Lineage II");
     const auto debug = m_options.Bool("--debug", true);
     auto foreground = false;
 
     while (true) {
-        m_fps.Begin();
         m_capture.Clear();
 
         const auto window = Window::Find(title);
@@ -167,4 +168,36 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
 
     cv::imshow("l2-cv-bot", image);
     return cv::waitKey(1) & 0xff;
+}
+
+void Bot::ConfigureEyes()
+{
+    // NPC detection
+    m_eyes.m_npc_name_min_height        = m_options.Int("--npc_name_min_height", m_eyes.m_npc_name_min_height);
+    m_eyes.m_npc_name_max_height        = m_options.Int("--npc_name_max_height", m_eyes.m_npc_name_max_height);
+    m_eyes.m_npc_name_min_width         = m_options.Int("--npc_name_min_width", m_eyes.m_npc_name_min_width);
+    m_eyes.m_npc_name_max_width         = m_options.Int("--npc_name_max_width", m_eyes.m_npc_name_max_width);
+    m_eyes.m_npc_name_color_from_hsv    = VectorToScalar(m_options.IntVector("--npc_name_color_from_hsv"), m_eyes.m_npc_name_color_from_hsv);
+    m_eyes.m_npc_name_color_to_hsv      = VectorToScalar(m_options.IntVector("--npc_name_color_to_hsv"), m_eyes.m_npc_name_color_to_hsv);
+    m_eyes.m_npc_name_color_threshold   = m_options.Double("--npc_name_color_threshold", m_eyes.m_npc_name_color_threshold);
+
+    // my HP/MP/CP bars detection
+    m_eyes.m_my_bar_min_height      = m_options.Int("--my_bar_min_height", m_eyes.m_my_bar_min_height);
+    m_eyes.m_my_bar_max_height      = m_options.Int("--my_bar_max_height", m_eyes.m_my_bar_max_height);
+    m_eyes.m_my_bar_min_width       = m_options.Int("--my_bar_min_width", m_eyes.m_my_bar_min_width);
+    m_eyes.m_my_bar_max_width       = m_options.Int("--my_bar_max_width", m_eyes.m_my_bar_max_width);
+    m_eyes.m_my_hp_color_from_hsv   = VectorToScalar(m_options.IntVector("--my_hp_color_from_hsv"), m_eyes.m_my_hp_color_from_hsv);
+    m_eyes.m_my_hp_color_to_hsv     = VectorToScalar(m_options.IntVector("--my_hp_color_to_hsv"), m_eyes.m_my_hp_color_to_hsv);
+    m_eyes.m_my_mp_color_from_hsv   = VectorToScalar(m_options.IntVector("--my_mp_color_from_hsv"), m_eyes.m_my_mp_color_from_hsv);
+    m_eyes.m_my_mp_color_to_hsv     = VectorToScalar(m_options.IntVector("--my_mp_color_to_hsv"), m_eyes.m_my_mp_color_to_hsv);
+    m_eyes.m_my_cp_color_from_hsv   = VectorToScalar(m_options.IntVector("--my_cp_color_from_hsv"), m_eyes.m_my_cp_color_from_hsv);
+    m_eyes.m_my_cp_color_to_hsv     = VectorToScalar(m_options.IntVector("--my_cp_color_to_hsv"), m_eyes.m_my_cp_color_to_hsv);
+
+    // target HP bar detection
+    m_eyes.m_target_hp_min_height       = m_options.Int("--target_hp_min_height", m_eyes.m_target_hp_min_height);
+    m_eyes.m_target_hp_max_height       = m_options.Int("--target_hp_max_height", m_eyes.m_target_hp_max_height);
+    m_eyes.m_target_hp_min_width        = m_options.Int("--target_hp_min_width", m_eyes.m_target_hp_min_width);
+    m_eyes.m_target_hp_max_width        = m_options.Int("--target_hp_max_width", m_eyes.m_target_hp_max_width);
+    m_eyes.m_target_hp_color_from_hsv   = VectorToScalar(m_options.IntVector("--target_hp_color_from_hsv"), m_eyes.m_target_hp_color_from_hsv);
+    m_eyes.m_target_hp_color_to_hsv     = VectorToScalar(m_options.IntVector("--target_hp_color_to_hsv"), m_eyes.m_target_hp_color_to_hsv);
 }

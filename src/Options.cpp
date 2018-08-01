@@ -63,7 +63,7 @@ std::vector<std::string> Options::StringVector(const std::string &option, const 
     const auto found = Find(option);
 
     if (!found.has_value()) {
-        return std::vector<std::string>(default);
+        return default;
     }
 
     std::stringstream ss(found.value());
@@ -73,6 +73,28 @@ std::vector<std::string> Options::StringVector(const std::string &option, const 
         std::string string;
         std::getline(ss, string, ',');
         vector.push_back(string);
+    }
+
+    return vector;
+}
+
+std::vector<int> Options::IntVector(const std::string &option, const std::vector<int> &default) const
+{
+    const auto strings = StringVector(option, {});
+
+    if (strings.empty()) {
+        return default;
+    }
+
+    std::vector<int> vector;
+
+    for (const auto &string : strings) {
+        try {
+            vector.push_back(std::stoi(string));
+        }
+        catch (...) {
+            return default;
+        }
     }
 
     return vector;

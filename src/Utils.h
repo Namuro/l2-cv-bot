@@ -6,7 +6,7 @@
 
 #include "Capture.h"
 
-inline std::optional<cv::Mat> BitmapToImage(Capture::Bitmap bitmap)
+inline std::optional<cv::Mat> BitmapToImage(const Capture::Bitmap &bitmap)
 {
     // check bitmap
     if (bitmap.data == nullptr ||
@@ -24,4 +24,13 @@ inline std::optional<cv::Mat> BitmapToImage(Capture::Bitmap bitmap)
         CV_8UC(bitmap.bits / 8),
         bitmap.data
     )(cv::Rect(0, 0, bitmap.width, bitmap.height));
+}
+
+inline cv::Scalar VectorToScalar(const std::vector<int> &vector, const cv::Scalar &default)
+{
+    if (vector.size() != 3) {
+        return default;
+    }
+
+    return cv::Scalar(vector[0], vector[1], vector[2]);
 }
