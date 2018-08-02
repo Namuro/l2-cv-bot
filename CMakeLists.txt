@@ -17,8 +17,10 @@ add_executable(
     src/Input.cpp
 )
 
-set_property(TARGET l2-cv-bot PROPERTY CXX_STANDARD 17)
-set_property(TARGET l2-cv-bot PROPERTY CXX_STANDARD_REQUIRED ON)
+set_target_properties(l2-cv-bot PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+)
 
 # OpenCV
 find_package(OpenCV REQUIRED)
