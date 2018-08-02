@@ -58,4 +58,4 @@ Using CMake and MSVC (Visual Studio 2017) on Windows:
 4. Run `build-vs15x64.bat` for 64-bit OpenCV or `build-vs15x32.bat` for 32-bit OpenCV (or `build.bat` to provide custom arch, project generator and configuration)
 5. Built executable and dependent dynamic libraries can be found in `build-<arch>/<configuration>` directory (e.g. `build-x64/Release`)
 
-*If Interception library building fails, try to install [WDK](https://www.microsoft.com/en-us/download/details.aspx?id=11800).*
+*If Interception library building fails, try install [WDK](https://www.microsoft.com/en-us/download/details.aspx?id=11800).*
