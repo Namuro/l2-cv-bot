@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.11)
 
-set(TARGET l2-cv-bot)
-project(${TARGET})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+project(l2-cv-bot)
 
 # Add sources
 add_executable(
-    ${TARGET}
+    l2-cv-bot
     src/main.cpp
     src/Bot.cpp
     src/Utils.h
@@ -18,12 +20,17 @@ add_executable(
 )
 
 # Configure compiler
-set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD 17)
-set_property(TARGET ${TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET l2-cv-bot PROPERTY CXX_STANDARD 17)
+set_property(TARGET l2-cv-bot PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # Link OpenCV
 find_package(OpenCV REQUIRED)
-target_link_libraries(${TARGET} ${OpenCV_LIBS})
+target_link_libraries(l2-cv-bot ${OpenCV_LIBS})
+
+# Link Interception API library
+add_subdirectory(lib/interception)
+target_link_libraries(l2-cv-bot interception)
+target_include_directories(l2-cv-bot PRIVATE lib/interception)
 
 # Bundle executable with DLLs
 if(MSVC)
@@ -32,14 +39,14 @@ if(MSVC)
     # \${BUILD_TYPE} - hack to find path to executable for current configuration (Release/Debug)
     install(CODE "
         include(BundleUtilities)
-        fixup_bundle(${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/${TARGET}.exe \"\" ${OpenCV_LIBS})
+        fixup_bundle(${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/l2-cv-bot.exe \"\" ${OpenCV_LIBS})
         configure_file(${CMAKE_SOURCE_DIR}/run.bat ${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/run.bat COPYONLY)
     " COMPONENT Runtime)
 endif()
 
 # Show more warnings
 if(MSVC)
-    target_compile_options(${TARGET} PRIVATE /W4)
+    target_compile_options(l2-cv-bot PRIVATE /W4)
 else()
-    target_compile_options(${TARGET} PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(l2-cv-bot PRIVATE -Wall -Wextra -pedantic)
 endif()
