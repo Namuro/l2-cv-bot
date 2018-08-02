@@ -10,6 +10,21 @@ void Input::MouseMove(const Point &point, int delay)
     AddInput(input, delay);
 }
 
+void Input::MouseMoveSmoothly(const Point &point, int step, int delay)
+{
+    const auto from = MousePosition();
+    const auto distance = std::hypot(point.x - from.x, point.y - from.y);
+    const auto steps = distance / step;
+    const auto dx = (point.x - from.x) / steps;
+    const auto dy = (point.y - from.y) / steps;
+
+    for (int i = 0; i < steps; ++i) {
+        MouseMove({static_cast<int>(from.x + i * dx), static_cast<int>(from.y + i * dy)}, delay);
+    }
+
+    MouseMove(point, delay);
+}
+
 void Input::MouseLeftDown(int delay)
 {
     ::INPUT input = {};
@@ -39,6 +54,24 @@ void Input::MouseRightUp(int delay)
     ::INPUT input = {};
     input.type = INPUT_MOUSE;
     input.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+    AddInput(input, delay);
+}
+
+void Input::KeyboardKeyDown(Key key, int delay)
+{
+    ::INPUT input = {};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wScan = static_cast<::WORD>(::MapVirtualKey(KeyToVK(key), MAPVK_VK_TO_VSC));
+    input.ki.dwFlags = KEYEVENTF_SCANCODE;
+    AddInput(input, delay);
+}
+
+void Input::KeyboardKeyUp(Key key, int delay)
+{
+    ::INPUT input = {};
+    input.type = INPUT_KEYBOARD;
+    input.ki.wScan = static_cast<::WORD>(::MapVirtualKey(KeyToVK(key), MAPVK_VK_TO_VSC));
+    input.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
     AddInput(input, delay);
 }
 

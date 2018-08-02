@@ -21,9 +21,9 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 1. Run Lineage II client, select character and teleport to any exp/farm location
 2. Run `run.bat "<title of the Lineage II client window>"`
 3. Character's HP/CP/MP bars must be 100% at the moment of bot start, but if not, you should wait until they will be 100% and then press Space to reset bars position
-4. To stop press ESC or just move mouse (if not running in debug mode)*
+4. To stop press ESC or just move mouse (if not running in debug mode)
 
-**Note that ESC and Space key bindings may not work in Lineage II window, so just select any other window/desktop and then press key.*
+*Note that ESC and Space key bindings may not work in Lineage II window, so just select any other window/desktop and then press key.*
 
 ## Command line options
 

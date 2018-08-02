@@ -10,7 +10,14 @@
 class Input
 {
 public:
-    enum class Key : char { Escape, Space, PrtScn, F12 };
+    enum Key
+    {
+        KEY_ESCAPE = -1,
+        KEY_SPACE = -2,
+        KEY_PRTSCN = -3,
+        KEY_F12 = -4,
+    };
+
     struct Point { int x, y; };
 
 private:
@@ -43,6 +50,7 @@ public:
     }
 
     void MouseMove(const Point &point, int delay = 0);
+    void MouseMoveSmoothly(const Point &point, int step = 30, int delay = 10);
     void MouseLeftDown(int delay = 0);
     void MouseLeftUp(int delay = 0);
     void MouseRightDown(int delay = 0);
@@ -68,12 +76,12 @@ private:
     static int KeyToVK(Key key)
     {
         switch (key) {
-        case Key::Escape:   return VK_ESCAPE;
-        case Key::Space:    return VK_SPACE;
-        case Key::PrtScn:   return VK_SNAPSHOT;
-        case Key::F12:      return VK_F12;
+        case KEY_ESCAPE:    return VK_ESCAPE;
+        case KEY_SPACE:     return VK_SPACE;
+        case KEY_PRTSCN:    return VK_SNAPSHOT;
+        case KEY_F12:       return VK_F12;
         }
 
-        return 0;
+        return ::VkKeyScan(static_cast<char>(key)) & 0xff;
     }
 };

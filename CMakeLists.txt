@@ -15,7 +15,6 @@ add_executable(
     src/FPS.h
     src/Eyes.cpp
     src/Input.cpp
-    src/Hands.cpp
 )
 
 # Configure compiler

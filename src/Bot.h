@@ -12,7 +12,6 @@
 #include "FPS.h"
 #include "Eyes.h"
 #include "Input.h"
-#include "Hands.h"
 
 class Bot
 {
@@ -21,10 +20,9 @@ class Bot
     FPS<100> m_fps;
     Eyes m_eyes;
     Input m_input;
-    Hands m_hands;
 
 public:
-    Bot(int argc, char* argv[]) : m_options{argc, argv}, m_hands{m_input} {}
+    Bot(int argc, char* argv[]) : m_options{argc, argv} {}
 
     void Run();
 
