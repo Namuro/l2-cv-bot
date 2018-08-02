@@ -65,6 +65,6 @@ public:
     Capture();
 
     std::optional<Bitmap> Grab(const Rect &rect);
-    std::optional<Bitmap> Grab() { return Grab(Rect{ m_x, m_y, m_width, m_height }); }
+    std::optional<Bitmap> Grab() { return Grab({ m_x, m_y, m_width, m_height }); }
     bool Clear();
 };

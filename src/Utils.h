@@ -8,7 +8,6 @@
 
 inline std::optional<cv::Mat> BitmapToImage(const Capture::Bitmap &bitmap)
 {
-    // check bitmap
     if (bitmap.data == nullptr ||
         bitmap.rows <= 0 ||
         bitmap.cols <= 0 ||
@@ -23,7 +22,7 @@ inline std::optional<cv::Mat> BitmapToImage(const Capture::Bitmap &bitmap)
         bitmap.cols,
         CV_8UC(bitmap.bits / 8),
         bitmap.data
-    )(cv::Rect(0, 0, bitmap.width, bitmap.height));
+    )({0, 0, bitmap.width, bitmap.height});
 }
 
 inline cv::Scalar VectorToScalar(const std::vector<int> &vector, const cv::Scalar &default)

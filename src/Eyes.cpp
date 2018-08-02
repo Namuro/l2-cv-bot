@@ -2,7 +2,6 @@
 
 std::optional<Eyes::World> Eyes::Blink(const cv::Mat &rgb)
 {
-    // still sleeping
     if (Sleeping()) {
         return {};
     }
@@ -61,17 +60,14 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel, cv::Point(-1, -1), 2);
 
-    // find external contours
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
     std::vector<NPC> npcs;
 
-    // find correct contours
     for (const auto &contour : contours) {
         const auto rect = cv::boundingRect(contour);
 
-        // check rect size & proportions
         if (rect.height < m_npc_name_min_height || rect.height > m_npc_name_max_height ||
             rect.width < m_npc_name_min_width || rect.width > m_npc_name_max_width ||
             rect.width < rect.height * 2
@@ -88,7 +84,7 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
 
         NPC npc = {};
         npc.rect = rect;
-        npc.center = cv::Point(rect.x + rect.width / 2, rect.y + rect.height / 2 + 15);
+        npc.center = cv::Point(rect.x + rect.width / 2, rect.y + rect.height / 2 + m_npc_name_center_offset);
         npc.id = Hash(target_image);
         npcs.push_back(npc);
     }
@@ -100,7 +96,7 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
 {
     // TL;DR: search for long thin red bar
 
-    // exract bar color
+    // exract HP bar color
     cv::Mat mask;
     cv::inRange(hsv, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, mask);
     
@@ -109,15 +105,12 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel);
 
-    // find external contours
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-    // find correct contour
     for (const auto &contour : contours) {
         const auto rect = cv::boundingRect(contour);
 
-        // check rect size & proportions
         if (rect.height < m_target_hp_min_height || rect.height > m_target_hp_max_height ||
             rect.width < m_target_hp_min_width || rect.width > m_target_hp_max_width
         ) {
@@ -133,7 +126,7 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
 std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
 {
     // TL;DR: search for HP bar, then detect CP bar above and MP bar below
-    // why start from HP? because sky is blue, sand is yellow... roses are red, there's no roses in Lineage II...
+    // why start from HP? because sky is blue, sand is yellow... roses are red, but there's no roses in Lineage II
 
     // exract HP bar color
     cv::Mat mask;
@@ -145,14 +138,12 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
     for (const auto &contour : contours) {
         const auto rect = cv::boundingRect(contour);
 
-        // check rect size & proportions
         if (rect.height < m_my_bar_min_height || rect.height > m_my_bar_max_height ||
             rect.width < m_my_bar_min_width || rect.width > m_my_bar_max_width
         ) {
             continue;
         }
 
-        // search for other bars near HP bar
         const auto bars_rect = rect + cv::Point(0, -rect.height * 2) + cv::Size(0, rect.height * 4);
         const auto bars = hsv(bars_rect);
 
@@ -217,7 +208,6 @@ std::vector<std::vector<cv::Point>> Eyes::FindMyBarContours(const cv::Mat &mask)
     kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(25, 1));
     cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
 
-    // find external contours
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
     return contours;

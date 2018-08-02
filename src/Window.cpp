@@ -2,7 +2,6 @@
 
 std::optional<Window> Window::Find(const std::string &window_title)
 {
-    // convert string to wstring for Windows API
     const auto wide_window_title = WidenString(window_title);
 
     if (!wide_window_title.has_value()) {
@@ -11,7 +10,6 @@ std::optional<Window> Window::Find(const std::string &window_title)
 
     const auto needed_title = wide_window_title.value().c_str();
 
-    // collect all HWNDs
     std::vector<::HWND> hwnds;
 
     ::EnumWindows([](::HWND hwnd, ::LPARAM lparam) -> ::BOOL {
@@ -56,7 +54,6 @@ std::optional<Window> Window::Find(const std::string &window_title)
         }
     }
 
-    // get found window's rect
     const auto rect = HWNDRect(found_hwnd);
 
     if (!rect.has_value()) {

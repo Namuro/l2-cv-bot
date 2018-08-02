@@ -23,7 +23,7 @@ void Bot::Run()
         }
 
         const auto rect = window.value().Rect();
-        const auto bitmap = m_capture.Grab(Capture::Rect{ rect.x, rect.y, rect.width, rect.height });
+        const auto bitmap = m_capture.Grab({ rect.x, rect.y, rect.width, rect.height });
 
         if (!bitmap.has_value()) {
             std::cout << "Failed to grab window" << std::endl;
@@ -191,6 +191,7 @@ void Bot::ConfigureEyes()
     m_eyes.m_npc_name_color_from_hsv    = VectorToScalar(m_options.IntVector("--npc_name_color_from_hsv"), m_eyes.m_npc_name_color_from_hsv);
     m_eyes.m_npc_name_color_to_hsv      = VectorToScalar(m_options.IntVector("--npc_name_color_to_hsv"), m_eyes.m_npc_name_color_to_hsv);
     m_eyes.m_npc_name_color_threshold   = m_options.Double("--npc_name_color_threshold", m_eyes.m_npc_name_color_threshold);
+    m_eyes.m_npc_name_center_offset     = m_options.Int("--npc_name_center_offset", m_eyes.m_npc_name_center_offset);
 
     // my HP/MP/CP bars detection
     m_eyes.m_my_bar_min_height      = m_options.Int("--my_bar_min_height", m_eyes.m_my_bar_min_height);

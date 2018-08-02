@@ -12,6 +12,7 @@ class Window
 {
 public:
     struct Rect { int x, y, width, height; };
+    struct Point { int x, y; };
 
 private:
     ::HWND m_hwnd;
@@ -22,6 +23,8 @@ public:
 
     const decltype(m_rect) &Rect() const { return m_rect; }
     bool BringToForeground() const { return SetForegroundWindow(m_hwnd); }
+    Point ConvertPoint(const Point &point) const { return { m_rect.x + point.x, m_rect.y + point.y }; }
+    Point Center() const { return { m_rect.x + m_rect.width / 2, m_rect.y + m_rect.height / 2 }; }
 
     static std::optional<Window> Find(const std::string &window_title);
 

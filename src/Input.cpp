@@ -44,15 +44,13 @@ void Input::MouseRightUp(int delay)
 
 void Input::Send()
 {
-    // dont allow to send new inputs before previous not completed
     if (!Ready() || m_inputs.empty()) {
         return;
     }
 
     m_ready = false;
 
-    // call SendInput in background thread
-    std::thread([this](const decltype(m_inputs) inputs) { // m_inputs -> inputs copy
+    std::thread([this](const decltype(m_inputs) inputs) {
         for (const auto &pair : inputs) {
             ::INPUT input = pair.first;
             const ::DWORD delay = pair.second;
@@ -63,7 +61,6 @@ void Input::Send()
 
             ::SendInput(1, reinterpret_cast<::LPINPUT>(&input), sizeof(::INPUT));
 
-            // save mouse position
             if (input.type == INPUT_MOUSE && input.mi.dwFlags & MOUSEEVENTF_MOVE) {
                 std::lock_guard guard(m_mouse_position_mtx);
                 m_mouse_position = { DXX(input.mi.dx), DYY(input.mi.dy) };

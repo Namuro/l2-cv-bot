@@ -43,6 +43,7 @@ public:
     cv::Scalar m_npc_name_color_from_hsv = cv::Scalar(0, 0, 240);
     cv::Scalar m_npc_name_color_to_hsv = cv::Scalar(0, 0, 255);
     double m_npc_name_color_threshold = 0.2;
+    int m_npc_name_center_offset = 15;
 
     // my HP/MP/CP bars detection
     int m_my_bar_min_height = 10;

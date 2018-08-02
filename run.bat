@@ -9,6 +9,7 @@ l2-cv-bot.exe ^
     --npc_name_color_from_hsv   0,0,240 ^
     --npc_name_color_to_hsv     0,0,255 ^
     --npc_name_color_threshold  0.2     ^
+    --npc_name_center_offset    15      ^
 
     %= my HP/MP/CP bars detection =%    ^
     --my_bar_min_height     10          ^

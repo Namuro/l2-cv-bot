@@ -2,18 +2,13 @@
 
 Capture::Capture() :
     m_bmi(),
-
-    // get screen dimensions
     m_x(::GetSystemMetrics(SM_XVIRTUALSCREEN)),
     m_y(::GetSystemMetrics(SM_YVIRTUALSCREEN)),
     m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
     m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
-
-    // initialize contexts
     m_srcdc(::GetDC(nullptr), DCReleaser(nullptr)),
     m_memdc(::CreateCompatibleDC(nullptr), DCDeleter())
 {
-    // setup bitmap info
     m_bmi.bmiHeader.biSize = sizeof(m_bmi.bmiHeader);
     m_bmi.bmiHeader.biWidth = m_width;
     m_bmi.bmiHeader.biHeight = -m_height;
@@ -21,7 +16,6 @@ Capture::Capture() :
     m_bmi.bmiHeader.biBitCount = 32;
     m_bmi.bmiHeader.biCompression = BI_RGB;
 
-    // initialize & select bitmap
     m_bitmap = { ::CreateDIBSection(
         m_memdc.get(),
         &m_bmi,
@@ -40,7 +34,6 @@ std::optional<Capture::Bitmap> Capture::Grab(const Rect &rect)
         return {};
     }
 
-    // copy pixels from source context to memory context
     if (!::BitBlt(m_memdc.get(), 0, 0, rect.width, rect.height, m_srcdc.get(), rect.x, rect.y, SRCCOPY | CAPTUREBLT)) {
         return {};
     }

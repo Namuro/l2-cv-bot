@@ -24,7 +24,7 @@ class Bot
     Hands m_hands;
 
 public:
-    Bot(int argc, char* argv[]) : m_options(argc, argv), m_hands(Hands(m_input)) {}
+    Bot(int argc, char* argv[]) : m_options(argc, argv), m_hands(m_input) {}
 
     void Run();
 
