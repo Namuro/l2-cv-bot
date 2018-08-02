@@ -53,7 +53,7 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
     cv::dilate(white, mask, kernel);
 
     // join words in target names
-    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(21, 5));
+    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(17, 5));
     cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
 
     // remove noise
@@ -71,7 +71,7 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
 
         if (rect.height < m_npc_name_min_height || rect.height > m_npc_name_max_height ||
             rect.width < m_npc_name_min_width || rect.width > m_npc_name_max_width ||
-            rect.width < rect.height * 1.5
+            rect.width < rect.height * 2
         ) {
             continue;
         }
