@@ -57,7 +57,7 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
     cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
 
     // remove noise
-    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(11, 5));
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel);
 
