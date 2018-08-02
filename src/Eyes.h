@@ -65,16 +65,17 @@ public:
     cv::Scalar m_target_hp_color_from_hsv = cv::Scalar(0, 60, 80);
     cv::Scalar m_target_hp_color_to_hsv = cv::Scalar(2, 220, 170);
 
-    Eyes() : m_wakeup_time(0) {}
+    Eyes() : m_wakeup_time{0} {}
 
     std::optional<World> Blink(const cv::Mat &rgb);
     void Reset();
+    bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
 
     void Sleep(int seconds = 0)
     {
-        m_wakeup_time = seconds > 0
-            ? std::time(nullptr) + seconds
-            : (std::numeric_limits<std::time_t>::max)();
+        m_wakeup_time = seconds == 0
+            ? (std::numeric_limits<std::time_t>::max)()
+            : std::time(nullptr) + seconds;
     }
 
     void WakeUp(int after = -1)
@@ -96,7 +97,6 @@ private:
     Me CalcMyValues(const cv::Mat &hsv) const;
     Target CalcTargetValues(const cv::Mat &hsv) const;
     std::vector<std::vector<cv::Point>> FindMyBarContours(const cv::Mat &mask) const;
-    bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
 
     static int CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color);
     static uint32_t Hash(const cv::Mat &image);

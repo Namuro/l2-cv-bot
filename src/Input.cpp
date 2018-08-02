@@ -63,7 +63,7 @@ void Input::Send()
 
             if (input.type == INPUT_MOUSE && input.mi.dwFlags & MOUSEEVENTF_MOVE) {
                 std::lock_guard guard(m_mouse_position_mtx);
-                m_mouse_position = { DXX(input.mi.dx), DYY(input.mi.dy) };
+                m_mouse_position = {DXX(input.mi.dx), DYY(input.mi.dy)};
             }
         }
 

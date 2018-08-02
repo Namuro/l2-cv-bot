@@ -84,7 +84,7 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
 
         NPC npc = {};
         npc.rect = rect;
-        npc.center = cv::Point(rect.x + rect.width / 2, rect.y + rect.height / 2 + m_npc_name_center_offset);
+        npc.center = {rect.x + rect.width / 2, rect.y + rect.height / 2 + m_npc_name_center_offset};
         npc.id = Hash(target_image);
         npcs.push_back(npc);
     }
@@ -219,11 +219,11 @@ int Eyes::CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, 
     CV_Assert(bar.depth() == CV_8U);
     CV_Assert(bar.channels() >= 3);
 
+    // loop mid row until first pixel with color in desired range
     const auto row = bar.ptr<uchar>(bar.rows / 2);
     auto channel = (bar.cols - 1) * bar.channels();
     auto cols = bar.cols;
 
-    // loop mid row until first pixel with color in desired range
     for (; channel > 0; channel -= bar.channels(), cols--) {
         if (row[channel + 0] >= from_color[0] && row[channel + 0] <= to_color[0] &&
             row[channel + 1] >= from_color[1] && row[channel + 1] <= to_color[1] &&

@@ -9,6 +9,19 @@
 
 class Capture
 {
+public:
+    struct Rect { int x, y, width, height; };
+
+    struct Bitmap {
+        unsigned char *data;
+        int rows;
+        int cols;
+        int width;
+        int height;
+        int bits;
+    };
+
+private:
     struct DCDeleter
     {
         using pointer = ::HDC;
@@ -21,7 +34,7 @@ class Capture
         ::HWND hwnd;
 
         DCReleaser() : hwnd(nullptr) {}
-        explicit DCReleaser(::HWND hwnd) : hwnd(hwnd) {}
+        explicit DCReleaser(::HWND hwnd) : hwnd{hwnd} {}
         void operator()(::HDC hdc) const { ::ReleaseDC(hwnd, hdc); }
     };
 
@@ -37,11 +50,11 @@ class Capture
         ::HDC hdc;
 
         GDIOBJDeselector() : hdc(nullptr) {}
-        explicit GDIOBJDeselector(::HDC hdc) : hdc(hdc) {}
+        explicit GDIOBJDeselector(::HDC hdc) : hdc{hdc} {}
         void operator()(::HGDIOBJ object) const { ::SelectObject(hdc, object); }
     };
 
-    int m_x, m_y, m_width, m_height;
+    Rect m_rect;
     ::BITMAPINFO m_bmi;
 
     std::unique_ptr<::HDC, DCReleaser> m_srcdc;
@@ -51,20 +64,11 @@ class Capture
     unsigned char *m_data;
 
 public:
-    struct Rect { int x, y, width, height; };
-
-    struct Bitmap {
-        unsigned char *data;
-        int rows;
-        int cols;
-        int width;
-        int height;
-        int bits;
-    };
-
     Capture();
 
     std::optional<Bitmap> Grab(const Rect &rect);
-    std::optional<Bitmap> Grab() { return Grab({ m_x, m_y, m_width, m_height }); }
+    std::optional<Bitmap> Grab() { return Grab(m_rect); }
     bool Clear();
+
+    const decltype(m_rect) &Rect() const { return m_rect; }
 };

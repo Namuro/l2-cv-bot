@@ -10,7 +10,7 @@ class FPS
     std::array<std::int64_t, Cap> m_times;
 
 public:
-    FPS() : m_i(0), m_time(std::chrono::steady_clock::now()), m_times() {}
+    FPS() : m_i{0}, m_time{std::chrono::steady_clock::now()}, m_times{} {}
 
     double Get();
 };

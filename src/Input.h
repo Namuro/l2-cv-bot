@@ -22,16 +22,16 @@ private:
 
 public:
     Input() :
-        m_width(::GetSystemMetrics(SM_CXVIRTUALSCREEN)),
-        m_height(::GetSystemMetrics(SM_CYVIRTUALSCREEN)),
-        m_mouse_position(MousePosition()),
-        m_ready(true) {}
+        m_width{::GetSystemMetrics(SM_CXVIRTUALSCREEN)},
+        m_height{::GetSystemMetrics(SM_CYVIRTUALSCREEN)},
+        m_mouse_position{MousePosition()},
+        m_ready{true} {}
 
     Point MousePosition() const
     {
         ::POINT point;
         ::GetCursorPos(&point);
-        return { point.x, point.y };
+        return {point.x, point.y};
     }
 
     bool MouseMoved(int delta = 0)
@@ -67,7 +67,7 @@ private:
             return;
         }
 
-        m_inputs.push_back({ input, delay });
+        m_inputs.push_back({input, delay});
     }
 
     static int KeyToVK(Key key)

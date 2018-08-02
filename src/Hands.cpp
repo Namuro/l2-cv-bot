@@ -1,12 +1,19 @@
 #include "Hands.h"
 
-#include <iostream>
-
 void Hands::SmoothMouseMove(const Input::Point &point) const
 {
-    // calculate distance between source and destination points
-    // calculate steps = divide distance by 50 pixels, then floor
-    // xs = dx / step; ys = dy / step;
-    // just increment x by xs, y by ys
+    constexpr auto step = 30;
+    constexpr auto delay = 10;
+
     const auto from = m_input.MousePosition();
+    const auto distance = std::hypot(point.x - from.x, point.y - from.y);
+    const auto steps = distance / step;
+    const auto dx = (point.x - from.x) / steps;
+    const auto dy = (point.y - from.y) / steps;
+
+    for (int i = 0; i < steps; ++i) {
+        m_input.MouseMove({static_cast<int>(from.x + i * dx), static_cast<int>(from.y + i * dy)}, delay);
+    }
+
+    m_input.MouseMove(point, delay);
 }

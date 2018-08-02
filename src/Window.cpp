@@ -75,15 +75,14 @@ std::optional<struct Window::Rect> Window::HWNDRect(const ::HWND hwnd)
         return {};
     }
 
-    ::POINT lt = { rect.left, rect.top };
-    ::POINT rb = { rect.right, rect.bottom };
+    ::POINT lt = {rect.left, rect.top};
+    ::POINT rb = {rect.right, rect.bottom};
 
     if (!::ClientToScreen(hwnd, &lt) || !::ClientToScreen(hwnd, &rb)) {
         return {};
     }
 
-    struct Rect result = { lt.x, lt.y, rb.x - lt.x, rb.y - lt.y };
-    return result;
+    return {{lt.x, lt.y, rb.x - lt.x, rb.y - lt.y}};
 }
 
 std::optional<std::wstring> Window::WidenString(const std::string &string)
