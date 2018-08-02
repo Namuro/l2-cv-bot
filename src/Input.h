@@ -48,11 +48,13 @@ public:
     void MouseRightDown(int delay = 0);
     void MouseRightUp(int delay = 0);
 
+    void KeyboardKeyDown(Key key, int delay = 0);
+    void KeyboardKeyUp(Key key, int delay = 0);
+    bool KeyboardKeyPressed(Key key) const { return ::GetAsyncKeyState(KeyToVK(key)) & 0x8000; }
+
     void Send();
     void Reset() { m_inputs.clear(); }
     bool Ready() const { return m_ready.load(); }
-
-    bool KeyboardKeyPressed(Key key) const { return ::GetAsyncKeyState(KeyToVK(key)) & 0x8000; }
 
 private:
     // mouse coordinates conversions for Windows API
@@ -61,26 +63,15 @@ private:
     int DXX(int dx) { return (dx * m_width) / 0xffff; }
     int DYY(int dy) { return (dy * m_height) / 0xffff; }
 
-    void AddInput(::INPUT input, int delay)
-    {
-        if (!Ready()) {
-            return;
-        }
-
-        m_inputs.push_back({input, delay});
-    }
+    void AddInput(::INPUT input, int delay) { if (Ready()) m_inputs.push_back({input, delay}); }
 
     static int KeyToVK(Key key)
     {
         switch (key) {
-        case Key::Escape:
-            return VK_ESCAPE;
-        case Key::Space:
-            return VK_SPACE;
-        case Key::PrtScn:
-            return VK_SNAPSHOT;
-        case Key::F12:
-            return VK_F12;
+        case Key::Escape:   return VK_ESCAPE;
+        case Key::Space:    return VK_SPACE;
+        case Key::PrtScn:   return VK_SNAPSHOT;
+        case Key::F12:      return VK_F12;
         }
 
         return 0;

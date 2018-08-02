@@ -36,14 +36,14 @@ private:
 
 public:
     // NPC detection
-    int m_npc_name_min_height = 10;
-    int m_npc_name_max_height = 18;
-    int m_npc_name_min_width = 30;
+    int m_npc_name_min_height = 8;
+    int m_npc_name_max_height = 16;
+    int m_npc_name_min_width = 20;
     int m_npc_name_max_width = 250;
     cv::Scalar m_npc_name_color_from_hsv = cv::Scalar(0, 0, 240);
     cv::Scalar m_npc_name_color_to_hsv = cv::Scalar(0, 0, 255);
     double m_npc_name_color_threshold = 0.2;
-    int m_npc_name_center_offset = 15;
+    int m_npc_name_center_offset = 20;
 
     // my HP/MP/CP bars detection
     int m_my_bar_min_height = 10;
@@ -70,21 +70,13 @@ public:
     std::optional<World> Blink(const cv::Mat &rgb);
     void Reset();
     bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
+    void WakeUp(int after = -1) { if (Sleeping()) m_wakeup_time = std::time(nullptr) + after; }
 
     void Sleep(int seconds = 0)
     {
         m_wakeup_time = seconds == 0
             ? (std::numeric_limits<std::time_t>::max)()
             : std::time(nullptr) + seconds;
-    }
-
-    void WakeUp(int after = -1)
-    {
-        if (!Sleeping()) {
-            return;
-        }
-
-        m_wakeup_time = std::time(nullptr) + after;
     }
 
     const decltype(m_target_hp_bar) &TargetHPBar() const { return m_target_hp_bar; }

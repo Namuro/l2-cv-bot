@@ -57,8 +57,9 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
     cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
 
     // remove noise
+    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     cv::erode(mask, mask, kernel);
-    cv::dilate(mask, mask, kernel, cv::Point(-1, -1), 2);
+    cv::dilate(mask, mask, kernel);
 
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
@@ -70,7 +71,7 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
 
         if (rect.height < m_npc_name_min_height || rect.height > m_npc_name_max_height ||
             rect.width < m_npc_name_min_width || rect.width > m_npc_name_max_width ||
-            rect.width < rect.height * 2
+            rect.width < rect.height * 1.5
         ) {
             continue;
         }
