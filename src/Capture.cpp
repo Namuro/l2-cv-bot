@@ -8,9 +8,9 @@ Capture::Capture() :
         ::GetSystemMetrics(SM_CYVIRTUALSCREEN)
     },
 
-    m_bmi{},
-    m_srcdc{::GetDC(nullptr), DCReleaser(nullptr)},
-    m_memdc{::CreateCompatibleDC(nullptr), DCDeleter()}
+    m_bmi   {},
+    m_srcdc {::GetDC(nullptr), DCReleaser(nullptr)},
+    m_memdc {::CreateCompatibleDC(nullptr), DCDeleter()}
 {
     m_bmi.bmiHeader.biSize = sizeof(m_bmi.bmiHeader);
     m_bmi.bmiHeader.biWidth = m_rect.width;

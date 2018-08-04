@@ -159,7 +159,7 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
 
         const auto bar_contours = FindMyBarContours(mp_cp);
 
-        // no CP or MP bar found
+        // no CP nor MP bar were found
         if (bar_contours.size() != 2) {
             continue;
         }

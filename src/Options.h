@@ -3,12 +3,9 @@
 #include <vector>
 #include <string>
 #include <optional>
-#include <sstream>
 
 class Options
 {
-    std::vector<std::string> m_options;
-
 public:
     Options(int argc, char *argv[]) : m_options{&argv[0], &argv[0] + argc} {}
 
@@ -21,5 +18,7 @@ public:
     std::vector<int> IntVector(const std::string &option, const std::vector<int> &default = {}) const;
 
 private:
+    std::vector<std::string> m_options;
+
     std::optional<std::string> Find(const std::string &option, bool next = true) const;
 };

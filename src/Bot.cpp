@@ -1,7 +1,17 @@
 #include "Bot.h"
 
+#include "interception.h"
+#include "Intercept.h"
+
 void Bot::Run()
 {
+    //const auto context = ::interception_create_context();
+    //Intercept intercept(context);
+    const auto i = Intercept::Create();
+    Sleep(500);
+    i->get()->MoveMouse({100, 100});
+    Sleep(20000);
+    return;
     ConfigureEyes();
 
     const auto title = m_options.String("--window", "Lineage II");
@@ -37,9 +47,9 @@ void Bot::Run()
             break;
         }
 
-        if (m_input.KeyboardKeyPressed(Input::KEY_PRTSCN)) {
-            cv::imwrite("shot.png", image.value());
-        }
+        //if (m_input.KeyboardKeyPressed(Input::KEY_PRTSCN)) {
+        //    cv::imwrite("shot.png", image.value());
+        //}
 
         const auto world = m_eyes.Blink(image.value());
 
@@ -51,12 +61,12 @@ void Bot::Run()
             ShowDebugWindow(image.value());
         }
 
-        if (!debug && m_input.MouseMoved(100) || m_input.KeyboardKeyPressed(Input::KEY_ESCAPE)) {
-            std::cout << "Bye!" << std::endl;
-            break;
-        } else if (m_input.KeyboardKeyPressed(Input::KEY_SPACE)) {
-            m_eyes.Reset();
-        }
+        //if (!debug && m_input.MouseMoved(100) || m_input.KeyboardKeyPressed(Input::KEY_ESCAPE)) {
+        //    std::cout << "Bye!" << std::endl;
+        //    break;
+        //} else if (m_input.KeyboardKeyPressed(Input::KEY_SPACE)) {
+        //    m_eyes.Reset();
+        //}
     }
 
     cv::destroyAllWindows();
@@ -173,12 +183,12 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
         cv::LINE_AA
     );
 
-    if (m_input.KeyboardKeyPressed(Input::KEY_F12)) {
-        cv::imwrite("preview.bmp", image);
-    }
+    //if (m_input.KeyboardKeyPressed(Input::KEY_F12)) {
+    //    cv::imwrite("preview.bmp", image);
+    //}
 
     cv::imshow("l2-cv-bot", image);
-    return cv::waitKey(1) & 0xff;
+    return cv::waitKey(1) & 0xFF;
 }
 
 void Bot::ConfigureEyes()

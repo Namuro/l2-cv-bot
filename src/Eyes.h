@@ -29,12 +29,6 @@ public:
         std::vector<NPC> npcs;
     };
 
-private:
-    std::optional<MyBars> m_my_bars;
-    std::optional<cv::Rect> m_target_hp_bar;
-    std::time_t m_wakeup_time;
-
-public:
     // NPC detection
     int m_npc_name_min_height = 8;
     int m_npc_name_max_height = 16;
@@ -43,7 +37,7 @@ public:
     cv::Scalar m_npc_name_color_from_hsv = cv::Scalar(0, 0, 240);
     cv::Scalar m_npc_name_color_to_hsv = cv::Scalar(0, 0, 255);
     double m_npc_name_color_threshold = 0.2;
-    int m_npc_name_center_offset = 20;
+    int m_npc_name_center_offset = 15;
 
     // my HP/MP/CP bars detection
     int m_my_bar_min_height = 10;
@@ -67,10 +61,12 @@ public:
 
     Eyes() : m_wakeup_time{0} {}
 
+    const std::optional<cv::Rect> &TargetHPBar() const { return m_target_hp_bar; }
+    const std::optional<struct MyBars> &MyBars() const { return m_my_bars; }
+
     std::optional<World> Blink(const cv::Mat &rgb);
     void Reset();
     bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
-    void WakeUp(int after = -1) { if (Sleeping()) m_wakeup_time = std::time(nullptr) + after; }
 
     void Sleep(int seconds = 0)
     {
@@ -79,10 +75,18 @@ public:
             : std::time(nullptr) + seconds;
     }
 
-    const decltype(m_target_hp_bar) &TargetHPBar() const { return m_target_hp_bar; }
-    const decltype(m_my_bars) &MyBars() const { return m_my_bars; }
+    void WakeUp(int after = -1)
+    {
+        if (Sleeping()) {
+            m_wakeup_time = std::time(nullptr) + after;
+        }
+    }
 
 private:
+    std::optional<struct MyBars> m_my_bars;
+    std::optional<cv::Rect> m_target_hp_bar;
+    std::time_t m_wakeup_time;
+
     std::vector<NPC> DetectNPCs(const cv::Mat &hsv) const;
     std::optional<cv::Rect> DetectTargetHPBar(const cv::Mat &hsv) const;
     std::optional<struct MyBars> DetectMyBars(const cv::Mat &hsv) const;

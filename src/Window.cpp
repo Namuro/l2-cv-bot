@@ -1,3 +1,6 @@
+#include <vector>
+#include <map>
+
 #include "Window.h"
 
 std::optional<Window> Window::Find(const std::string &window_title)
@@ -115,7 +118,7 @@ std::optional<std::wstring> Window::WidenString(const std::string &string)
         chars_needed
     );
 
-    if (chars_converted != chars_needed) {
+    if (chars_converted == 0) {
         return {};
     }
 

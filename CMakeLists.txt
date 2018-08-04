@@ -14,6 +14,7 @@ add_executable(
     src/Capture.cpp
     src/FPS.h
     src/Eyes.cpp
+    src/Intercept.cpp
     src/Input.cpp
 )
 
