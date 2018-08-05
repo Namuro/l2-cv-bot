@@ -13,7 +13,7 @@
 class Runloop
 {
 public:
-    Runloop(int argc, char* argv[]) : m_options{argc, argv} {}
+    Runloop(int argc, char* argv[]) : m_options{argc, argv} {} // throws
 
     void Run();
 private:

@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <variant>
-#include <mutex>
 #include <atomic>
 
 #include "Intercept.h"
@@ -219,12 +218,12 @@ public:
         //AltTab              = 0xA5,
         //AltNumEnter         = 0xA6,
 
-        Max                 = ::Intercept::KEYBOARD_KEY_MAX
+        Max                 = ::Intercept::KEYBOARD_KEY_MAX // 0xFF
     };
 
     struct Point { int x, y; };
 
-    Input() : m_intercept{}, m_mouse_position{MousePosition()}, m_ready{true} {}
+    Input() : m_intercept{}, m_mouse_position{MousePosition()}, m_ready{true} {} // throws
 
     void MoveMouse(const Point &point, int delay = 0);
     void MoveMouseSmoothly(const Point &point, const Point &from, int step = 20, int delay = 0, int interval = 10);

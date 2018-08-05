@@ -42,7 +42,7 @@ public:
 
     struct Point { int x, y; };
 
-    Intercept();
+    Intercept(); // throws
 
     void SendMouseMoveEvent(const Point &point) const;
     void SendMouseButtonEvent(MouseButtonEvent event) const;
