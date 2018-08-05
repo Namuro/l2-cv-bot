@@ -2,7 +2,6 @@
 
 #include <optional>
 #include <memory>
-#include <algorithm>
 
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>

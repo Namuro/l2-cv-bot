@@ -27,7 +27,7 @@ double FPS<Cap>::Get()
 
     // incrementally calculate average FPS
     decltype(m_times)::size_type count = 0;
-    double average = 0.0;
+    auto average = 0.0;
 
     for (const auto time : m_times) {
         if (time <= 0) {

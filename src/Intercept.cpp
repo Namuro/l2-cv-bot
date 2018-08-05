@@ -1,30 +1,30 @@
-#include "Intercept.h"
-
 #include <thread>
 
-std::optional<std::unique_ptr<Intercept>> Intercept::Create()
+#define WIN32_MEAN_AND_LEAN
+#include <Windows.h>
+
+#include "Intercept.h"
+
+Intercept::Intercept() :
+    m_screen_width          {::GetSystemMetrics(SM_CXVIRTUALSCREEN)},
+    m_screen_height         {::GetSystemMetrics(SM_CYVIRTUALSCREEN)},
+    m_context               {},
+    m_keyboard_device       {0},
+    m_mouse_device          {0},
+    m_pressed_keyboard_keys {},
+    m_pressed_mouse_buttons {},
+    m_mouse_delta           {},
+    m_keyboard_mtx          {},
+    m_mouse_mtx             {}
 {
     const auto context = ::interception_create_context();
 
     if (context == nullptr) {
-        return {};
+        throw InterceptionDriverNotFoundError();
     }
 
-    // allocate on heap to move mutex container into std::optional
-    return std::make_unique<Intercept>(context);
-}
+    m_context = {context, InterceptionContextDestroyer()};
 
-Intercept::Intercept(::InterceptionContext context) :
-    m_screen_width      {::GetSystemMetrics(SM_CXVIRTUALSCREEN)},
-    m_screen_height     {::GetSystemMetrics(SM_CYVIRTUALSCREEN)},
-    m_context           {context, InterceptionContextDestroyer()},
-    m_keyboard_device   {0},
-    m_mouse_device      {0},
-    m_keyboard_keys     {},
-    m_mouse_buttons     {},
-    m_keyboard_mtx      {},
-    m_mouse_mtx         {}
-{
     // find default keyboard device
     for (::InterceptionDevice device = 0; device < INTERCEPTION_MAX_KEYBOARD; ++device) {
         char hardware_id[512]; // not used
@@ -60,8 +60,8 @@ Intercept::Intercept(::InterceptionContext context) :
                 std::lock_guard lock(m_keyboard_mtx);
                 const auto key_stroke = reinterpret_cast<::InterceptionKeyStroke *>(&stroke);
 
-                if (key_stroke->code < m_keyboard_keys.size()) {
-                    m_keyboard_keys[key_stroke->code] =
+                if (key_stroke->code < m_pressed_keyboard_keys.size()) {
+                    m_pressed_keyboard_keys[key_stroke->code] =
                         key_stroke->state == INTERCEPTION_KEY_DOWN ||
                         key_stroke->state == INTERCEPTION_KEY_E0;
                 }
@@ -70,28 +70,31 @@ Intercept::Intercept(::InterceptionContext context) :
                 const auto mouse_stroke = reinterpret_cast<InterceptionMouseStroke *>(&stroke);
 
                 if (mouse_stroke->state != 0) {
-                    m_mouse_buttons[static_cast<size_t>(MouseButton::Left)] =
+                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Left)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN;
-                    m_mouse_buttons[static_cast<size_t>(MouseButton::Right)] =
+                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Right)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_RIGHT_BUTTON_DOWN;
-                    m_mouse_buttons[static_cast<size_t>(MouseButton::Middle)] =
+                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Middle)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_MIDDLE_BUTTON_DOWN;
-                    m_mouse_buttons[static_cast<size_t>(MouseButton::Fourth)] =
+                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Fourth)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_BUTTON_4_DOWN;
-                    m_mouse_buttons[static_cast<size_t>(MouseButton::Fifth)] =
+                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Fifth)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_BUTTON_5_DOWN;
+                } else {
+                    m_mouse_delta.x += std::abs(mouse_stroke->x);
+                    m_mouse_delta.y += std::abs(mouse_stroke->y);
                 }
             }
         }
     }, context).detach();
 }
 
-void Intercept::SendMouseMoveEvent(const Point &position) const
+void Intercept::SendMouseMoveEvent(const Point &point) const
 {
     ::InterceptionMouseStroke stroke = {};
     stroke.flags = INTERCEPTION_MOUSE_MOVE_ABSOLUTE | INTERCEPTION_MOUSE_VIRTUAL_DESKTOP;
-    stroke.x = position.x * 0xFFFF / m_screen_width + 1;
-    stroke.y = position.y * 0xFFFF / m_screen_height + 1;
+    stroke.x = point.x * 0xFFFF / m_screen_width + 1;
+    stroke.y = point.y * 0xFFFF / m_screen_height + 1;
     ::interception_send(m_context.get(), m_mouse_device, reinterpret_cast<InterceptionStroke *>(&stroke), 1);
 }
 
@@ -102,59 +105,44 @@ void Intercept::SendMouseButtonEvent(MouseButtonEvent event) const
     ::interception_send(m_context.get(), m_mouse_device, reinterpret_cast<InterceptionStroke *>(&stroke), 1);
 }
 
-void Intercept::SendKeyboardKeyEvent(KeyboardKey key, KeyboardKeyEvent event) const
+void Intercept::SendKeyboardKeyEvent(int code, KeyboardKeyEvent event, bool e0, bool e1) const
 {
-    const auto code = static_cast<int>(key);
     const auto state = static_cast<unsigned short>(event);
 
-    auto stroke_idx = 0;
-    ::InterceptionKeyStroke strokes[2] = {};
+    ::InterceptionKeyStroke stroke = {};
+    stroke.code = static_cast<unsigned short>(code);
+    stroke.state = state;
 
-    if (code & SHIFT) {
-        strokes[stroke_idx].code = static_cast<unsigned short>(KeyScanCode(KeyboardKey::LeftShift));
-        strokes[stroke_idx].state = state;
-        ++stroke_idx;
+    if (e0) {
+        stroke.state |= INTERCEPTION_KEY_E0;
     }
 
-    strokes[stroke_idx].code = static_cast<unsigned short>(KeyScanCode(key));
-    strokes[stroke_idx].state = state;
-
-    if (code & E0) {
-        strokes[stroke_idx].state |= INTERCEPTION_KEY_E0;
+    if (e1) {
+        stroke.state |= INTERCEPTION_KEY_E1;
     }
 
-    if (code & E1) {
-        strokes[stroke_idx].state |= INTERCEPTION_KEY_E1;
-    }
-
-    ::interception_send(m_context.get(), m_keyboard_device, reinterpret_cast<InterceptionStroke *>(&strokes), stroke_idx + 1);
+    ::interception_send(m_context.get(), m_keyboard_device, reinterpret_cast<InterceptionStroke *>(&stroke), 1);
 }
 
 bool Intercept::MouseButtonPressed(MouseButton button)
 {
     std::lock_guard lock(m_mouse_mtx);
-    return m_mouse_buttons[static_cast<size_t>(button)];
+    return m_pressed_mouse_buttons[static_cast<size_t>(button)];
 }
 
-bool Intercept::KeyboardKeyPressed(KeyboardKey key)
+bool Intercept::KeyboardKeyPressed(int code)
 {
     std::lock_guard lock(m_keyboard_mtx);
-    const auto code = static_cast<size_t>(key);
-    const auto scancode = KeyScanCode(key);
 
-    if (scancode >= m_keyboard_keys.size()) {
+    if (code >= m_pressed_keyboard_keys.size()) {
         return false;
     }
 
-    if (code & SHIFT) {
-        const auto lshift = static_cast<size_t>(KeyboardKey::LeftShift);
-        const auto rshift = static_cast<size_t>(KeyboardKey::RightShift);
+    return m_pressed_keyboard_keys[code];
+}
 
-        return m_keyboard_keys[scancode] && (
-            m_keyboard_keys[lshift] ||
-            m_keyboard_keys[rshift]
-        );
-    } else {
-        return m_keyboard_keys[scancode];
-    }
+Intercept::Point Intercept::MouseDelta()
+{
+    std::lock_guard lock(m_mouse_mtx);
+    return m_mouse_delta;
 }

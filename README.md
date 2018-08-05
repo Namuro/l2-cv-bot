@@ -8,9 +8,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 * NPC detection
 * HP/MP/CP monitoring
-* Custom CV configuration support
-* ~~Mouse and keyboard emulation~~
-* ~~Custom skills/actions layout support~~
+* Mouse and keyboard emulation
 * ~~Stuck resolving~~
 * ~~Alarm subsystem (captcha, low HP, CP decreasing, etc.)~~
 * ~~Buff/debuff monitoring~~
@@ -18,9 +16,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 ## How to use
 
-**WARNING: [Interception](https://github.com/oblitum/Interception) driver is required for mouse and keyboard emulation.**
-
-**It's a closed-source kernel mode driver, so you need to completely trust the author, even if a driver signed by Microsoft. The driver allows input to be monitored, as well as emulated, so theoretically any unprivileged software could use it to sniff what you're typing. It can also block any keyboard input, including Ctrl+Alt+Del.**
+**[Interception](https://github.com/oblitum/Interception) driver is required for mouse and keyboard emulation.**
 
 1. Install [Interception](https://github.com/oblitum/Interception/releases) driver (start `cmd.exe` as Administrator, then run `install-interception.exe /install`) and reboot.
 2. Run Lineage II client, select character and teleport to any exp/farm location

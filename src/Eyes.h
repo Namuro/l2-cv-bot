@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <tuple>
 #include <optional>
 #include <ctime>
 #include <limits>
@@ -66,21 +65,12 @@ public:
 
     std::optional<World> Blink(const cv::Mat &rgb);
     void Reset();
-    bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
 
     void Sleep(int seconds = 0)
-    {
-        m_wakeup_time = seconds == 0
-            ? (std::numeric_limits<std::time_t>::max)()
-            : std::time(nullptr) + seconds;
-    }
+        { m_wakeup_time = seconds == 0 ? (std::numeric_limits<std::time_t>::max)() : std::time(nullptr) + seconds; }
 
-    void WakeUp(int after = -1)
-    {
-        if (Sleeping()) {
-            m_wakeup_time = std::time(nullptr) + after;
-        }
-    }
+    bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
+    void WakeUp(int after = -1) { if (Sleeping()) m_wakeup_time = std::time(nullptr) + after; }
 
 private:
     std::optional<struct MyBars> m_my_bars;

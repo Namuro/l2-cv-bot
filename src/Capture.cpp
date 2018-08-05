@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Capture.h"
 
 Capture::Capture() :

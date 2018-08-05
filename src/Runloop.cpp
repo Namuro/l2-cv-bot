@@ -1,17 +1,10 @@
-#include "Bot.h"
+#include "Utils.h"
+#include "Window.h"
 
-#include "interception.h"
-#include "Intercept.h"
+#include "Runloop.h"
 
-void Bot::Run()
+void Runloop::Run()
 {
-    //const auto context = ::interception_create_context();
-    //Intercept intercept(context);
-    const auto i = Intercept::Create();
-    Sleep(500);
-    i->get()->MoveMouse({100, 100});
-    Sleep(20000);
-    return;
     ConfigureEyes();
 
     const auto title = m_options.String("--window", "Lineage II");
@@ -20,7 +13,7 @@ void Bot::Run()
 
     while (true) {
         m_capture.Clear();
-        const auto window = Window::Find(title);
+        const auto window = ::Window::Find(title);
 
         if (!window.has_value()) {
             std::cout << "Can't find window \"" << title << "\"" << std::endl;
@@ -47,9 +40,10 @@ void Bot::Run()
             break;
         }
 
-        //if (m_input.KeyboardKeyPressed(Input::KEY_PRTSCN)) {
-        //    cv::imwrite("shot.png", image.value());
-        //}
+        if (m_input.KeyboardKeyPressed(::Input::KeyboardKey::PrintScreen)) {
+            cv::imwrite("shot.png", image.value());
+            std::cout << "Screenshot saved to shot.png" << std::endl;
+        }
 
         const auto world = m_eyes.Blink(image.value());
 
@@ -61,18 +55,18 @@ void Bot::Run()
             ShowDebugWindow(image.value());
         }
 
-        //if (!debug && m_input.MouseMoved(100) || m_input.KeyboardKeyPressed(Input::KEY_ESCAPE)) {
-        //    std::cout << "Bye!" << std::endl;
-        //    break;
-        //} else if (m_input.KeyboardKeyPressed(Input::KEY_SPACE)) {
-        //    m_eyes.Reset();
-        //}
+        if (!debug && m_input.MouseMoved(100) || m_input.KeyboardKeyPressed(::Input::KeyboardKey::Escape)) {
+            std::cout << "Bye!" << std::endl;
+            break;
+        } else if (m_input.KeyboardKeyPressed(::Input::KeyboardKey::Space)) {
+            m_eyes.Reset();
+        }
     }
 
     cv::destroyAllWindows();
 }
 
-void Bot::DrawWorldInfo(const cv::Mat &image, const Eyes::World &world) const
+void Runloop::DrawWorldInfo(const cv::Mat &image, const ::Eyes::World &world) const
 {
     // draw help
     cv::putText(
@@ -153,7 +147,7 @@ void Bot::DrawWorldInfo(const cv::Mat &image, const Eyes::World &world) const
     }
 }
 
-int Bot::ShowDebugWindow(const cv::Mat &image)
+int Runloop::ShowDebugWindow(const cv::Mat &image)
 {
     // draw target HP bar
     const auto target_hp_bar = m_eyes.TargetHPBar();
@@ -183,43 +177,44 @@ int Bot::ShowDebugWindow(const cv::Mat &image)
         cv::LINE_AA
     );
 
-    //if (m_input.KeyboardKeyPressed(Input::KEY_F12)) {
-    //    cv::imwrite("preview.bmp", image);
-    //}
+    if (m_input.KeyboardKeyPressed(::Input::KeyboardKey::F12)) {
+        cv::imwrite("preview.bmp", image);
+        std::cout << "Preview saved to preview.bmp" << std::endl;
+    }
 
     cv::imshow("l2-cv-bot", image);
     return cv::waitKey(1) & 0xFF;
 }
 
-void Bot::ConfigureEyes()
+void Runloop::ConfigureEyes()
 {
     // NPC detection
-    m_eyes.m_npc_name_min_height        = m_options.Int("--npc_name_min_height", m_eyes.m_npc_name_min_height);
-    m_eyes.m_npc_name_max_height        = m_options.Int("--npc_name_max_height", m_eyes.m_npc_name_max_height);
-    m_eyes.m_npc_name_min_width         = m_options.Int("--npc_name_min_width", m_eyes.m_npc_name_min_width);
-    m_eyes.m_npc_name_max_width         = m_options.Int("--npc_name_max_width", m_eyes.m_npc_name_max_width);
-    m_eyes.m_npc_name_color_from_hsv    = VectorToScalar(m_options.IntVector("--npc_name_color_from_hsv"), m_eyes.m_npc_name_color_from_hsv);
-    m_eyes.m_npc_name_color_to_hsv      = VectorToScalar(m_options.IntVector("--npc_name_color_to_hsv"), m_eyes.m_npc_name_color_to_hsv);
-    m_eyes.m_npc_name_color_threshold   = m_options.Double("--npc_name_color_threshold", m_eyes.m_npc_name_color_threshold);
-    m_eyes.m_npc_name_center_offset     = m_options.Int("--npc_name_center_offset", m_eyes.m_npc_name_center_offset);
+    m_eyes.m_npc_name_min_height = m_options.Int("--npc_name_min_height", m_eyes.m_npc_name_min_height);
+    m_eyes.m_npc_name_max_height = m_options.Int("--npc_name_max_height", m_eyes.m_npc_name_max_height);
+    m_eyes.m_npc_name_min_width = m_options.Int("--npc_name_min_width", m_eyes.m_npc_name_min_width);
+    m_eyes.m_npc_name_max_width = m_options.Int("--npc_name_max_width", m_eyes.m_npc_name_max_width);
+    m_eyes.m_npc_name_color_from_hsv = ::VectorToScalar(m_options.IntVector("--npc_name_color_from_hsv"), m_eyes.m_npc_name_color_from_hsv);
+    m_eyes.m_npc_name_color_to_hsv = ::VectorToScalar(m_options.IntVector("--npc_name_color_to_hsv"), m_eyes.m_npc_name_color_to_hsv);
+    m_eyes.m_npc_name_color_threshold = m_options.Double("--npc_name_color_threshold", m_eyes.m_npc_name_color_threshold);
+    m_eyes.m_npc_name_center_offset = m_options.Int("--npc_name_center_offset", m_eyes.m_npc_name_center_offset);
 
     // my HP/MP/CP bars detection
-    m_eyes.m_my_bar_min_height      = m_options.Int("--my_bar_min_height", m_eyes.m_my_bar_min_height);
-    m_eyes.m_my_bar_max_height      = m_options.Int("--my_bar_max_height", m_eyes.m_my_bar_max_height);
-    m_eyes.m_my_bar_min_width       = m_options.Int("--my_bar_min_width", m_eyes.m_my_bar_min_width);
-    m_eyes.m_my_bar_max_width       = m_options.Int("--my_bar_max_width", m_eyes.m_my_bar_max_width);
-    m_eyes.m_my_hp_color_from_hsv   = VectorToScalar(m_options.IntVector("--my_hp_color_from_hsv"), m_eyes.m_my_hp_color_from_hsv);
-    m_eyes.m_my_hp_color_to_hsv     = VectorToScalar(m_options.IntVector("--my_hp_color_to_hsv"), m_eyes.m_my_hp_color_to_hsv);
-    m_eyes.m_my_mp_color_from_hsv   = VectorToScalar(m_options.IntVector("--my_mp_color_from_hsv"), m_eyes.m_my_mp_color_from_hsv);
-    m_eyes.m_my_mp_color_to_hsv     = VectorToScalar(m_options.IntVector("--my_mp_color_to_hsv"), m_eyes.m_my_mp_color_to_hsv);
-    m_eyes.m_my_cp_color_from_hsv   = VectorToScalar(m_options.IntVector("--my_cp_color_from_hsv"), m_eyes.m_my_cp_color_from_hsv);
-    m_eyes.m_my_cp_color_to_hsv     = VectorToScalar(m_options.IntVector("--my_cp_color_to_hsv"), m_eyes.m_my_cp_color_to_hsv);
+    m_eyes.m_my_bar_min_height = m_options.Int("--my_bar_min_height", m_eyes.m_my_bar_min_height);
+    m_eyes.m_my_bar_max_height = m_options.Int("--my_bar_max_height", m_eyes.m_my_bar_max_height);
+    m_eyes.m_my_bar_min_width = m_options.Int("--my_bar_min_width", m_eyes.m_my_bar_min_width);
+    m_eyes.m_my_bar_max_width = m_options.Int("--my_bar_max_width", m_eyes.m_my_bar_max_width);
+    m_eyes.m_my_hp_color_from_hsv = ::VectorToScalar(m_options.IntVector("--my_hp_color_from_hsv"), m_eyes.m_my_hp_color_from_hsv);
+    m_eyes.m_my_hp_color_to_hsv = ::VectorToScalar(m_options.IntVector("--my_hp_color_to_hsv"), m_eyes.m_my_hp_color_to_hsv);
+    m_eyes.m_my_mp_color_from_hsv = ::VectorToScalar(m_options.IntVector("--my_mp_color_from_hsv"), m_eyes.m_my_mp_color_from_hsv);
+    m_eyes.m_my_mp_color_to_hsv = ::VectorToScalar(m_options.IntVector("--my_mp_color_to_hsv"), m_eyes.m_my_mp_color_to_hsv);
+    m_eyes.m_my_cp_color_from_hsv = ::VectorToScalar(m_options.IntVector("--my_cp_color_from_hsv"), m_eyes.m_my_cp_color_from_hsv);
+    m_eyes.m_my_cp_color_to_hsv = ::VectorToScalar(m_options.IntVector("--my_cp_color_to_hsv"), m_eyes.m_my_cp_color_to_hsv);
 
     // target HP bar detection
-    m_eyes.m_target_hp_min_height       = m_options.Int("--target_hp_min_height", m_eyes.m_target_hp_min_height);
-    m_eyes.m_target_hp_max_height       = m_options.Int("--target_hp_max_height", m_eyes.m_target_hp_max_height);
-    m_eyes.m_target_hp_min_width        = m_options.Int("--target_hp_min_width", m_eyes.m_target_hp_min_width);
-    m_eyes.m_target_hp_max_width        = m_options.Int("--target_hp_max_width", m_eyes.m_target_hp_max_width);
-    m_eyes.m_target_hp_color_from_hsv   = VectorToScalar(m_options.IntVector("--target_hp_color_from_hsv"), m_eyes.m_target_hp_color_from_hsv);
-    m_eyes.m_target_hp_color_to_hsv     = VectorToScalar(m_options.IntVector("--target_hp_color_to_hsv"), m_eyes.m_target_hp_color_to_hsv);
+    m_eyes.m_target_hp_min_height = m_options.Int("--target_hp_min_height", m_eyes.m_target_hp_min_height);
+    m_eyes.m_target_hp_max_height = m_options.Int("--target_hp_max_height", m_eyes.m_target_hp_max_height);
+    m_eyes.m_target_hp_min_width = m_options.Int("--target_hp_min_width", m_eyes.m_target_hp_min_width);
+    m_eyes.m_target_hp_max_width = m_options.Int("--target_hp_max_width", m_eyes.m_target_hp_max_width);
+    m_eyes.m_target_hp_color_from_hsv = ::VectorToScalar(m_options.IntVector("--target_hp_color_from_hsv"), m_eyes.m_target_hp_color_from_hsv);
+    m_eyes.m_target_hp_color_to_hsv = ::VectorToScalar(m_options.IntVector("--target_hp_color_to_hsv"), m_eyes.m_target_hp_color_to_hsv);
 }
