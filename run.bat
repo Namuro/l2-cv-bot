@@ -1,4 +1,5 @@
 @echo off
+
 l2-cv-bot.exe ^
 
     %= NPC detection =%                 ^
@@ -32,4 +33,6 @@ l2-cv-bot.exe ^
     --target_hp_color_to_hsv    2,220,170   ^
 
     --debug true    ^
-    --window %1     ^
+    --window %1
+
+pause

@@ -33,7 +33,7 @@ void Runloop::Run()
             break;
         }
 
-        const auto image = BitmapToImage(bitmap.value());
+        auto image = BitmapToImage(bitmap.value()); // TODO: make const
 
         if (!image.has_value()) {
             std::cout << "Failed to convert bitmap to image" << std::endl;
@@ -66,7 +66,7 @@ void Runloop::Run()
     cv::destroyAllWindows();
 }
 
-void Runloop::DrawWorldInfo(const cv::Mat &image, const ::Eyes::World &world) const
+void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
 {
     // draw help
     cv::putText(
@@ -147,7 +147,7 @@ void Runloop::DrawWorldInfo(const cv::Mat &image, const ::Eyes::World &world) co
     }
 }
 
-int Runloop::ShowDebugWindow(const cv::Mat &image)
+int Runloop::ShowDebugWindow(cv::Mat &image)
 {
     // draw target HP bar
     const auto target_hp_bar = m_eyes.TargetHPBar();

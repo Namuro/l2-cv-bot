@@ -26,6 +26,7 @@ set_target_properties(l2-cv-bot PROPERTIES
 # OpenCV
 find_package(OpenCV REQUIRED)
 target_link_libraries(l2-cv-bot ${OpenCV_LIBS})
+target_include_directories(l2-cv-bot PRIVATE ${OpenCV_HEADERS})
 
 # Interception API library
 add_subdirectory(lib/interception)
