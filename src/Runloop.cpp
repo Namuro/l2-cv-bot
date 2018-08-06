@@ -72,10 +72,10 @@ void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
     cv::putText(
         image,
         "Press PrtScn to take screenshot of the Lineage II window",
-        cv::Point(5, image.rows - 235),
+        {5, image.rows - 235},
         cv::FONT_HERSHEY_COMPLEX,
         0.4,
-        cv::Scalar(255, 255, 255),
+        {255, 255, 255},
         1,
         cv::LINE_AA
     );
@@ -83,10 +83,10 @@ void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
     cv::putText(
         image,
         "Press Space to reset HP/MP/CP bars position",
-        cv::Point(5, image.rows - 215),
+        {5, image.rows - 215},
         cv::FONT_HERSHEY_COMPLEX,
         0.4,
-        cv::Scalar(255, 255, 255),
+        {255, 255, 255},
         1,
         cv::LINE_AA
     );
@@ -94,10 +94,10 @@ void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
     cv::putText(
         image,
         "Press ESC to exit",
-        cv::Point(5, image.rows - 195),
+        {5, image.rows - 195},
         cv::FONT_HERSHEY_COMPLEX,
         0.4,
-        cv::Scalar(255, 255, 255),
+        {255, 255, 255},
         1,
         cv::LINE_AA
     );
@@ -108,10 +108,10 @@ void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
         "My HP " + std::to_string(world.me.hp) + "% " +
         "MP " + std::to_string(world.me.mp) + "% " +
         "CP: " + std::to_string(world.me.cp) + "% ",
-        cv::Point(5, 100),
+        {5, 100},
         cv::FONT_HERSHEY_COMPLEX,
         0.5,
-        cv::Scalar(0, 255, 255),
+        {0, 255, 255},
         1,
         cv::LINE_AA
     );
@@ -120,27 +120,27 @@ void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
     cv::putText(
         image,
         "Target HP " + std::to_string(world.target.hp) + "%",
-        cv::Point(5, 125),
+        {5, 125},
         cv::FONT_HERSHEY_COMPLEX,
         0.5,
-        cv::Scalar(0, 255, 255),
+        {0, 255, 255},
         1,
         cv::LINE_AA
     );
 
     // draw NPCs debug info
     for (const auto &npc : world.npcs) {
-        cv::rectangle(image, npc.rect, cv::Scalar(255, 255, 0), 1);
-        cv::circle(image, npc.center, 10, cv::Scalar(0, 255, 255), 1);
+        cv::rectangle(image, npc.rect, {255, 255, 0});
+        cv::circle(image, npc.center, 10, {0, 255, 255});
 
         // draw NPC id
         cv::putText(
             image,
             "id" + std::to_string(npc.id),
-            cv::Point(npc.rect.x, npc.rect.y - 5),
+            {npc.rect.x, npc.rect.y - 5},
             cv::FONT_HERSHEY_PLAIN,
             0.8,
-            cv::Scalar(255, 255, 255),
+            {255, 255, 255},
             1,
             cv::LINE_AA
         );
@@ -153,26 +153,26 @@ int Runloop::ShowDebugWindow(cv::Mat &image)
     const auto target_hp_bar = m_eyes.TargetHPBar();
 
     if (target_hp_bar.has_value()) {
-        cv::rectangle(image, target_hp_bar.value(), cv::Scalar(255, 0, 255), 1);
+        cv::rectangle(image, target_hp_bar.value(), {255, 0, 255});
     }
 
     // draw my bars
     const auto my_bars = m_eyes.MyBars();
 
     if (my_bars.has_value()) {
-        cv::rectangle(image, my_bars.value().hp_bar, cv::Scalar(0, 0, 255), 1);
-        cv::rectangle(image, my_bars.value().mp_bar, cv::Scalar(255, 255, 0), 1);
-        cv::rectangle(image, my_bars.value().cp_bar, cv::Scalar(0, 255, 255), 1);
+        cv::rectangle(image, my_bars.value().hp_bar, {0, 0, 255});
+        cv::rectangle(image, my_bars.value().mp_bar, {255, 255, 0});
+        cv::rectangle(image, my_bars.value().cp_bar, {0, 255, 255});
     }
 
     // draw FPS
     cv::putText(
         image,
         std::to_string(static_cast<int>(m_fps.Get())),
-        cv::Point(5, image.rows - 5),
+        {5, image.rows - 5},
         cv::FONT_HERSHEY_PLAIN,
         2,
-        cv::Scalar(255, 255, 0),
+        {255, 255, 0},
         2,
         cv::LINE_AA
     );
@@ -197,6 +197,15 @@ void Runloop::ConfigureEyes()
     m_eyes.m_npc_name_color_to_hsv      = ::VectorToScalar(m_options.IntVector("--npc_name_color_to_hsv"), m_eyes.m_npc_name_color_to_hsv);
     m_eyes.m_npc_name_color_threshold   = m_options.Double("--npc_name_color_threshold", m_eyes.m_npc_name_color_threshold);
     m_eyes.m_npc_name_center_offset     = m_options.Int("--npc_name_center_offset", m_eyes.m_npc_name_center_offset);
+
+    // current target detection
+    m_eyes.m_target_circle_min_height       = m_options.Int("--target_circle_min_height", m_eyes.m_target_circle_min_height);
+    m_eyes.m_target_circle_max_height       = m_options.Int("--target_circle_max_height", m_eyes.m_target_circle_max_height);
+    m_eyes.m_target_circle_min_width        = m_options.Int("--target_circle_min_width", m_eyes.m_target_circle_min_width);
+    m_eyes.m_target_circle_max_width        = m_options.Int("--target_circle_max_width", m_eyes.m_target_circle_max_width);
+    m_eyes.m_target_circle_color_from_hsv   = ::VectorToScalar(m_options.IntVector("--target_circle_color_from_hsv"), m_eyes.m_target_circle_color_from_hsv);
+    m_eyes.m_target_circle_color_to_hsv     = ::VectorToScalar(m_options.IntVector("--target_circle_color_to_hsv"), m_eyes.m_target_circle_color_to_hsv);
+    m_eyes.m_target_center_offset           = m_options.Int("--target_center_offset", m_eyes.m_target_center_offset);
 
     // my HP/MP/CP bars detection
     m_eyes.m_my_bar_min_height      = m_options.Int("--my_bar_min_height", m_eyes.m_my_bar_min_height);

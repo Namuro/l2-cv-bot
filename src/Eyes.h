@@ -33,30 +33,39 @@ public:
     int m_npc_name_max_height = 16;
     int m_npc_name_min_width = 20;
     int m_npc_name_max_width = 250;
-    cv::Scalar m_npc_name_color_from_hsv = cv::Scalar(0, 0, 240);
-    cv::Scalar m_npc_name_color_to_hsv = cv::Scalar(0, 0, 255);
+    cv::Scalar m_npc_name_color_from_hsv = {0, 0, 240};
+    cv::Scalar m_npc_name_color_to_hsv = {0, 0, 255};
     double m_npc_name_color_threshold = 0.2;
     int m_npc_name_center_offset = 15;
+
+    // current target detection
+    int m_target_circle_min_height = 8;
+    int m_target_circle_max_height = 12;
+    int m_target_circle_min_width = m_target_circle_min_height;
+    int m_target_circle_max_width = m_target_circle_max_height;
+    cv::Scalar m_target_circle_color_from_hsv = {5, 160, 120};
+    cv::Scalar m_target_circle_color_to_hsv = {8, 200, 200};
+    int m_target_center_offset = 30;
 
     // my HP/MP/CP bars detection
     int m_my_bar_min_height = 10;
     int m_my_bar_max_height = 20;
     int m_my_bar_min_width = 140;
     int m_my_bar_max_width = 400;
-    cv::Scalar m_my_hp_color_from_hsv = cv::Scalar(2, 90, 120);
-    cv::Scalar m_my_hp_color_to_hsv = cv::Scalar(5, 220, 170);
-    cv::Scalar m_my_mp_color_from_hsv = cv::Scalar(105, 100, 130);
-    cv::Scalar m_my_mp_color_to_hsv = cv::Scalar(110, 255, 170);
-    cv::Scalar m_my_cp_color_from_hsv = cv::Scalar(16, 100, 120);
-    cv::Scalar m_my_cp_color_to_hsv = cv::Scalar(22, 255, 200);
+    cv::Scalar m_my_hp_color_from_hsv = {2, 90, 120};
+    cv::Scalar m_my_hp_color_to_hsv = {5, 220, 170};
+    cv::Scalar m_my_mp_color_from_hsv = {105, 100, 130};
+    cv::Scalar m_my_mp_color_to_hsv = {110, 255, 170};
+    cv::Scalar m_my_cp_color_from_hsv = {16, 100, 120};
+    cv::Scalar m_my_cp_color_to_hsv = {22, 255, 200};
 
     // target HP bar detection
     int m_target_hp_min_height = 3;
     int m_target_hp_max_height = 7;
     int m_target_hp_min_width = m_my_bar_min_width;
     int m_target_hp_max_width = m_my_bar_max_width;
-    cv::Scalar m_target_hp_color_from_hsv = cv::Scalar(0, 60, 80);
-    cv::Scalar m_target_hp_color_to_hsv = cv::Scalar(2, 220, 170);
+    cv::Scalar m_target_hp_color_from_hsv = {0, 60, 80};
+    cv::Scalar m_target_hp_color_to_hsv = {2, 220, 170};
 
     Eyes() : m_wakeup_time{0} {}
 
@@ -78,6 +87,7 @@ private:
     std::time_t m_wakeup_time;
 
     std::vector<NPC> DetectNPCs(const cv::Mat &hsv) const;
+    std::optional<std::pair<cv::Point, cv::Point>> DetectCurrentTarget(cv::Mat &hsv) const;
     std::optional<cv::Rect> DetectTargetHPBar(const cv::Mat &hsv) const;
     std::optional<struct MyBars> DetectMyBars(const cv::Mat &hsv) const;
     Me CalcMyValues(const cv::Mat &hsv) const;

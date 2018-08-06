@@ -24,6 +24,7 @@ std::optional<Eyes::World> Eyes::Blink(const cv::Mat &rgb)
     // find out bar values (HP/MP/CP)
     world.me = CalcMyValues(hsv);
     world.target = CalcTargetValues(hsv);
+    DetectCurrentTarget(hsv);
 
     // detect NPCs if there's no current target or it's dead
     if (world.target.hp == 0) {
@@ -49,15 +50,15 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
 
     // increase white regions size
     cv::Mat mask;
-    auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {3, 3});
     cv::dilate(white, mask, kernel);
 
     // join words in target names
-    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(17, 5));
+    kernel = cv::getStructuringElement(cv::MORPH_RECT, {17, 5});
     cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
 
     // remove noise
-    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(11, 5));
+    kernel = cv::getStructuringElement(cv::MORPH_RECT, {11, 5});
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel);
 
@@ -93,6 +94,51 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
     return npcs;
 }
 
+std::optional<std::pair<cv::Point, cv::Point>> Eyes::DetectCurrentTarget(cv::Mat &hsv) const
+{
+    cv::GaussianBlur(hsv, hsv, {7, 7}, 0);
+
+    // extract red regions
+    cv::Mat mask;
+    cv::inRange(hsv, m_target_circle_color_from_hsv, m_target_circle_color_to_hsv, mask);
+
+    // remove noise
+    const auto kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, {7, 7});
+    cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
+    cv::erode(mask, mask, kernel);
+    cv::dilate(mask, mask, kernel);
+
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+    std::vector<cv::Rect> circles;
+
+    for (const auto &contour : contours) {
+        const auto rect = cv::boundingRect(contour);
+
+        if (rect.height < m_target_circle_min_height || rect.height > m_target_circle_max_height ||
+            rect.width < m_target_circle_min_width || rect.width > m_target_circle_max_width
+        ) {
+            continue;
+        }
+
+        circles.push_back(rect);
+    }
+
+    for (const auto &circle1 : circles) {
+        for (const auto &circle2 : circles) {
+            if (circle1.y == circle2.y && circle1.width == circle2.width && circle1.height == circle2.height) {
+                cv::rectangle(hsv, circle1, {255, 255, 255});
+                cv::rectangle(hsv, circle2, {255, 255, 255});
+                cv::imshow("", hsv);
+                break;
+            }
+        }
+    }
+
+    return {};
+}
+
 std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
 {
     // TL;DR: search for long thin red bar
@@ -102,7 +148,7 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
     cv::inRange(hsv, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, mask);
     
     // remove noise
-    const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(25, m_target_hp_min_height));
+    const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {25, m_target_hp_min_height});
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel);
 
@@ -201,12 +247,12 @@ Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
 std::vector<std::vector<cv::Point>> Eyes::FindMyBarContours(const cv::Mat &mask) const
 {
     // remove noise
-    auto kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(1, m_my_bar_min_height));
+    auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {1, m_my_bar_min_height});
     cv::erode(mask, mask, kernel);
     cv::dilate(mask, mask, kernel);
 
     // join parts of the bar
-    kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(25, 1));
+    kernel = cv::getStructuringElement(cv::MORPH_RECT, {25, 1});
     cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
 
     std::vector<std::vector<cv::Point>> contours;

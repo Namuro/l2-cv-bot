@@ -266,7 +266,7 @@ public:
 
     void Send();
     void Reset() { m_events.clear(); }
-    bool Ready() const { return m_ready.load(); }
+    virtual bool Ready() const { return m_ready.load(); }
 
 private:
     struct MouseMoveEvent { ::Intercept::Point position; };

@@ -16,6 +16,7 @@ add_executable(
     src/Eyes.cpp
     src/Intercept.cpp
     src/Input.cpp
+    src/Hands.cpp
 )
 
 set_target_properties(l2-cv-bot PROPERTIES
