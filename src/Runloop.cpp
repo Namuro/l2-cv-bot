@@ -33,7 +33,7 @@ void Runloop::Run()
             break;
         }
 
-        auto image = BitmapToImage(bitmap.value()); // TODO: make const
+        auto image = BitmapToImage(bitmap.value()); // TODO: make const (OpenCV 4+)
 
         if (!image.has_value()) {
             std::cout << "Failed to convert bitmap to image" << std::endl;
@@ -45,13 +45,10 @@ void Runloop::Run()
             std::cout << "Screenshot saved to shot.png" << std::endl;
         }
 
-        const auto world = m_eyes.Blink(image.value());
+        m_eyes.Blink(image.value());
 
         if (debug) {
-            if (world.has_value()) {
-                DrawWorldInfo(image.value(), world.value());
-            }
-
+            DrawWorldInfo(image.value());
             ShowDebugWindow(image.value());
         }
 
@@ -66,8 +63,12 @@ void Runloop::Run()
     cv::destroyAllWindows();
 }
 
-void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
+void Runloop::DrawWorldInfo(cv::Mat &image) const
 {
+    const auto npcs = m_eyes.DetectNPCs();
+    const auto me = m_eyes.DetectMe().value_or(::Eyes::Me());
+    const auto target = m_eyes.DetectTarget().value_or(::Eyes::Target());
+
     // draw help
     cv::putText(
         image,
@@ -105,9 +106,9 @@ void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
     // draw my HP/MP/CP values
     cv::putText(
         image,
-        "My HP " + std::to_string(world.me.hp) + "% " +
-        "MP " + std::to_string(world.me.mp) + "% " +
-        "CP: " + std::to_string(world.me.cp) + "% ",
+        "My HP " + std::to_string(me.hp) + "% " +
+        "MP " + std::to_string(me.mp) + "% " +
+        "CP: " + std::to_string(me.cp) + "% ",
         {5, 100},
         cv::FONT_HERSHEY_COMPLEX,
         0.5,
@@ -119,7 +120,7 @@ void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
     // draw target HP value
     cv::putText(
         image,
-        "Target HP " + std::to_string(world.target.hp) + "%",
+        "Target HP " + std::to_string(target.hp) + "%",
         {5, 125},
         cv::FONT_HERSHEY_COMPLEX,
         0.5,
@@ -129,7 +130,7 @@ void Runloop::DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const
     );
 
     // draw NPCs debug info
-    for (const auto &npc : world.npcs) {
+    for (const auto &npc : npcs) {
         cv::rectangle(image, npc.rect, {255, 255, 0});
         cv::circle(image, npc.center, 10, {0, 255, 255});
 

@@ -23,7 +23,7 @@ private:
     ::Eyes m_eyes;
     ::Input m_input;
 
-    void DrawWorldInfo(cv::Mat &image, const ::Eyes::World &world) const;
+    void DrawWorldInfo(cv::Mat &image) const;
     int ShowDebugWindow(cv::Mat &image);
     void ConfigureEyes();
 };

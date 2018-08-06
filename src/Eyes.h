@@ -2,17 +2,14 @@
 
 #include <vector>
 #include <optional>
-#include <ctime>
-#include <limits>
 
 #include <opencv2/opencv.hpp>
 
 class Eyes
 {
 public:
-    struct Target { int hp; };
-    struct Me { int hp, mp, cp; };
     struct MyBars { cv::Rect hp_bar, mp_bar, cp_bar; };
+    struct Me { int hp, mp, cp; };
 
     struct NPC
     {
@@ -21,11 +18,12 @@ public:
         cv::Rect rect;
     };
 
-    struct World
+    struct Target
     {
-        Me me;
-        Target target;
-        std::vector<NPC> npcs;
+        int hp;
+        cv::Point center;
+        cv::Rect left_circle;
+        cv::Rect right_circle;
     };
 
     // NPC detection
@@ -67,31 +65,23 @@ public:
     cv::Scalar m_target_hp_color_from_hsv = {0, 60, 80};
     cv::Scalar m_target_hp_color_to_hsv = {2, 220, 170};
 
-    Eyes() : m_wakeup_time{0} {}
-
     const std::optional<cv::Rect> &TargetHPBar() const { return m_target_hp_bar; }
     const std::optional<struct MyBars> &MyBars() const { return m_my_bars; }
 
-    std::optional<World> Blink(const cv::Mat &rgb);
+    void Blink(const cv::Mat &rgb);
     void Reset();
 
-    void Sleep(int seconds = 0)
-        { m_wakeup_time = seconds == 0 ? (std::numeric_limits<std::time_t>::max)() : std::time(nullptr) + seconds; }
-
-    bool Sleeping() const { return std::time(nullptr) < m_wakeup_time; }
-    void WakeUp(int after = -1) { if (Sleeping()) m_wakeup_time = std::time(nullptr) + after; }
+    std::vector<NPC> DetectNPCs() const;
+    std::optional<Me> DetectMe() const;
+    std::optional<Target> DetectTarget(bool with_position = false) const;
 
 private:
+    cv::Mat m_hsv;
     std::optional<struct MyBars> m_my_bars;
     std::optional<cv::Rect> m_target_hp_bar;
-    std::time_t m_wakeup_time;
 
-    std::vector<NPC> DetectNPCs(const cv::Mat &hsv) const;
-    std::optional<std::pair<cv::Point, cv::Point>> DetectCurrentTarget(cv::Mat &hsv) const;
-    std::optional<cv::Rect> DetectTargetHPBar(const cv::Mat &hsv) const;
     std::optional<struct MyBars> DetectMyBars(const cv::Mat &hsv) const;
-    Me CalcMyValues(const cv::Mat &hsv) const;
-    Target CalcTargetValues(const cv::Mat &hsv) const;
+    std::optional<cv::Rect> DetectTargetHPBar(const cv::Mat &hsv) const;
     std::vector<std::vector<cv::Point>> FindMyBarContours(const cv::Mat &mask) const;
 
     static int CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color);

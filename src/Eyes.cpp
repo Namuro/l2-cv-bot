@@ -1,37 +1,18 @@
 #include "Eyes.h"
 
-std::optional<Eyes::World> Eyes::Blink(const cv::Mat &rgb)
+void Eyes::Blink(const cv::Mat &rgb)
 {
-    if (Sleeping()) {
-        return {};
-    }
-
-    cv::Mat hsv;
-    cv::cvtColor(rgb, hsv, cv::COLOR_BGR2HSV);
-
-    // detect target HP bar once
-    if (!m_target_hp_bar.has_value()) {
-        m_target_hp_bar = DetectTargetHPBar(hsv);
-    }
+    cv::cvtColor(rgb, m_hsv, cv::COLOR_BGR2HSV);
 
     // detect my bars once
     if (!m_my_bars.has_value()) {
-        m_my_bars = DetectMyBars(hsv);
+        m_my_bars = DetectMyBars(m_hsv);
     }
 
-    World world = {};
-
-    // find out bar values (HP/MP/CP)
-    world.me = CalcMyValues(hsv);
-    world.target = CalcTargetValues(hsv);
-    DetectCurrentTarget(hsv);
-
-    // detect NPCs if there's no current target or it's dead
-    if (world.target.hp == 0) {
-        world.npcs = DetectNPCs(hsv);
+    // detect target HP bar once
+    if (!m_target_hp_bar.has_value()) {
+        m_target_hp_bar = DetectTargetHPBar(m_hsv);
     }
-
-    return world;
 }
 
 void Eyes::Reset()
@@ -40,20 +21,18 @@ void Eyes::Reset()
     m_target_hp_bar = {};
 }
 
-std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
+std::vector<Eyes::NPC> Eyes::DetectNPCs() const
 {
-    // TL;DR: search for NPC names
-
-    // extract white regions (NPC names)
+    // extract regions with white NPC names
     cv::Mat white;
-    cv::inRange(hsv, m_npc_name_color_from_hsv, m_npc_name_color_to_hsv, white);
+    cv::inRange(m_hsv, m_npc_name_color_from_hsv, m_npc_name_color_to_hsv, white);
 
     // increase white regions size
     cv::Mat mask;
     auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {3, 3});
     cv::dilate(white, mask, kernel);
 
-    // join words in target names
+    // join words
     kernel = cv::getStructuringElement(cv::MORPH_RECT, {17, 5});
     cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
 
@@ -94,13 +73,41 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs(const cv::Mat &hsv) const
     return npcs;
 }
 
-std::optional<std::pair<cv::Point, cv::Point>> Eyes::DetectCurrentTarget(cv::Mat &hsv) const
+std::optional<Eyes::Me> Eyes::DetectMe() const
 {
-    cv::GaussianBlur(hsv, hsv, {7, 7}, 0);
+    if (!m_my_bars.has_value()) {
+        return {};
+    }
 
-    // extract red regions
+    Me me = {};
+    me.hp = CalcBarPercentValue(m_hsv(m_my_bars.value().hp_bar), m_my_hp_color_from_hsv, m_my_hp_color_to_hsv);
+    me.mp = CalcBarPercentValue(m_hsv(m_my_bars.value().mp_bar), m_my_mp_color_from_hsv, m_my_mp_color_to_hsv);
+    me.cp = CalcBarPercentValue(m_hsv(m_my_bars.value().cp_bar), m_my_cp_color_from_hsv, m_my_cp_color_to_hsv);
+    return me;
+}
+
+std::optional<Eyes::Target> Eyes::DetectTarget(bool with_position) const
+{
+    if (!m_target_hp_bar.has_value()) {
+        return {};
+    }
+
+    Target target = {};
+
+    target.hp = CalcBarPercentValue(
+        m_hsv(m_target_hp_bar.value()),
+        m_target_hp_color_from_hsv,
+        m_target_hp_color_to_hsv
+    );
+
+    if (!with_position) {
+        return target;
+    }
+
+    // extract red regions with circles
     cv::Mat mask;
-    cv::inRange(hsv, m_target_circle_color_from_hsv, m_target_circle_color_to_hsv, mask);
+    cv::GaussianBlur(m_hsv, mask, {7, 7}, 0);
+    cv::inRange(mask, m_target_circle_color_from_hsv, m_target_circle_color_to_hsv, mask);
 
     // remove noise
     const auto kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, {7, 7});
@@ -125,15 +132,74 @@ std::optional<std::pair<cv::Point, cv::Point>> Eyes::DetectCurrentTarget(cv::Mat
         circles.push_back(rect);
     }
 
+    // compare each element to find circles pair
     for (const auto &circle1 : circles) {
         for (const auto &circle2 : circles) {
-            if (circle1.y == circle2.y && circle1.width == circle2.width && circle1.height == circle2.height) {
-                cv::rectangle(hsv, circle1, {255, 255, 255});
-                cv::rectangle(hsv, circle2, {255, 255, 255});
-                cv::imshow("", hsv);
-                break;
+            if (circle1.y != circle2.y || circle1.size() != circle2.size() ||
+                std::abs(circle1.x - circle2.x) < m_npc_name_min_width + 5 ||
+                std::abs(circle1.x - circle2.x) > m_npc_name_max_width + 5
+            ) {
+                continue;
             }
+
+            const auto lcircle = circle1.x < circle2.x ? circle1 : circle2;
+            const auto rcircle = circle1.x > circle2.x ? circle1 : circle2;
+
+            target.left_circle = lcircle;
+            target.right_circle = rcircle;
+
+            target.center = {
+                lcircle.x + (rcircle.x + rcircle.width - lcircle.x) / 2,
+                lcircle.y + lcircle.height + m_target_center_offset
+            };
+
+            break;
         }
+    }
+
+    return target;
+}
+
+std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
+{
+    // extract red regions with red HP bar
+    cv::Mat mask;
+    cv::inRange(hsv, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, mask);
+
+    const auto contours = FindMyBarContours(mask);
+
+    // search for CP bar above and MP bar below
+    for (const auto &contour : contours) {
+        const auto rect = cv::boundingRect(contour);
+
+        if (rect.height < m_my_bar_min_height || rect.height > m_my_bar_max_height ||
+            rect.width < m_my_bar_min_width || rect.width > m_my_bar_max_width
+        ) {
+            continue;
+        }
+
+        const auto bars_rect = rect + cv::Point(0, -rect.height * 2) + cv::Size(0, rect.height * 4);
+        const auto bars = hsv(bars_rect);
+
+        cv::Mat mp;
+        cv::inRange(bars, m_my_mp_color_from_hsv, m_my_mp_color_to_hsv, mp);
+        cv::Mat cp;
+        cv::inRange(bars, m_my_cp_color_from_hsv, m_my_cp_color_to_hsv, cp);
+        cv::Mat mp_cp;
+        cv::bitwise_or(cp, mp, mp_cp);
+
+        const auto bar_contours = FindMyBarContours(mp_cp);
+
+        // no CP nor MP bar were found
+        if (bar_contours.size() != 2) {
+            continue;
+        }
+
+        struct MyBars my_bars = {};
+        my_bars.hp_bar = rect;
+        my_bars.mp_bar = cv::boundingRect(bar_contours[0]) + bars_rect.tl();
+        my_bars.cp_bar = cv::boundingRect(bar_contours[1]) + bars_rect.tl();
+        return my_bars;
     }
 
     return {};
@@ -141,9 +207,7 @@ std::optional<std::pair<cv::Point, cv::Point>> Eyes::DetectCurrentTarget(cv::Mat
 
 std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
 {
-    // TL;DR: search for long thin red bar
-
-    // exract HP bar color
+    // extract red regions with red HP bar
     cv::Mat mask;
     cv::inRange(hsv, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, mask);
     
@@ -166,82 +230,8 @@ std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
 
         return rect;
     }
-    
-    return {};
-}
-
-std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
-{
-    // TL;DR: search for HP bar, then detect CP bar above and MP bar below
-    // why start from HP? because sky is blue, sand is yellow... roses are red, but there's no roses in Lineage II
-
-    // exract HP bar color
-    cv::Mat mask;
-    cv::inRange(hsv, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, mask);
-
-    const auto contours = FindMyBarContours(mask);
-
-    // search for CP bar above and MP bar below
-    for (const auto &contour : contours) {
-        const auto rect = cv::boundingRect(contour);
-
-        if (rect.height < m_my_bar_min_height || rect.height > m_my_bar_max_height ||
-            rect.width < m_my_bar_min_width || rect.width > m_my_bar_max_width
-        ) {
-            continue;
-        }
-
-        const auto bars_rect = rect + cv::Point(0, -rect.height * 2) + cv::Size(0, rect.height * 4);
-        const auto bars = hsv(bars_rect);
-
-        cv::Mat mp;
-        cv::inRange(bars, m_my_mp_color_from_hsv, m_my_mp_color_to_hsv, mp);
-
-        cv::Mat cp;
-        cv::inRange(bars, m_my_cp_color_from_hsv, m_my_cp_color_to_hsv, cp);
-
-        cv::Mat mp_cp;
-        cv::bitwise_or(cp, mp, mp_cp);
-
-        const auto bar_contours = FindMyBarContours(mp_cp);
-
-        // no CP nor MP bar were found
-        if (bar_contours.size() != 2) {
-            continue;
-        }
-
-        struct MyBars my_bars = {};
-        my_bars.hp_bar = rect;
-        my_bars.mp_bar = cv::boundingRect(bar_contours[0]) + bars_rect.tl();
-        my_bars.cp_bar = cv::boundingRect(bar_contours[1]) + bars_rect.tl();
-        return my_bars;
-    }
 
     return {};
-}
-
-Eyes::Me Eyes::CalcMyValues(const cv::Mat &hsv) const
-{
-    if (!m_my_bars.has_value()) {
-        return {};
-    }
-
-    Me me = {};
-    me.hp = CalcBarPercentValue(hsv(m_my_bars.value().hp_bar), m_my_hp_color_from_hsv, m_my_hp_color_to_hsv);
-    me.mp = CalcBarPercentValue(hsv(m_my_bars.value().mp_bar), m_my_mp_color_from_hsv, m_my_mp_color_to_hsv);
-    me.cp = CalcBarPercentValue(hsv(m_my_bars.value().cp_bar), m_my_cp_color_from_hsv, m_my_cp_color_to_hsv);
-    return me;
-}
-
-Eyes::Target Eyes::CalcTargetValues(const cv::Mat &hsv) const
-{
-    if (!m_target_hp_bar.has_value()) {
-        return {};
-    }
-
-    Target target = {};
-    target.hp = CalcBarPercentValue(hsv(m_target_hp_bar.value()), m_target_hp_color_from_hsv, m_target_hp_color_to_hsv);
-    return target;
 }
 
 std::vector<std::vector<cv::Point>> Eyes::FindMyBarContours(const cv::Mat &mask) const
