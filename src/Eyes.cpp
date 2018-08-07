@@ -86,7 +86,7 @@ std::optional<Eyes::Me> Eyes::DetectMe() const
     return me;
 }
 
-std::optional<Eyes::Target> Eyes::DetectTarget(bool with_position) const
+std::optional<Eyes::Target> Eyes::DetectTarget(bool position) const
 {
     if (!m_target_hp_bar.has_value()) {
         return {};
@@ -100,7 +100,7 @@ std::optional<Eyes::Target> Eyes::DetectTarget(bool with_position) const
         m_target_hp_color_to_hsv
     );
 
-    if (!with_position) {
+    if (!position) {
         return target;
     }
 

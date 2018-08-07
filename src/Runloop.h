@@ -8,7 +8,7 @@
 #include "Capture.h"
 #include "FPS.h"
 #include "Eyes.h"
-#include "Input.h"
+#include "Hands.h"
 
 class Runloop
 {
@@ -21,7 +21,7 @@ private:
     ::Capture m_capture;
     ::FPS<100> m_fps;
     ::Eyes m_eyes;
-    ::Input m_input;
+    ::Hands m_hands;
 
     void DrawWorldInfo(cv::Mat &image) const;
     int ShowDebugWindow(cv::Mat &image);

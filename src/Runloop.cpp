@@ -22,11 +22,23 @@ void Runloop::Run()
 
         if (!foreground) {
             window.value().BringToForeground();
-            foreground = true;
         }
 
         const auto rect = window.value().Rect();
         const auto bitmap = m_capture.Grab({rect.x, rect.y, rect.width, rect.height});
+
+        m_hands.SetWindowRect({rect.x, rect.y, rect.width, rect.height});
+
+        if (!foreground) {
+            m_hands.ResetUI();
+            m_hands.LookAround();
+            m_hands.Send(500);
+            foreground = true;
+        }
+
+        if (!m_hands.Ready()) {
+            continue;
+        }
 
         if (!bitmap.has_value()) {
             std::cout << "Failed to grab window" << std::endl;
@@ -40,7 +52,7 @@ void Runloop::Run()
             break;
         }
 
-        if (m_input.KeyboardKeyPressed(::Input::KeyboardKey::PrintScreen)) {
+        if (m_hands.KeyboardKeyPressed(::Input::KeyboardKey::PrintScreen)) {
             cv::imwrite("shot.png", image.value());
             std::cout << "Screenshot saved to shot.png" << std::endl;
         }
@@ -52,10 +64,10 @@ void Runloop::Run()
             ShowDebugWindow(image.value());
         }
 
-        if (!debug && m_input.MouseMoved(100) || m_input.KeyboardKeyPressed(::Input::KeyboardKey::Escape)) {
+        if (!debug && m_hands.MouseMoved(100) || m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Escape)) {
             std::cout << "Bye!" << std::endl;
             break;
-        } else if (m_input.KeyboardKeyPressed(::Input::KeyboardKey::Space)) {
+        } else if (m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Space)) {
             m_eyes.Reset();
         }
     }
@@ -178,7 +190,7 @@ int Runloop::ShowDebugWindow(cv::Mat &image)
         cv::LINE_AA
     );
 
-    if (m_input.KeyboardKeyPressed(::Input::KeyboardKey::F12)) {
+    if (m_hands.KeyboardKeyPressed(::Input::KeyboardKey::F12)) {
         cv::imwrite("preview.bmp", image);
         std::cout << "Preview saved to preview.bmp" << std::endl;
     }

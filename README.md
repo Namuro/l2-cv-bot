@@ -41,7 +41,7 @@ Current version developed and tested using Windows 10 and Gracia Epilogue client
 
 Edit `run.bat` file to customize for another client. Note that colors must use HSV color model.
 
-OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`.
+OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`, `Intercept.cpp`.
 
 ## Building
 

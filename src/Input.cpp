@@ -3,18 +3,15 @@
 
 #include "Input.h"
 
-void Input::MoveMouse(const Point &point, int delay)
-{
-    MouseMoveEvent move_event = {};
-    move_event.position = {point.x, point.y};
-    AddEvent(move_event, delay);
-    m_mouse_position = point;
-}
-
-void Input::MoveMouseSmoothly(const Point &point, const Point &from, int step, int delay, int interval)
+void Input::MoveMouseSmoothly(const Point &point, Point from, int step, int interval)
 {
     const auto distance = std::hypot(point.x - from.x, point.y - from.y);
     const auto steps = distance / step;
+
+    if (steps == 0) {
+        return;
+    }
+
     const auto dx = (point.x - from.x) / steps;
     const auto dy = (point.y - from.y) / steps;
 
@@ -22,10 +19,12 @@ void Input::MoveMouseSmoothly(const Point &point, const Point &from, int step, i
         MoveMouse({
             static_cast<int>(from.x + i * dx),
             static_cast<int>(from.y + i * dy)
-        }, i > 0 ? interval : delay);
+        });
+
+        Delay(interval);
     }
 
-    MoveMouse(point, steps > 0 ? interval : delay);
+    MoveMouse(point);
 }
 
 Input::Point Input::MousePosition() const
@@ -58,14 +57,7 @@ bool Input::KeyboardKeyPressed(KeyboardKey key)
     }
 }
 
-void Input::AddMouseButtonEvent(::Intercept::MouseButtonEvent event, int delay)
-{
-    MouseButtonEvent button_event = {};
-    button_event.event = event;
-    AddEvent(button_event, delay);
-}
-
-void Input::AddKeyboardKeyEvent(KeyboardKey key, ::Intercept::KeyboardKeyEvent event, int delay)
+void Input::AddKeyboardKeyEvent(KeyboardKey key, ::Intercept::KeyboardKeyEvent event)
 {
     const auto int_key = static_cast<int>(key);
 
@@ -73,8 +65,7 @@ void Input::AddKeyboardKeyEvent(KeyboardKey key, ::Intercept::KeyboardKeyEvent e
         KeyboardKeyEvent shift_event = {};
         shift_event.code = KeyScanCode(KeyboardKey::LeftShift);
         shift_event.event = event;
-        AddEvent(shift_event, delay);
-        delay = 0;
+        AddEvent(shift_event);
     }
 
     KeyboardKeyEvent key_event = {};
@@ -82,10 +73,10 @@ void Input::AddKeyboardKeyEvent(KeyboardKey key, ::Intercept::KeyboardKeyEvent e
     key_event.event = event;
     key_event.e0 = int_key & E0;
     key_event.e1 = int_key & E1;
-    AddEvent(key_event, delay);
+    AddEvent(key_event);
 }
 
-void Input::Send()
+void Input::Send(int sleep)
 {
     if (!Ready() || m_events.empty()) {
         return;
@@ -93,29 +84,30 @@ void Input::Send()
 
     m_ready = false;
 
-    std::thread([this](const decltype(m_events) events) {
-        for (const auto &pair : events) {
-            const auto [event, delay] = pair;
-
-            if (delay > 0) {
-                ::Sleep(delay);
-            }
-
-            std::visit([this](auto &&event) {
+    std::thread([this](const decltype(m_events) &events, int sleep) {
+        for (const auto &event : events) {
+            std::visit([this](const auto &event) {
                 using T = std::decay_t<decltype(event)>;
 
                 if constexpr (std::is_same_v<T, MouseMoveEvent>) {
-                    m_intercept.SendMouseMoveEvent(event.position);
+                    m_intercept.SendMouseMoveEvent(event);
                 } else if constexpr (std::is_same_v<T, MouseButtonEvent>) {
-                    m_intercept.SendMouseButtonEvent(event.event);
+                    m_intercept.SendMouseButtonEvent(event);
                 } else if constexpr (std::is_same_v<T, KeyboardKeyEvent>) {
                     m_intercept.SendKeyboardKeyEvent(event.code, event.event, event.e0, event.e1);
+                } else if constexpr (std::is_same_v<T, DelayEvent>) {
+                    ::Sleep(event);
                 }
             }, event);
         }
 
+        // just sleep for simplicity
+        if (sleep > 0) {
+            ::Sleep(sleep);
+        }
+
         m_ready = true;
-    }, m_events).detach();
+    }, m_events, sleep).detach();
 
     Reset();
 }

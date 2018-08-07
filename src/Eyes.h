@@ -73,7 +73,7 @@ public:
 
     std::vector<NPC> DetectNPCs() const;
     std::optional<Me> DetectMe() const;
-    std::optional<Target> DetectTarget(bool with_position = false) const;
+    std::optional<Target> DetectTarget(bool position = false) const;
 
 private:
     cv::Mat m_hsv;
