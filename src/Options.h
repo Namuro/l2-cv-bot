@@ -18,7 +18,7 @@ public:
     std::vector<int> IntVector(const std::string &option, const std::vector<int> &default = {}) const;
 
 private:
-    std::vector<std::string> m_options;
+    const std::vector<std::string> m_options;
 
     std::optional<std::string> Find(const std::string &option, bool next = true) const;
 };

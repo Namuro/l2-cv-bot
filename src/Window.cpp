@@ -63,7 +63,7 @@ std::optional<Window> Window::Find(const std::string &window_title)
         return {};
     }
 
-    return Window(found_hwnd, rect.value());
+    return Window{found_hwnd, rect.value()};
 }
 
 std::optional<struct Window::Rect> Window::HWNDRect(const ::HWND hwnd)

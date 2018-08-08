@@ -41,7 +41,7 @@ public:
 
     struct Point { int x, y; };
 
-    Intercept(); // throws
+    Intercept(); // throws InterceptionDriverNotFoundError
 
     void SendMouseMoveEvent(const Point &point) const;
     void SendMouseButtonEvent(MouseButtonEvent event) const;

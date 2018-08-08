@@ -6,7 +6,11 @@ template <int Cap>
 class FPS
 {
 public:
-    FPS() : m_frame{0}, m_time{std::chrono::steady_clock::now()}, m_times{} {}
+    FPS() :
+        m_frame {0},
+        m_time  {std::chrono::steady_clock::now()},
+        m_times {}
+    {}
 
     double Get();
 

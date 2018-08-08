@@ -20,7 +20,7 @@ Intercept::Intercept() :
     const auto context = ::interception_create_context();
 
     if (context == nullptr) {
-        throw InterceptionDriverNotFoundError();
+        throw InterceptionDriverNotFoundError{};
     }
 
     m_context = {context, InterceptionContextDestroyer()};
@@ -57,7 +57,7 @@ Intercept::Intercept() :
             ::interception_send(context, device, &stroke, 1);
 
             if (::interception_is_keyboard(device)) {
-                std::lock_guard lock(m_keyboard_mtx);
+                std::lock_guard lock{m_keyboard_mtx};
                 const auto key_stroke = reinterpret_cast<::InterceptionKeyStroke *>(&stroke);
 
                 if (key_stroke->code < m_pressed_keyboard_keys.size()) {
@@ -66,7 +66,7 @@ Intercept::Intercept() :
                         key_stroke->state == INTERCEPTION_KEY_E0;
                 }
             } else if (::interception_is_mouse(device)) {
-                std::lock_guard lock(m_mouse_mtx);
+                std::lock_guard lock{m_mouse_mtx};
                 const auto mouse_stroke = reinterpret_cast<InterceptionMouseStroke *>(&stroke);
 
                 if (mouse_stroke->state != 0) {
@@ -126,13 +126,13 @@ void Intercept::SendKeyboardKeyEvent(int code, KeyboardKeyEvent event, bool e0, 
 
 bool Intercept::MouseButtonPressed(MouseButton button)
 {
-    std::lock_guard lock(m_mouse_mtx);
+    std::lock_guard lock{m_mouse_mtx};
     return m_pressed_mouse_buttons[static_cast<size_t>(button)];
 }
 
 bool Intercept::KeyboardKeyPressed(int code)
 {
-    std::lock_guard lock(m_keyboard_mtx);
+    std::lock_guard lock{m_keyboard_mtx};
 
     if (code >= m_pressed_keyboard_keys.size()) {
         return false;
@@ -143,6 +143,6 @@ bool Intercept::KeyboardKeyPressed(int code)
 
 Intercept::Point Intercept::MouseDelta()
 {
-    std::lock_guard lock(m_mouse_mtx);
+    std::lock_guard lock{m_mouse_mtx};
     return m_mouse_delta;
 }

@@ -133,97 +133,20 @@ public:
         Insert              = 0x52 | E0,
         NumPeriod           = 0x53,
         Delete              = 0x53 | E0,
-        //ShiftF1             = 0x54,
-        //ShiftF2             = 0x55,
-        //ShiftF3             = 0x56,
         F11                 = 0x57,
         F12                 = 0x58,
-        //ShiftF6             = 0x59,
-        //ShiftF7             = 0x5A,
-        //ShiftF8             = 0x5B,
         System              = 0x5B | E0,
-        //ShiftF9             = 0x5C,
-        //ShiftF10            = 0x5D,
-        //CtrlF1              = 0x5E,
-        //CtrlF2              = 0x5F,
-        //CtrlF3              = 0x60,
-        //CtrlF4              = 0x61,
-        //CtrlF5              = 0x62,
-        //CtrlF6              = 0x63,
-        //CtrlF7              = 0x64,
-        //CtrlF8              = 0x65,
-        //CtrlF9              = 0x66,
-        //CtrlF10             = 0x67,
-        //AltF1               = 0x68,
-        //AltF2               = 0x69,
-        //AltF3               = 0x6A,
-        //AltF4               = 0x6B,
-        //AltF5               = 0x6C,
-        //AltF6               = 0x6D,
-        //AltF7               = 0x6E,
-        //AltF8               = 0x6F,
-        //AltF9               = 0x70,
-        //AltF10              = 0x71,
-        //CtrlPrintScreen     = 0x72,
-        //CtrlLeft            = 0x73,
-        //CtrlRight           = 0x74,
-        //CtrlEnd             = 0x75,
-        //CtrlPageDown        = 0x76,
-        //CtrlHome            = 0x77,
-        //Alt1                = 0x78,
-        //Alt2                = 0x79,
-        //Alt3                = 0x7A,
-        //Alt4                = 0x7B,
-        //Alt5                = 0x7C,
-        //Alt6                = 0x7D,
-        //Alt7                = 0x7E,
-        //Alt8                = 0x7F,
-        //Alt9                = 0x80,
-        //Alt10               = 0x81,
-        //AltMinus            = 0x82,
-        //AltEquals           = 0x83,
-        //CtrlPageUp          = 0x84,
-        ////                    0x85
-        ////                    0x86
-        //ShiftF11            = 0x87,
-        //ShiftF12            = 0x88,
-        //CtrlF11             = 0x89,
-        //CtrlF12             = 0x8A,
-        //AltF11              = 0x8B,
-        //AltF12              = 0x8C,
-        //CtrlUp              = 0x8D,
-        //CtrlNumMinus        = 0x8E,
-        //CtrlNum5            = 0x8F,
-        //CtrlNumPlus         = 0x90,
-        //CtrlNumDown         = 0x91,
-        //CtrlInsert          = 0x92,
-        //CtrlDelete          = 0x93,
-        //CtrlTab             = 0x94,
-        //CtrlNumSlash        = 0x95,
-        //CtrlNumAsterisk     = 0x96,
-        //AltHome             = 0x97,
-        //AltUp               = 0x98,
-        //AltPageUp           = 0x99,
-        ////                    0x9A
-        //AltLeft             = 0x9B,
-        ////                    0x9C
-        //AltRight            = 0x9D,
-        ////                    0x9E
-        //AltEnd              = 0x9F,
-        //AltDown             = 0xA0,
-        //AltPageDown         = 0xA1,
-        //AltInsert           = 0xA2,
-        //AltDelete           = 0xA3,
-        //AltNumSlash         = 0xA4,
-        //AltTab              = 0xA5,
-        //AltNumEnter         = 0xA6,
 
         Max                 = ::Intercept::KEYBOARD_KEY_MAX // 0xFF
     };
 
     struct Point { int x, y; };
 
-    Input() : m_intercept{}, m_mouse_position{MousePosition()}, m_ready{true} {} // throws
+    Input() : // throws InterceptionDriverNotFoundError
+        m_intercept     {},
+        m_mouse_position{MousePosition()},
+        m_ready         {true}
+    {}
 
     void MoveMouse(const Point &point)
         { AddEvent(MouseMoveEvent{point.x, point.y}); m_mouse_position = point; }
@@ -261,8 +184,7 @@ public:
     void PressKeyboardKey(KeyboardKey key, int delay = 50)
         { KeyboardKeyDown(key); Delay(delay); KeyboardKeyUp(key); }
 
-    void PressKeyboardKeyCombination(KeyboardKey key1, KeyboardKey key2, int delay = 50)
-        { KeyboardKeyDown(key1); KeyboardKeyDown(key2); Delay(delay), KeyboardKeyUp(key2); KeyboardKeyUp(key1); }
+    void PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int delay = 50);
 
     void KeyboardKeyDown(KeyboardKey key)
         { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Down); }
@@ -270,7 +192,7 @@ public:
     void KeyboardKeyUp(KeyboardKey key)
         { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Up); }
 
-    void Delay(int delay) { AddEvent(DelayEvent(delay)); }
+    void Delay(int delay) { AddEvent(DelayEvent{delay}); }
     
     Point MousePosition() const;
     bool MouseMoved(int delta = 0);
@@ -303,7 +225,7 @@ private:
     std::atomic_bool m_ready;
 
     void AddMouseButtonEvent(::Intercept::MouseButtonEvent event)
-        { AddEvent(MouseButtonEvent(event)); }
+        { AddEvent(MouseButtonEvent{event}); }
 
     void AddKeyboardKeyEvent(KeyboardKey key, ::Intercept::KeyboardKeyEvent event);
     void AddEvent(Event event) { if (Ready()) m_events.push_back(event); }

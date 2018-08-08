@@ -9,11 +9,15 @@
 #include "FPS.h"
 #include "Eyes.h"
 #include "Hands.h"
+#include "Brain.h"
 
 class Runloop
 {
 public:
-    Runloop(int argc, char* argv[]) : m_options{argc, argv} {} // throws
+    Runloop(int argc, char* argv[]) : // throws InterceptionDriverNotFoundError
+        m_options   {argc, argv},
+        m_brain     {m_eyes, m_hands}
+    {}
 
     void Run();
 private:
@@ -22,6 +26,7 @@ private:
     ::FPS<100> m_fps;
     ::Eyes m_eyes;
     ::Hands m_hands;
+    ::Brain m_brain;
 
     void DrawWorldInfo(cv::Mat &image) const;
     int ShowDebugWindow(cv::Mat &image);

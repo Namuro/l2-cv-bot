@@ -41,7 +41,7 @@ l2-cv-bot.exe ^
     --target_hp_color_from_hsv  0,60,80     ^
     --target_hp_color_to_hsv    2,220,170   ^
 
-    --debug true    ^
+    --debug true ^
     --window %1
 
 pause

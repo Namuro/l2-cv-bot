@@ -11,8 +11,8 @@ Capture::Capture() :
     },
 
     m_bmi   {},
-    m_srcdc {::GetDC(nullptr), DCReleaser(nullptr)},
-    m_memdc {::CreateCompatibleDC(nullptr), DCDeleter()}
+    m_srcdc {::GetDC(nullptr), DCReleaser{nullptr}},
+    m_memdc {::CreateCompatibleDC(nullptr), DCDeleter{}}
 {
     m_bmi.bmiHeader.biSize = sizeof(m_bmi.bmiHeader);
     m_bmi.bmiHeader.biWidth = m_rect.width;
@@ -28,9 +28,9 @@ Capture::Capture() :
         reinterpret_cast<void **>(&m_data),
         nullptr,
         0
-    ), BITMAPDeleter()};
+    ), BITMAPDeleter{}};
 
-    m_object = {::SelectObject(m_memdc.get(), m_bitmap.get()), GDIOBJDeselector(m_memdc.get())};
+    m_object = {::SelectObject(m_memdc.get(), m_bitmap.get()), GDIOBJDeselector{m_memdc.get()}};
 }
 
 std::optional<Capture::Bitmap> Capture::Grab(const struct Rect &rect)
@@ -51,9 +51,4 @@ std::optional<Capture::Bitmap> Capture::Grab(const struct Rect &rect)
     bitmap.height = (std::min)(m_rect.height, rect.height);
     bitmap.bits = m_bmi.bmiHeader.biBitCount;
     return bitmap;
-}
-
-bool Capture::Clear()
-{
-    return ::BitBlt(m_memdc.get(), 0, 0, m_rect.width, m_rect.height, nullptr, m_rect.x, m_rect.y, BLACKNESS) == TRUE;
 }

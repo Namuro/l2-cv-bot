@@ -7,7 +7,10 @@ class Hands : public Input
 public:
     struct Rect { int x, y, width, height; };
 
-    Hands() : Input{}, m_window_rect{} {}
+    Hands() :
+        Input           {},
+        m_window_rect   {}
+    {}
 
     void SetWindowRect(const Rect &rect)    { m_window_rect = rect; }
     
@@ -20,9 +23,10 @@ public:
 
     void ResetUI()
     {
+        Delay(100);
+        PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L});
         MoveMouseSmoothly(WindowCenter());
         RightMouseButtonClick();
-        PressKeyboardKeyCombination(KeyboardKey::LeftAlt, KeyboardKey::L);
     }
 
     void LookAround()

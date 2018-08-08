@@ -27,9 +27,26 @@ void Input::MoveMouseSmoothly(const Point &point, Point from, int step, int inte
     MoveMouse(point);
 }
 
+void Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int delay)
+{
+    if (keys.empty()) {
+        return;
+    }
+
+    for (const auto key : keys) {
+        KeyboardKeyDown(key);
+    }
+
+    Delay(delay);
+
+    for (auto i = keys.size() - 1; i-- > 0;) {
+        KeyboardKeyUp(keys[i]);
+    }
+}
+
 Input::Point Input::MousePosition() const
 {
-    ::POINT point;
+    ::POINT point = {};
     ::GetCursorPos(&point);
     return {point.x, point.y};
 }
@@ -84,7 +101,7 @@ void Input::Send(int sleep)
 
     m_ready = false;
 
-    std::thread([this](const decltype(m_events) &events, int sleep) {
+    std::thread([this](const decltype(m_events) events, int sleep) { // events copied
         for (const auto &event : events) {
             std::visit([this](const auto &event) {
                 using T = std::decay_t<decltype(event)>;

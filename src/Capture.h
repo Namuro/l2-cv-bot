@@ -26,7 +26,9 @@ public:
 
     std::optional<Bitmap> Grab(const struct Rect &rect);
     std::optional<Bitmap> Grab() { return Grab(m_rect); }
-    bool Clear();
+
+    void Clear()
+        { ::BitBlt(m_memdc.get(), 0, 0, m_rect.width, m_rect.height, nullptr, m_rect.x, m_rect.y, BLACKNESS); }
 
 private:
     struct DCDeleter
@@ -61,11 +63,11 @@ private:
         void operator()(::HGDIOBJ object) const { ::SelectObject(hdc, object); }
     };
 
-    struct Rect m_rect;
+    const struct Rect m_rect;
     ::BITMAPINFO m_bmi;
 
-    std::unique_ptr<::HDC, DCReleaser> m_srcdc;
-    std::unique_ptr<::HDC, DCDeleter> m_memdc;
+    const std::unique_ptr<::HDC, DCReleaser> m_srcdc;
+    const std::unique_ptr<::HDC, DCDeleter> m_memdc;
     std::unique_ptr<::HGDIOBJ, GDIOBJDeselector> m_object;
     std::unique_ptr<::HBITMAP, BITMAPDeleter> m_bitmap;
     unsigned char *m_data;

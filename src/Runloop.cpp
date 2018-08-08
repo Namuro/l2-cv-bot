@@ -9,7 +9,7 @@ void Runloop::Run()
 
     const auto title = m_options.String("--window", "Lineage II");
     const auto debug = m_options.Bool("--debug", true);
-    auto foreground = false;
+    auto first_frame = true;
 
     while (true) {
         m_capture.Clear();
@@ -20,25 +20,12 @@ void Runloop::Run()
             break;
         }
 
-        if (!foreground) {
+        if (first_frame) {
             window.value().BringToForeground();
         }
 
         const auto rect = window.value().Rect();
         const auto bitmap = m_capture.Grab({rect.x, rect.y, rect.width, rect.height});
-
-        m_hands.SetWindowRect({rect.x, rect.y, rect.width, rect.height});
-
-        if (!foreground) {
-            m_hands.ResetUI();
-            m_hands.LookAround();
-            m_hands.Send(500);
-            foreground = true;
-        }
-
-        if (!m_hands.Ready()) {
-            continue;
-        }
 
         if (!bitmap.has_value()) {
             std::cout << "Failed to grab window" << std::endl;
@@ -57,7 +44,13 @@ void Runloop::Run()
             std::cout << "Screenshot saved to shot.png" << std::endl;
         }
 
-        m_eyes.Blink(image.value());
+        m_hands.SetWindowRect({rect.x, rect.y, rect.width, rect.height});
+
+        if (first_frame) {
+            m_brain.Init();
+        }
+
+        m_brain.Process(image.value());
 
         if (debug) {
             DrawWorldInfo(image.value());
@@ -70,6 +63,8 @@ void Runloop::Run()
         } else if (m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Space)) {
             m_eyes.Reset();
         }
+
+        first_frame = false;
     }
 
     cv::destroyAllWindows();
@@ -77,9 +72,9 @@ void Runloop::Run()
 
 void Runloop::DrawWorldInfo(cv::Mat &image) const
 {
-    const auto npcs = m_eyes.DetectNPCs();
-    const auto me = m_eyes.DetectMe().value_or(::Eyes::Me());
-    const auto target = m_eyes.DetectTarget().value_or(::Eyes::Target());
+    const auto npcs = m_brain.NPCs();
+    const auto me = m_brain.Me().value_or(::Eyes::Me());
+    const auto target = m_brain.Target().value_or(::Eyes::Target());
 
     // draw help
     cv::putText(
