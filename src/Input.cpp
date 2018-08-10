@@ -3,13 +3,13 @@
 
 #include "Input.h"
 
-void Input::MoveMouseSmoothly(const Point &point, Point from, int step, int interval)
+Input &Input::MoveMouseSmoothly(const Point &point, Point from, int step, int interval)
 {
     const auto distance = std::hypot(point.x - from.x, point.y - from.y);
     const auto steps = distance / step;
 
     if (steps == 0) {
-        return;
+        return *this;
     }
 
     const auto dx = (point.x - from.x) / steps;
@@ -25,12 +25,13 @@ void Input::MoveMouseSmoothly(const Point &point, Point from, int step, int inte
     }
 
     MoveMouse(point);
+    return *this;
 }
 
-void Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int delay)
+Input &Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int delay)
 {
     if (keys.empty()) {
-        return;
+        return *this;
     }
 
     for (const auto key : keys) {
@@ -42,6 +43,8 @@ void Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, in
     for (auto i = keys.size() - 1; i-- > 0;) {
         KeyboardKeyUp(keys[i]);
     }
+
+    return *this;
 }
 
 Input::Point Input::MousePosition() const
@@ -95,11 +98,11 @@ void Input::AddKeyboardKeyEvent(KeyboardKey key, ::Intercept::KeyboardKeyEvent e
 
 void Input::Send(int sleep)
 {
-    if (!Ready() || m_events.empty()) {
+    if (m_events.empty()) {
         return;
     }
 
-    m_ready = false;
+    ++m_threads;
 
     std::thread([this](const decltype(m_events) events, int sleep) { // events copied
         for (const auto &event : events) {
@@ -123,7 +126,7 @@ void Input::Send(int sleep)
             ::Sleep(sleep);
         }
 
-        m_ready = true;
+        --m_threads;
     }, m_events, sleep).detach();
 
     Reset();

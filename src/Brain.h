@@ -3,8 +3,6 @@
 #include <optional>
 #include <vector>
 
-#include <opencv2/opencv.hpp>
-
 #include "Eyes.h"
 #include "Hands.h"
 
@@ -12,6 +10,7 @@ class Brain
 {
 public:
     Brain(::Eyes &eyes, ::Hands &hands) :
+        m_state {State::Search},
         m_eyes  {eyes},
         m_hands {hands}
     {}
@@ -21,11 +20,21 @@ public:
     const std::optional<::Eyes::Target> &Target() const { return m_target; }
 
     void Init();
-    void Process(const cv::Mat &image);
+    void Process();
 
 private:
+    enum class State
+    {
+        Search = 0x1,
+        Attack = Search << 1,
+        PickUp = Search << 2
+    };
+
+    State m_state;
     ::Eyes &m_eyes;
     ::Hands &m_hands;
+    //uint32_t m_npc_id;
+    //std::set<uint32_t> m_ignored_npcs;
 
     std::vector<::Eyes::NPC> m_npcs;
     std::optional<::Eyes::Me> m_me;

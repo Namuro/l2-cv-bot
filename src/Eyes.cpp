@@ -1,25 +1,6 @@
+#include <limits>
+
 #include "Eyes.h"
-
-void Eyes::Blink(const cv::Mat &rgb)
-{
-    cv::cvtColor(rgb, m_hsv, cv::COLOR_BGR2HSV);
-
-    // detect my bars once
-    if (!m_my_bars.has_value()) {
-        m_my_bars = DetectMyBars(m_hsv);
-    }
-
-    // detect target HP bar once
-    if (!m_target_hp_bar.has_value()) {
-        m_target_hp_bar = DetectTargetHPBar(m_hsv);
-    }
-}
-
-void Eyes::Reset()
-{
-    m_my_bars = {};
-    m_target_hp_bar = {};
-}
 
 std::vector<Eyes::NPC> Eyes::DetectNPCs() const
 {
@@ -45,6 +26,7 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs() const
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
     std::vector<NPC> npcs;
+    auto selected = false;
 
     for (const auto &contour : contours) {
         const auto rect = cv::boundingRect(contour);
@@ -66,8 +48,33 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs() const
         NPC npc = {};
         npc.rect = rect;
         npc.center = {rect.x + rect.width / 2, rect.y + rect.height / 2 + m_npc_name_center_offset};
-        npc.id = Hash(target_image);
+        npc.name_id = Hash(target_image);
+        npc.center_id = npc.center.x << 16 | npc.center.y;
+        npc.selected = !selected ? NPCSelected(rect) : false; // only one NPC can be selected
         npcs.push_back(npc);
+
+        selected = npc.selected;
+    }
+
+    // remove myself from NPCs
+    auto min_x = std::numeric_limits<int>::max();
+    auto min_y = min_x;
+    decltype(npcs)::const_iterator min_it = npcs.end();
+
+    for (auto it = npcs.begin(); it != npcs.end(); ++it) {
+        const auto npc = *it;
+        const auto x = std::abs(npc.center.x - m_hsv.cols / 2);
+        const auto y = std::abs(npc.center.y - m_hsv.rows / 2);
+
+        if (x < min_x || y < min_y) {
+            min_x = x;
+            min_y = y;
+            min_it = it;
+        }
+    }
+
+    if (min_it != npcs.end()) {
+        npcs.erase(min_it);
     }
 
     return npcs;
@@ -86,7 +93,7 @@ std::optional<Eyes::Me> Eyes::DetectMe() const
     return me;
 }
 
-std::optional<Eyes::Target> Eyes::DetectTarget(bool position) const
+std::optional<Eyes::Target> Eyes::DetectTarget() const
 {
     if (!m_target_hp_bar.has_value()) {
         return {};
@@ -100,71 +107,14 @@ std::optional<Eyes::Target> Eyes::DetectTarget(bool position) const
         m_target_hp_color_to_hsv
     );
 
-    if (!position) {
-        return target;
-    }
-
-    // extract red regions with circles
-    cv::Mat mask;
-    cv::GaussianBlur(m_hsv, mask, {7, 7}, 0);
-    cv::inRange(mask, m_target_circle_color_from_hsv, m_target_circle_color_to_hsv, mask);
-
-    // remove noise
-    const auto kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, {7, 7});
-    cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
-    cv::erode(mask, mask, kernel);
-    cv::dilate(mask, mask, kernel);
-
-    std::vector<std::vector<cv::Point>> contours;
-    cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-    std::vector<cv::Rect> circles;
-
-    for (const auto &contour : contours) {
-        const auto rect = cv::boundingRect(contour);
-
-        if (rect.height < m_target_circle_min_height || rect.height > m_target_circle_max_height ||
-            rect.width < m_target_circle_min_width || rect.width > m_target_circle_max_width
-        ) {
-            continue;
-        }
-
-        circles.push_back(rect);
-    }
-
-    // compare each element to find circles pair
-    for (const auto &circle1 : circles) {
-        for (const auto &circle2 : circles) {
-            if (circle1.y != circle2.y || circle1.size() != circle2.size() ||
-                std::abs(circle1.x - circle2.x) < m_npc_name_min_width + 5 ||
-                std::abs(circle1.x - circle2.x) > m_npc_name_max_width + 5
-            ) {
-                continue;
-            }
-
-            const auto lcircle = circle1.x < circle2.x ? circle1 : circle2;
-            const auto rcircle = circle1.x > circle2.x ? circle1 : circle2;
-
-            target.left_circle = lcircle;
-            target.right_circle = rcircle;
-
-            target.center = {
-                lcircle.x + (rcircle.x + rcircle.width - lcircle.x) / 2,
-                lcircle.y + lcircle.height + m_target_center_offset
-            };
-
-            break;
-        }
-    }
-
     return target;
 }
 
-std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
+std::optional<struct Eyes::MyBars> Eyes::DetectMyBars() const
 {
     // extract red regions with red HP bar
     cv::Mat mask;
-    cv::inRange(hsv, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, mask);
+    cv::inRange(m_hsv, m_my_hp_color_from_hsv, m_my_hp_color_to_hsv, mask);
 
     const auto contours = FindMyBarContours(mask);
 
@@ -178,9 +128,16 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
             continue;
         }
 
-        const auto bars_rect = rect + cv::Point(0, -rect.height * 2) + cv::Size(0, rect.height * 4);
-        const auto bars = hsv(bars_rect);
+        // expand rect
+        const auto bars_rect = rect + cv::Size{0, rect.height * 4} + cv::Point{0, -rect.height * 2};
 
+        if (!RectInImage(m_hsv, bars_rect)) {
+            continue;
+        }
+
+        const auto bars = m_hsv(bars_rect);
+
+        // extract blue & yellow regions
         cv::Mat mp;
         cv::inRange(bars, m_my_mp_color_from_hsv, m_my_mp_color_to_hsv, mp);
         cv::Mat cp;
@@ -205,11 +162,11 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars(const cv::Mat &hsv) const
     return {};
 }
 
-std::optional<cv::Rect> Eyes::DetectTargetHPBar(const cv::Mat &hsv) const
+std::optional<cv::Rect> Eyes::DetectTargetHPBar() const
 {
     // extract red regions with red HP bar
     cv::Mat mask;
-    cv::inRange(hsv, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, mask);
+    cv::inRange(m_hsv, m_target_hp_color_from_hsv, m_target_hp_color_to_hsv, mask);
     
     // remove noise
     const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {25, m_target_hp_min_height});
@@ -250,6 +207,60 @@ std::vector<std::vector<cv::Point>> Eyes::FindMyBarContours(const cv::Mat &mask)
     return contours;
 }
 
+bool Eyes::NPCSelected(const cv::Rect &rect) const
+{
+    // expand rect
+    const auto expanded_rect = rect +
+        cv::Size(m_target_circle_area_width * 2, m_target_circle_area_height - rect.height) +
+        cv::Point(-m_target_circle_area_width, -(m_target_circle_area_height - rect.height) / 2);
+    
+    if (!RectInImage(m_hsv, expanded_rect)) {
+        return false;
+    }
+
+    cv::Mat hsv = m_hsv(expanded_rect);
+    cv::rectangle(hsv, {m_target_circle_area_width, 0, rect.width, m_target_circle_area_height}, 0, -1);
+
+    // extract blue & red regions
+    cv::Mat blue;
+    cv::inRange(hsv, m_target_blue_circle_color_from_hsv, m_target_blue_circle_color_to_hsv, blue);
+    cv::Mat red;
+    cv::inRange(hsv, m_target_red_circle_color_from_hsv, m_target_red_circle_color_to_hsv, red);
+    cv::Mat mask;
+    cv::bitwise_or(blue, red, mask);
+
+    // increase regions size
+    const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {5, 5});
+    cv::dilate(mask, mask, kernel);
+
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+    if (contours.size() < 2) {
+        return false;
+    }
+
+    // compare each contour to find pair
+    for (const auto &contour1 : contours) {
+        for (const auto &contour2 : contours) {
+            if (contour1 == contour2) {
+                continue;
+            }
+
+            const auto rect1 = cv::boundingRect(contour1);
+            const auto rect2 = cv::boundingRect(contour2);
+
+            if (rect1.y != rect2.y || rect1.size() != rect2.size()) {
+                continue;
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int Eyes::CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color)
 {
     CV_Assert(bar.rows >= 1);
@@ -279,7 +290,7 @@ std::uint32_t Eyes::Hash(const cv::Mat &image)
     std::uint32_t hash = 5381;
     const auto total = image.total();
 
-    for (std::size_t i = 0; i < total; i++) {
+    for (std::size_t i = 0; i < total; ++i) {
         hash = ((hash << 5) + hash) ^ *(image.data + i);
     }
 

@@ -10,8 +10,8 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 * HP/MP/CP monitoring
 * Mouse and keyboard emulation
 * ~~Stuck resolving~~
-* ~~Alarm subsystem (captcha, low HP, CP decreasing, etc.)~~
-* ~~Buff/debuff monitoring~~
+* ~~TTS alarm subsystem (captcha, low HP, CP decreasing, etc.)~~
+* ~~Buffs/debuffs monitoring~~
 * ~~Multi-monitor support~~
 
 ## How to use
@@ -21,8 +21,8 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 1. Install [Interception](https://github.com/oblitum/Interception/releases) driver (start `cmd.exe` as Administrator, then run `install-interception.exe /install`) and reboot.
 2. Run Lineage II client, select character and teleport to any exp/farm location
 3. Run `run.bat "<title of the Lineage II client window>"`
-4. Character's HP/CP/MP bars must be 100% at the moment of bot start, but if not, you should wait until they will be 100% and then press Space to reset bars position
-5. To stop press ESC or just move mouse (if not running in debug mode)
+4. HP/CP/MP bars must be 100% at the moment of bot start, but if not, you should wait until they will be 100% and then press Space to reset bars position
+5. To stop press ESC or move mouse
 
 ## Command line options
 

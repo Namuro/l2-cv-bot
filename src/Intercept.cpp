@@ -70,15 +70,15 @@ Intercept::Intercept() :
                 const auto mouse_stroke = reinterpret_cast<InterceptionMouseStroke *>(&stroke);
 
                 if (mouse_stroke->state != 0) {
-                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Left)] =
+                    m_pressed_mouse_buttons[static_cast<std::size_t>(MouseButton::Left)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_LEFT_BUTTON_DOWN;
-                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Right)] =
+                    m_pressed_mouse_buttons[static_cast<std::size_t>(MouseButton::Right)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_RIGHT_BUTTON_DOWN;
-                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Middle)] =
+                    m_pressed_mouse_buttons[static_cast<std::size_t>(MouseButton::Middle)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_MIDDLE_BUTTON_DOWN;
-                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Fourth)] =
+                    m_pressed_mouse_buttons[static_cast<std::size_t>(MouseButton::Fourth)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_BUTTON_4_DOWN;
-                    m_pressed_mouse_buttons[static_cast<size_t>(MouseButton::Fifth)] =
+                    m_pressed_mouse_buttons[static_cast<std::size_t>(MouseButton::Fifth)] =
                         mouse_stroke->state & INTERCEPTION_MOUSE_BUTTON_5_DOWN;
                 } else {
                     m_mouse_delta.x += std::abs(mouse_stroke->x);
@@ -127,7 +127,7 @@ void Intercept::SendKeyboardKeyEvent(int code, KeyboardKeyEvent event, bool e0, 
 bool Intercept::MouseButtonPressed(MouseButton button)
 {
     std::lock_guard lock{m_mouse_mtx};
-    return m_pressed_mouse_buttons[static_cast<size_t>(button)];
+    return m_pressed_mouse_buttons[static_cast<std::size_t>(button)];
 }
 
 bool Intercept::KeyboardKeyPressed(int code)

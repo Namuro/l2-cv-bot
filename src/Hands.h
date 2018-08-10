@@ -12,30 +12,39 @@ public:
         m_window_rect   {}
     {}
 
-    void SetWindowRect(const Rect &rect)    { m_window_rect = rect; }
+    void SetWindowRect(const Rect &rect) { m_window_rect = rect; }
     
-    void SelectTarget(const Point &point)   { MoveMouseSmoothly(WindowPoint(point)); LeftMouseButtonDoubleClick(); }
-    void CancelTarget()                     { PressKeyboardKey(KeyboardKey::Escape); }
-    void GoTo(const Point &point)           { MoveMouseSmoothly(WindowPoint(point)); LeftMouseButtonClick(); }
-    void PickUp()                           { KeyboardKeyDown(KeyboardKey::F5); Delay(3000); KeyboardKeyUp(KeyboardKey::F5); }
-    void NextTarget()                       { PressKeyboardKey(KeyboardKey::F2); }
-    void Attack()                           { PressKeyboardKey(KeyboardKey::F1); }
+    Hands &SelectTarget(const Point &point)
+        { MoveMouseSmoothly(WindowPoint(point)).Delay(50).LeftMouseButtonClick(); return *this; }
 
-    void ResetUI()
-    {
-        Delay(100);
-        PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L});
-        MoveMouseSmoothly(WindowCenter());
-        RightMouseButtonClick();
-    }
+    Hands &ResetUI()
+        { PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L}); return *this; }
 
-    void LookAround()
+    Hands &CancelTarget()           { PressKeyboardKey(KeyboardKey::Escape); return *this; }
+    Hands &GoTo(const Point &point) { MoveMouseSmoothly(WindowPoint(point)).LeftMouseButtonClick(); return *this; }
+    Hands &NextTarget()             { PressKeyboardKey(KeyboardKey::F2); return *this; }
+    Hands &Attack()                 { PressKeyboardKey(KeyboardKey::F1); return *this; }
+    Hands &ResetCamera()            { MoveMouseSmoothly(WindowCenter()).RightMouseButtonClick(); return *this; }
+
+    Hands &LookAround()
     {
         const auto center = WindowCenter();
-        MoveMouseSmoothly({center.x + 50, center.y + 50});
-        LeftMouseButtonClick();
-        Delay(500);
-        RightMouseButtonClick();
+
+        MoveMouseSmoothly({center.x + 50, center.y + 50}).
+            LeftMouseButtonClick().
+            Delay(500).
+            RightMouseButtonClick();
+
+        return *this;
+    }
+
+    Hands &PickUp()
+    {
+        for (std::size_t i = 0; i < 50; ++i) {
+            PressKeyboardKey(KeyboardKey::F5);
+        }
+
+        return *this;
     }
 
 private:

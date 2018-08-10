@@ -12,7 +12,7 @@ public:
     struct InterceptionDriverNotFoundError : public std::runtime_error
         { InterceptionDriverNotFoundError() : std::runtime_error("Interception driver not found") {} };
 
-    static constexpr size_t KEYBOARD_KEY_MAX = 256;
+    static constexpr std::size_t KEYBOARD_KEY_MAX = 256;
 
     enum class KeyboardKeyEvent : unsigned short
     {
@@ -64,7 +64,7 @@ private:
     ::InterceptionDevice m_keyboard_device;
     ::InterceptionDevice m_mouse_device;
     std::array<bool, KEYBOARD_KEY_MAX> m_pressed_keyboard_keys;
-    std::array<bool, static_cast<size_t>(MouseButton::Max)> m_pressed_mouse_buttons;
+    std::array<bool, static_cast<std::size_t>(MouseButton::Max)> m_pressed_mouse_buttons;
     Point m_mouse_delta;
     std::mutex m_keyboard_mtx;
     std::mutex m_mouse_mtx;

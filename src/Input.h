@@ -143,56 +143,55 @@ public:
     struct Point { int x, y; };
 
     Input() : // throws InterceptionDriverNotFoundError
-        m_intercept     {},
         m_mouse_position{MousePosition()},
-        m_ready         {true}
+        m_threads       {0}
     {}
 
-    void MoveMouse(const Point &point)
-        { AddEvent(MouseMoveEvent{point.x, point.y}); m_mouse_position = point; }
+    Input &MoveMouse(const Point &point)
+        { AddEvent(MouseMoveEvent{point.x, point.y}); m_mouse_position = point; return *this; }
 
-    void MoveMouseSmoothly(const Point &point, Point from, int step = 20, int interval = 10);
-    void MoveMouseSmoothly(const Point &point) { MoveMouseSmoothly(point, m_mouse_position); }
+    Input &MoveMouseSmoothly(const Point &point, Point from, int step = 30, int interval = 5);
+    Input &MoveMouseSmoothly(const Point &point) { MoveMouseSmoothly(point, m_mouse_position); return *this; }
 
-    void MoveMouseSmoothlyBy(const Point &point)
-        { MoveMouseSmoothly({m_mouse_position.x + point.x, m_mouse_position.y + point.y}); }
+    Input &MoveMouseSmoothlyBy(const Point &point)
+        { MoveMouseSmoothly({m_mouse_position.x + point.x, m_mouse_position.y + point.y}); return *this; }
 
-    void LeftMouseButtonClick(int delay = 50)
-        { LeftMouseButtonDown(); Delay(delay); LeftMouseButtonUp(); }
+    Input &LeftMouseButtonClick(int delay = 50)
+        { LeftMouseButtonDown(); Delay(delay); LeftMouseButtonUp(); return *this; }
 
-    void RightMouseButtonClick(int delay = 50)
-        { RightMouseButtonDown(); Delay(delay); RightMouseButtonUp(); }
+    Input &RightMouseButtonClick(int delay = 50)
+        { RightMouseButtonDown(); Delay(delay); RightMouseButtonUp(); return *this; }
 
-    void LeftMouseButtonDoubleClick(int delay = 50)
-        { LeftMouseButtonClick(delay); Delay(delay); LeftMouseButtonClick(delay); }
+    Input &LeftMouseButtonDoubleClick(int delay = 50)
+        { LeftMouseButtonClick(delay); Delay(delay); LeftMouseButtonClick(delay); return *this; }
 
-    void RightMouseButtonDoubleClick(int delay = 50)
-        { RightMouseButtonClick(delay); Delay(delay); RightMouseButtonClick(delay); }
+    Input &RightMouseButtonDoubleClick(int delay = 50)
+        { RightMouseButtonClick(delay); Delay(delay); RightMouseButtonClick(delay); return *this; }
 
-    void LeftMouseButtonDown()
-        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::LeftDown); }
+    Input &LeftMouseButtonDown()
+        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::LeftDown); return *this; }
 
-    void LeftMouseButtonUp()
-        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::LeftUp); }
+    Input &LeftMouseButtonUp()
+        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::LeftUp); return *this; }
 
-    void RightMouseButtonDown()
-        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightDown); }
+    Input &RightMouseButtonDown()
+        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightDown); return *this; }
 
-    void RightMouseButtonUp()
-        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightUp); }
+    Input &RightMouseButtonUp()
+        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightUp); return *this; }
 
-    void PressKeyboardKey(KeyboardKey key, int delay = 50)
-        { KeyboardKeyDown(key); Delay(delay); KeyboardKeyUp(key); }
+    Input &PressKeyboardKey(KeyboardKey key, int delay = 50)
+        { KeyboardKeyDown(key); Delay(delay); return KeyboardKeyUp(key); }
 
-    void PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int delay = 50);
+    Input &PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int delay = 50);
 
-    void KeyboardKeyDown(KeyboardKey key)
-        { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Down); }
+    Input &KeyboardKeyDown(KeyboardKey key)
+        { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Down); return *this; }
 
-    void KeyboardKeyUp(KeyboardKey key)
-        { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Up); }
+    Input &KeyboardKeyUp(KeyboardKey key)
+        { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Up); return *this; }
 
-    void Delay(int delay) { AddEvent(DelayEvent{delay}); }
+    Input &Delay(int delay) { AddEvent(DelayEvent{delay}); return *this; }
     
     Point MousePosition() const;
     bool MouseMoved(int delta = 0);
@@ -201,8 +200,8 @@ public:
     bool KeyboardKeyPressed(KeyboardKey key);
 
     void Send(int sleep = 0);
-    void Reset() { m_events.clear(); }
-    bool Ready() const { return m_ready.load(); }
+    void Reset()        { m_events.clear(); }
+    bool Ready() const  { return m_threads.load() == 0; }
 
 private:
     using MouseMoveEvent = ::Intercept::Point;
@@ -222,13 +221,13 @@ private:
     ::Intercept m_intercept;
     std::vector<Event> m_events;
     Point m_mouse_position;
-    std::atomic_bool m_ready;
+    std::atomic_int m_threads;
 
     void AddMouseButtonEvent(::Intercept::MouseButtonEvent event)
         { AddEvent(MouseButtonEvent{event}); }
 
     void AddKeyboardKeyEvent(KeyboardKey key, ::Intercept::KeyboardKeyEvent event);
-    void AddEvent(Event event) { if (Ready()) m_events.push_back(event); }
+    void AddEvent(Event event) { m_events.push_back(event); }
 
     static int KeyScanCode(KeyboardKey key) { return static_cast<int>(key) & ~(SHIFT | E0 | E1); }
 };
