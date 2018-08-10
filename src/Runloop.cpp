@@ -58,7 +58,7 @@ void Runloop::Run()
             ShowDebugWindow(image.value());
         }
 
-        if (!debug && m_hands.MouseMoved(100) || m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Escape)) {
+        if (m_hands.MouseMoved(100) || m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Escape)) {
             std::cout << "Bye!" << std::endl;
             break;
         } else if (m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Space)) {
