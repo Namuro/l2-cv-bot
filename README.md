@@ -11,6 +11,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 * Mouse and keyboard emulation
 * ~~Stuck resolving~~
 * ~~TTS alarm subsystem (captcha, low HP, CP decreasing, etc.)~~
+* ~~Custom behavior support (LUA scripts)~~
 * ~~Buffs/debuffs monitoring~~
 * ~~Multi-monitor support~~
 
@@ -39,9 +40,9 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 Current version developed and tested using Windows 10 and Gracia Epilogue client, so with another Windows or Lineage II client it may not work.
 
-Edit `run.bat` file to customize for another client. Note that colors must use HSV color model.
-
-OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`, `Intercept.cpp`.
+* Edit `run.bat` file to customize CV for another client. Note that for colors used HSV and **B**G**R** color models.
+* Edit `Brain.cpp` to customize bot behavior. Custom runtime behavior scripts currently not supported.
+* OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`, `Intercept.cpp`.
 
 ## Building
 

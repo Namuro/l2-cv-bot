@@ -20,5 +20,5 @@ public:
 private:
     const std::vector<std::string> m_options;
 
-    std::optional<std::string> Find(const std::string &option, bool next = true) const;
+    std::optional<std::string> Find(const std::string &option, bool check_next = true) const;
 };

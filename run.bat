@@ -10,15 +10,14 @@ l2-cv-bot.exe ^
     --npc_name_color_from_hsv   0,0,240 ^
     --npc_name_color_to_hsv     0,0,255 ^
     --npc_name_color_threshold  0.2     ^
-    --npc_name_center_offset    20      ^
+    --npc_name_center_offset    17      ^
 
-    %= current target detection =%                  ^
-    --target_circle_area_height         25          ^
-    --target_circle_area_width          25          ^
-    --target_blue_circle_color_from_hsv 107,255,89  ^
-    --target_blue_circle_color_to_hsv   107,255,90  ^
-    --target_red_circle_color_from_hsv  0,255,122   ^
-    --target_red_circle_color_to_hsv    0,255,123   ^
+    %= current target detection =%              ^
+    --target_circle_area_height     25          ^
+    --target_circle_area_width      25          ^
+    --target_gray_circle_color_bgr  57,60,66    ^
+    --target_blue_circle_color_bgr  107,48,0    ^
+    --target_red_circle_color_bgr   0,4,132     ^
 
     %= my HP/MP/CP bars detection =%    ^
     --my_bar_min_height     10          ^

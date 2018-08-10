@@ -26,7 +26,6 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs() const
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
     std::vector<NPC> npcs;
-    auto selected = false;
 
     for (const auto &contour : contours) {
         const auto rect = cv::boundingRect(contour);
@@ -49,26 +48,22 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs() const
         npc.rect = rect;
         npc.center = {rect.x + rect.width / 2, rect.y + rect.height / 2 + m_npc_name_center_offset};
         npc.name_id = Hash(target_image);
-        npc.center_id = npc.center.x << 16 | npc.center.y;
-        npc.selected = !selected ? NPCSelected(rect) : false; // only one NPC can be selected
+        npc.state = DetectNPCState(rect);
         npcs.push_back(npc);
-
-        selected = npc.selected;
     }
 
     // remove myself from NPCs
-    auto min_x = std::numeric_limits<int>::max();
-    auto min_y = min_x;
+    auto min_distance = std::numeric_limits<double>::max();
     decltype(npcs)::const_iterator min_it = npcs.end();
 
     for (auto it = npcs.begin(); it != npcs.end(); ++it) {
         const auto npc = *it;
         const auto x = std::abs(npc.center.x - m_hsv.cols / 2);
         const auto y = std::abs(npc.center.y - m_hsv.rows / 2);
+        const auto distance = std::hypot(x, y);
 
-        if (x < min_x || y < min_y) {
-            min_x = x;
-            min_y = y;
+        if (distance < min_distance) {
+            min_distance = distance;
             min_it = it;
         }
     }
@@ -131,7 +126,7 @@ std::optional<struct Eyes::MyBars> Eyes::DetectMyBars() const
         // expand rect
         const auto bars_rect = rect + cv::Size{0, rect.height * 4} + cv::Point{0, -rect.height * 2};
 
-        if (!RectInImage(m_hsv, bars_rect)) {
+        if (!IsRectInImage(m_hsv, bars_rect)) {
             continue;
         }
 
@@ -207,27 +202,30 @@ std::vector<std::vector<cv::Point>> Eyes::FindMyBarContours(const cv::Mat &mask)
     return contours;
 }
 
-bool Eyes::NPCSelected(const cv::Rect &rect) const
+Eyes::NPC::State Eyes::DetectNPCState(const cv::Rect &rect) const
 {
     // expand rect
     const auto expanded_rect = rect +
         cv::Size(m_target_circle_area_width * 2, m_target_circle_area_height - rect.height) +
         cv::Point(-m_target_circle_area_width, -(m_target_circle_area_height - rect.height) / 2);
     
-    if (!RectInImage(m_hsv, expanded_rect)) {
-        return false;
+    if (!IsRectInImage(m_hsv, expanded_rect)) {
+        return NPC::State::Default;
     }
 
-    cv::Mat hsv = m_hsv(expanded_rect);
-    cv::rectangle(hsv, {m_target_circle_area_width, 0, rect.width, m_target_circle_area_height}, 0, -1);
+    cv::Mat bgr = m_bgr(expanded_rect);
+    cv::rectangle(bgr, {m_target_circle_area_width, 0, rect.width, m_target_circle_area_height}, 0, -1);
 
-    // extract blue & red regions
+    // extract circles
+    cv::Mat gray;
+    cv::inRange(bgr, m_target_gray_circle_color_bgr, m_target_gray_circle_color_bgr, gray);
     cv::Mat blue;
-    cv::inRange(hsv, m_target_blue_circle_color_from_hsv, m_target_blue_circle_color_to_hsv, blue);
+    cv::inRange(bgr, m_target_blue_circle_color_bgr, m_target_blue_circle_color_bgr, blue);
     cv::Mat red;
-    cv::inRange(hsv, m_target_red_circle_color_from_hsv, m_target_red_circle_color_to_hsv, red);
+    cv::inRange(bgr, m_target_red_circle_color_bgr, m_target_red_circle_color_bgr, red);
     cv::Mat mask;
-    cv::bitwise_or(blue, red, mask);
+    cv::bitwise_or(gray, blue, mask);
+    cv::bitwise_or(mask, red, mask);
 
     // increase regions size
     const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {5, 5});
@@ -237,8 +235,10 @@ bool Eyes::NPCSelected(const cv::Rect &rect) const
     cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
     if (contours.size() < 2) {
-        return false;
+        return NPC::State::Default;
     }
+
+    bool gray_found = cv::countNonZero(gray) > 0;
 
     // compare each contour to find pair
     for (const auto &contour1 : contours) {
@@ -254,11 +254,11 @@ bool Eyes::NPCSelected(const cv::Rect &rect) const
                 continue;
             }
 
-            return true;
+            return gray_found ? NPC::State::Hovered : NPC::State::Selected;
         }
     }
 
-    return false;
+    return NPC::State::Default;
 }
 
 int Eyes::CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color)

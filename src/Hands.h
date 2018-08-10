@@ -13,13 +13,14 @@ public:
     {}
 
     void SetWindowRect(const Rect &rect) { m_window_rect = rect; }
-    
-    Hands &SelectTarget(const Point &point)
-        { MoveMouseSmoothly(WindowPoint(point)).Delay(50).LeftMouseButtonClick(); return *this; }
 
     Hands &ResetUI()
         { PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L}); return *this; }
 
+    Hands &MoveMouseToTarget(const Point &point)
+        { MoveMouseSmoothly(WindowPoint(point)); return *this; }
+
+    Hands &SelectTarget()           { LeftMouseButtonClick(); return *this; }
     Hands &CancelTarget()           { PressKeyboardKey(KeyboardKey::Escape); return *this; }
     Hands &GoTo(const Point &point) { MoveMouseSmoothly(WindowPoint(point)).LeftMouseButtonClick(); return *this; }
     Hands &NextTarget()             { PressKeyboardKey(KeyboardKey::F2); return *this; }

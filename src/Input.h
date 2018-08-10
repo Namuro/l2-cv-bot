@@ -200,8 +200,8 @@ public:
     bool KeyboardKeyPressed(KeyboardKey key);
 
     void Send(int sleep = 0);
-    void Reset()        { m_events.clear(); }
-    bool Ready() const  { return m_threads.load() == 0; }
+    void Reset()            { m_events.clear(); }
+    bool IsReady() const    { return m_threads.load() == 0; }
 
 private:
     using MouseMoveEvent = ::Intercept::Point;

@@ -98,11 +98,11 @@ std::vector<int> Options::IntVector(const std::string &option, const std::vector
     return vector;
 }
 
-std::optional<std::string> Options::Find(const std::string &option, bool next) const
+std::optional<std::string> Options::Find(const std::string &option, bool check_next) const
 {
     auto found = std::find(m_options.begin(), m_options.end(), option);
 
-    if (found != m_options.end() && (!next || ++found != m_options.end())) {
+    if (found != m_options.end() && (!check_next || ++found != m_options.end())) {
         return *found;
     }
 

@@ -154,11 +154,23 @@ void Runloop::DrawWorldInfo(cv::Mat &image) const
             cv::LINE_AA
         );
 
-        // selected or not
+        // selected
         cv::putText(
             image,
-            "selected: " + std::to_string(npc.selected),
+            "selected: " + std::to_string(npc.Selected()),
             {npc.rect.x, npc.rect.y - 20},
+            cv::FONT_HERSHEY_PLAIN,
+            0.8,
+            {255, 255, 255},
+            1,
+            cv::LINE_AA
+        );
+
+        // hovered
+        cv::putText(
+            image,
+            "hovered: " + std::to_string(npc.Hovered()),
+            {npc.rect.x, npc.rect.y - 35},
             cv::FONT_HERSHEY_PLAIN,
             0.8,
             {255, 255, 255},
@@ -220,12 +232,11 @@ void Runloop::ConfigureEyes()
     m_eyes.m_npc_name_center_offset     = m_options.Int("--npc_name_center_offset", m_eyes.m_npc_name_center_offset);
 
     // selected target detection
-    m_eyes.m_target_circle_area_height          = m_options.Int("--target_circle_area_height", m_eyes.m_target_circle_area_height);
-    m_eyes.m_target_circle_area_width           = m_options.Int("--target_circle_area_width", m_eyes.m_target_circle_area_width);
-    m_eyes.m_target_blue_circle_color_from_hsv  = ::VectorToScalar(m_options.IntVector("--target_blue_circle_color_from_hsv"), m_eyes.m_target_blue_circle_color_from_hsv);
-    m_eyes.m_target_blue_circle_color_to_hsv    = ::VectorToScalar(m_options.IntVector("--target_blue_circle_color_to_hsv"), m_eyes.m_target_blue_circle_color_to_hsv);
-    m_eyes.m_target_red_circle_color_from_hsv   = ::VectorToScalar(m_options.IntVector("--target_red_circle_color_from_hsv"), m_eyes.m_target_red_circle_color_from_hsv);
-    m_eyes.m_target_red_circle_color_to_hsv     = ::VectorToScalar(m_options.IntVector("--target_red_circle_color_to_hsv"), m_eyes.m_target_red_circle_color_to_hsv);
+    m_eyes.m_target_circle_area_height      = m_options.Int("--target_circle_area_height", m_eyes.m_target_circle_area_height);
+    m_eyes.m_target_circle_area_width       = m_options.Int("--target_circle_area_width", m_eyes.m_target_circle_area_width);
+    m_eyes.m_target_gray_circle_color_bgr   = ::VectorToScalar(m_options.IntVector("--target_gray_circle_color_bgr"), m_eyes.m_target_gray_circle_color_bgr);
+    m_eyes.m_target_blue_circle_color_bgr   = ::VectorToScalar(m_options.IntVector("--target_blue_circle_color_bgr"), m_eyes.m_target_blue_circle_color_bgr);
+    m_eyes.m_target_red_circle_color_bgr    = ::VectorToScalar(m_options.IntVector("--target_red_circle_color_bgr"), m_eyes.m_target_red_circle_color_bgr);
 
     // my HP/MP/CP bars detection
     m_eyes.m_my_bar_min_height      = m_options.Int("--my_bar_min_height", m_eyes.m_my_bar_min_height);

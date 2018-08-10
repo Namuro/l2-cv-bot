@@ -16,7 +16,7 @@ public:
 
     const Rect &Rect() const { return m_rect; }
 
-    bool BringToForeground() const { return ::SetForegroundWindow(m_hwnd); }
+    void BringToForeground() const { ::SetForegroundWindow(m_hwnd); }
 
 private:
     const ::HWND m_hwnd;

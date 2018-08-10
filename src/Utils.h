@@ -27,9 +27,9 @@ inline std::optional<cv::Mat> BitmapToImage(const Capture::Bitmap &bitmap)
 
 inline cv::Scalar VectorToScalar(const std::vector<int> &vector, const cv::Scalar &default)
 {
-    if (vector.size() != 3) {
-        return default;
+    if (vector.size() >= 3) {
+        return cv::Scalar(vector[0], vector[1], vector[2], vector.size() > 3 ? vector[3] : 255);
     }
 
-    return cv::Scalar(vector[0], vector[1], vector[2]);
+    return default;
 }
