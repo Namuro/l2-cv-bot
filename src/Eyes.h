@@ -70,6 +70,7 @@ public:
     void DetectMyBarsOnce()         { if (!m_my_bars.has_value()) m_my_bars = DetectMyBars(); }
     void DetectTargetHPBarOnce()    { if (!m_target_hp_bar.has_value()) m_target_hp_bar = DetectTargetHPBar(); }
     void Reset()                    { m_my_bars = {}; m_target_hp_bar = {}; }
+    bool IsReady() const            { return m_my_bars.has_value() && m_target_hp_bar.has_value(); }
 
     std::vector<NPC> DetectNPCs() const;
     std::optional<Me> DetectMe() const;

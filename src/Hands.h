@@ -25,27 +25,24 @@ public:
 
     Hands &SelectTarget()   { LeftMouseButtonClick(); return *this; }
     Hands &CancelTarget()   { PressKeyboardKey(KeyboardKey::Escape); return *this; }
-    Hands &NextTarget()     { PressKeyboardKey(KeyboardKey::F2); return *this; }
-    Hands &Attack()         { PressKeyboardKey(KeyboardKey::F1); return *this; }
     Hands &ResetCamera()    { MoveMouseSmoothly(WindowCenter()).RightMouseButtonClick(); return *this; }
+    Hands &Attack()         { PressKeyboardKey(KeyboardKey::F1); return *this; }
+    Hands &NextTarget()     { PressKeyboardKey(KeyboardKey::F2); return *this; }
+    Hands &Spoil()          { PressKeyboardKey(KeyboardKey::F3, 5); return *this; }
+    Hands &Sweep()          { PressKeyboardKey(KeyboardKey::F4, 5); return *this; }
+    Hands &PickUp()         { PressKeyboardKey(KeyboardKey::F5, 70); return *this; }
+    Hands &RestoreHP()      { PressKeyboardKey(KeyboardKey::F6, 5); return *this; }
+    Hands &RestoreMP()      { PressKeyboardKey(KeyboardKey::F7, 5); return *this; }
+    Hands &RestoreCP()      { PressKeyboardKey(KeyboardKey::F8, 5); return *this; }
 
     Hands &LookAround()
     {
         const auto center = WindowCenter();
 
-        MoveMouseSmoothly({center.x + 50, center.y + 50}).
+        MoveMouseSmoothly({center.x + 40, center.y + 40}).
             LeftMouseButtonClick().
             Delay(500).
             RightMouseButtonClick();
-
-        return *this;
-    }
-
-    Hands &PickUp()
-    {
-        for (std::size_t i = 0; i < 70; ++i) {
-            PressKeyboardKey(KeyboardKey::F5);
-        }
 
         return *this;
     }

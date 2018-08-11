@@ -180,11 +180,6 @@ public:
     Input &RightMouseButtonUp()
         { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightUp); return *this; }
 
-    Input &PressKeyboardKey(KeyboardKey key, int delay = 50)
-        { KeyboardKeyDown(key); Delay(delay); return KeyboardKeyUp(key); }
-
-    Input &PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int delay = 50);
-
     Input &KeyboardKeyDown(KeyboardKey key)
         { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Down); return *this; }
 
@@ -192,6 +187,9 @@ public:
         { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Up); return *this; }
 
     Input &Delay(int delay) { AddEvent(DelayEvent{delay}); return *this; }
+
+    Input &PressKeyboardKey(KeyboardKey key, int times = 1, int delay = 50);
+    Input &PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int times = 1, int delay = 50);
     
     Point MousePosition() const;
     bool MouseMoved(int delta = 0);

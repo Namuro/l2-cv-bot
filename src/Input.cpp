@@ -28,20 +28,33 @@ Input &Input::MoveMouseSmoothly(const Point &point, Point from, int step, int in
     return *this;
 }
 
-Input &Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int delay)
+Input &Input::PressKeyboardKey(KeyboardKey key, int times, int delay)
+{
+    for (std::size_t i = 0; i < times; ++i) {
+        KeyboardKeyDown(key);
+        Delay(delay);
+        KeyboardKeyUp(key);
+    }
+
+    return *this;
+}
+
+Input &Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int times, int delay)
 {
     if (keys.empty()) {
         return *this;
     }
 
-    for (const auto key : keys) {
-        KeyboardKeyDown(key);
-    }
+    for (std::size_t i = 0; i < times; ++i) {
+        for (const auto key : keys) {
+            KeyboardKeyDown(key);
+        }
 
-    Delay(delay);
+        Delay(delay);
 
-    for (auto i = keys.size() - 1; i-- > 0;) {
-        KeyboardKeyUp(keys[i]);
+        for (auto i = keys.size() - 1; i-- > 0;) {
+            KeyboardKeyUp(keys[i]);
+        }
     }
 
     return *this;
