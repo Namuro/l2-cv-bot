@@ -39,7 +39,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 Current version developed and tested using Windows 10 and Gracia Epilogue client, so with another Windows or Lineage II client it may not work.
 
-* Edit `run.bat` file to customize CV for another client. Note that for colors using HSV and **B**G**R** color models
+* Edit `run.bat` file to customize CV for another client. Note that for colors are used HSV and **B**G**R** color models
 * Edit `Brain.cpp` to customize bot behavior. Custom runtime behavior scripts are not supported
 * OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`, `Intercept.cpp`
 
