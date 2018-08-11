@@ -188,8 +188,8 @@ public:
 
     Input &Delay(int delay) { AddEvent(DelayEvent{delay}); return *this; }
 
-    Input &PressKeyboardKey(KeyboardKey key, int times = 1, int delay = 50);
-    Input &PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int times = 1, int delay = 50);
+    Input &PressKeyboardKey(KeyboardKey key, int duration = 0, int delay = 50);
+    Input &PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int duration = 0, int delay = 50);
     
     Point MousePosition() const;
     bool MouseMoved(int delta = 0);

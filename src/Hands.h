@@ -28,12 +28,12 @@ public:
     Hands &ResetCamera()    { MoveMouseSmoothly(WindowCenter()).RightMouseButtonClick(); return *this; }
     Hands &Attack()         { PressKeyboardKey(KeyboardKey::F1); return *this; }
     Hands &NextTarget()     { PressKeyboardKey(KeyboardKey::F2); return *this; }
-    Hands &Spoil()          { PressKeyboardKey(KeyboardKey::F3, 5); return *this; }
-    Hands &Sweep()          { PressKeyboardKey(KeyboardKey::F4, 5); return *this; }
-    Hands &PickUp()         { PressKeyboardKey(KeyboardKey::F5, 70); return *this; }
-    Hands &RestoreHP()      { PressKeyboardKey(KeyboardKey::F6, 5); return *this; }
-    Hands &RestoreMP()      { PressKeyboardKey(KeyboardKey::F7, 5); return *this; }
-    Hands &RestoreCP()      { PressKeyboardKey(KeyboardKey::F8, 5); return *this; }
+    Hands &Spoil()          { PressKeyboardKey(KeyboardKey::F3, 200); return *this; }
+    Hands &Sweep()          { PressKeyboardKey(KeyboardKey::F4, 200); return *this; }
+    Hands &PickUp()         { PressKeyboardKey(KeyboardKey::F5, 3500); return *this; }
+    Hands &RestoreHP()      { PressKeyboardKey(KeyboardKey::F6, 200); return *this; }
+    Hands &RestoreMP()      { PressKeyboardKey(KeyboardKey::F7, 200); return *this; }
+    Hands &RestoreCP()      { PressKeyboardKey(KeyboardKey::F8, 200); return *this; }
 
     Hands &LookAround()
     {
