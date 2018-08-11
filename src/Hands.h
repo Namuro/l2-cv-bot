@@ -27,7 +27,7 @@ public:
     Hands &CancelTarget()   { PressKeyboardKey(KeyboardKey::Escape); return *this; }
     Hands &NextTarget()     { PressKeyboardKey(KeyboardKey::F2); return *this; }
     Hands &Attack()         { PressKeyboardKey(KeyboardKey::F1); return *this; }
-    Hands &ResetCamera()    { RightMouseButtonClick(); return *this; }
+    Hands &ResetCamera()    { MoveMouseSmoothly(WindowCenter()).RightMouseButtonClick(); return *this; }
 
     Hands &LookAround()
     {
