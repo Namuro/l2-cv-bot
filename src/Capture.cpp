@@ -1,6 +1,6 @@
-#include <algorithm>
-
 #include "Capture.h"
+
+#include <algorithm>
 
 Capture::Capture() :
     m_rect{

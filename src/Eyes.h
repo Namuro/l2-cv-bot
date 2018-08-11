@@ -17,11 +17,11 @@ public:
         enum class State { Default = 0, Hovered = 1, Selected = 2 };
 
         State state;
-        uint32_t name_id;
+        std::uint32_t name_id;
         cv::Point center;
         cv::Rect rect;
 
-        uint32_t CenterId() const { return center.x << 16 | center.y; }
+        std::uint32_t CenterId() const { return center.x << 16 | center.y; }
         bool Selected() const { return state == State::Selected; }
         bool Hovered() const { return state == State::Hovered; }
     };
@@ -90,5 +90,5 @@ private:
         { return (rect & cv::Rect{0, 0, image.cols, image.rows}) == rect; }
 
     static int CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color);
-    static uint32_t Hash(const cv::Mat &image);
+    static std::uint32_t Hash(const cv::Mat &image);
 };

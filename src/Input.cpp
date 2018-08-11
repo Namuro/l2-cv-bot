@@ -1,7 +1,7 @@
+#include "Input.h"
+
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
-
-#include "Input.h"
 
 Input &Input::MoveMouseSmoothly(const Point &point, Point from, int step, int interval)
 {

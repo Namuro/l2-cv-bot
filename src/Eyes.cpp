@@ -1,6 +1,6 @@
-#include <limits>
-
 #include "Eyes.h"
+
+#include <limits>
 
 std::vector<Eyes::NPC> Eyes::DetectNPCs() const
 {
@@ -59,7 +59,7 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs() const
     for (auto it = npcs.begin(); it != npcs.end(); ++it) {
         const auto npc = *it;
         const auto x = std::abs(npc.center.x - m_hsv.cols / 2);
-        const auto y = std::abs(npc.center.y - m_hsv.rows / 2);
+        const auto y = std::abs(npc.center.y - m_hsv.rows / 2 + 50);
         const auto distance = std::hypot(x, y);
 
         if (distance < min_distance) {

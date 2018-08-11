@@ -1,7 +1,7 @@
+#include "Window.h"
+
 #include <vector>
 #include <map>
-
-#include "Window.h"
 
 std::optional<Window> Window::Find(const std::string &window_title)
 {

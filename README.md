@@ -13,13 +13,12 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 * ~~TTS alarm subsystem (captcha, low HP, CP decreasing, etc.)~~
 * ~~Custom behavior support (LUA scripts)~~
 * ~~Buffs/debuffs monitoring~~
-* ~~Multi-monitor support~~
 
 ## How to use
 
 **[Interception](https://github.com/oblitum/Interception) driver is required for mouse and keyboard emulation.**
 
-1. Install [Interception](https://github.com/oblitum/Interception/releases) driver (start `cmd.exe` as Administrator, then run `install-interception.exe /install`) and reboot.
+1. Install [Interception](https://github.com/oblitum/Interception/releases) driver (start `cmd.exe` as Administrator, then run `install-interception.exe /install`) and reboot
 2. Run Lineage II client, select character and teleport to any exp/farm location
 3. Run `run.bat "<title of the Lineage II client window>"`
 4. HP/CP/MP bars must be 100% at the moment of bot start, but if not, you should wait until they will be 100% and then press Space to reset bars position
@@ -40,9 +39,9 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 Current version developed and tested using Windows 10 and Gracia Epilogue client, so with another Windows or Lineage II client it may not work.
 
-* Edit `run.bat` file to customize CV for another client. Note that for colors used HSV and **B**G**R** color models.
-* Edit `Brain.cpp` to customize bot behavior. Custom runtime behavior scripts are not supported.
-* OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`, `Intercept.cpp`.
+* Edit `run.bat` file to customize CV for another client. Note that for colors using HSV and **B**G**R** color models
+* Edit `Brain.cpp` to customize bot behavior. Custom runtime behavior scripts are not supported
+* OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`, `Intercept.cpp`
 
 ## Building
 

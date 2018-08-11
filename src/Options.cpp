@@ -1,6 +1,6 @@
-#include <sstream>
-
 #include "Options.h"
+
+#include <sstream>
 
 std::string Options::String(const std::string &option, const std::string &default) const
 {

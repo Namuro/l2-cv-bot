@@ -42,8 +42,8 @@ private:
     State m_state;
     ::Eyes &m_eyes;
     ::Hands &m_hands;
-    uint32_t m_npc_id;
-    std::set<uint32_t> m_ignored_npcs;
+    std::uint32_t m_npc_id;
+    std::set<std::uint32_t> m_ignored_npcs;
 
     std::vector<::Eyes::NPC> m_npcs;
     std::optional<::Eyes::Me> m_me;

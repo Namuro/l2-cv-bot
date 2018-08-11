@@ -42,12 +42,28 @@ if(MSVC)
     install(CODE "
         include(BundleUtilities)
         fixup_bundle(${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/l2-cv-bot.exe \"\" ${OpenCV_LIBS})
-        configure_file(${CMAKE_SOURCE_DIR}/run.bat ${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/run.bat COPYONLY)
+        configure_file(${CMAKE_SOURCE_DIR}/install/run.bat ${CMAKE_INSTALL_PREFIX}/\${BUILD_TYPE}/run.bat COPYONLY)
     " COMPONENT Runtime)
 endif()
 
+# Compiler options
 if(MSVC)
     target_compile_options(l2-cv-bot PRIVATE /W4)
 else()
     target_compile_options(l2-cv-bot PRIVATE -Wall -Wextra -pedantic)
+endif()
+
+# IWYU
+find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+
+if(IWYU_PATH)
+    list(APPEND IWYU_PATH "--driver-mode=cl")
+    set_property(TARGET l2-cv-bot PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
+endif()
+
+# cppcheck
+find_program(CPPCHECK_PATH NAMES cppcheck)
+
+if(CPPCHECK_PATH)
+    set_property(TARGET l2-cv-bot PROPERTY CXX_CPPCHECK ${CPPCHECK_PATH})
 endif()

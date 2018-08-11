@@ -20,12 +20,14 @@ public:
     Hands &MoveMouseToTarget(const Point &point)
         { MoveMouseSmoothly(WindowPoint(point)); return *this; }
 
-    Hands &SelectTarget()           { LeftMouseButtonClick(); return *this; }
-    Hands &CancelTarget()           { PressKeyboardKey(KeyboardKey::Escape); return *this; }
-    Hands &GoTo(const Point &point) { MoveMouseSmoothly(WindowPoint(point)).LeftMouseButtonClick(); return *this; }
-    Hands &NextTarget()             { PressKeyboardKey(KeyboardKey::F2); return *this; }
-    Hands &Attack()                 { PressKeyboardKey(KeyboardKey::F1); return *this; }
-    Hands &ResetCamera()            { MoveMouseSmoothly(WindowCenter()).RightMouseButtonClick(); return *this; }
+    Hands &GoTo(const Point &point)
+        { MoveMouseSmoothly(WindowPoint(point)).Delay(200).LeftMouseButtonClick(); return *this; }
+
+    Hands &SelectTarget()   { LeftMouseButtonClick(); return *this; }
+    Hands &CancelTarget()   { PressKeyboardKey(KeyboardKey::Escape); return *this; }
+    Hands &NextTarget()     { PressKeyboardKey(KeyboardKey::F2); return *this; }
+    Hands &Attack()         { PressKeyboardKey(KeyboardKey::F1); return *this; }
+    Hands &ResetCamera()    { RightMouseButtonClick(); return *this; }
 
     Hands &LookAround()
     {
@@ -41,7 +43,7 @@ public:
 
     Hands &PickUp()
     {
-        for (std::size_t i = 0; i < 50; ++i) {
+        for (std::size_t i = 0; i < 70; ++i) {
             PressKeyboardKey(KeyboardKey::F5);
         }
 

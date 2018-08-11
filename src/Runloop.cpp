@@ -1,7 +1,7 @@
+#include "Runloop.h"
+
 #include "Utils.h"
 #include "Window.h"
-
-#include "Runloop.h"
 
 void Runloop::Run()
 {
@@ -58,7 +58,7 @@ void Runloop::Run()
             ShowDebugWindow(image.value());
         }
 
-        if (m_hands.MouseMoved(100) || m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Escape)) {
+        if (!debug && m_hands.MouseMoved(100) || m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Escape)) {
             std::cout << "Bye!" << std::endl;
             break;
         } else if (m_hands.KeyboardKeyPressed(::Input::KeyboardKey::Space)) {

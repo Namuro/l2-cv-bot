@@ -1,9 +1,9 @@
+#include "Intercept.h"
+
 #include <thread>
 
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
-
-#include "Intercept.h"
 
 Intercept::Intercept() :
     m_screen_width          {::GetSystemMetrics(SM_CXVIRTUALSCREEN)},
