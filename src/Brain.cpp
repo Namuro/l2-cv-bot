@@ -46,7 +46,8 @@ void Brain::Process()
         if (target.hp > 0) {
             std::cout << "Attack target" << std::endl;
             m_npc_id = 0;
-            m_hands.Spoil().ResetCamera().Send();
+            m_hands.Spoil().Attack().Delay(500);
+            m_hands.ResetCamera().Send();
             m_state = State::Attack;
         } else {
             IgnoreNPC();
@@ -62,7 +63,7 @@ void Brain::Process()
             } else {
                 std::cout << "Look around" << std::endl;
                 m_ignored_npcs.clear();
-                m_hands.LookAround().Send(500);
+                m_hands.NextTarget().LookAround().Send(500);
             }
         }
     } else if (m_state == State::Check) {
