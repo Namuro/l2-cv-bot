@@ -69,7 +69,7 @@ void Brain::Process()
         const auto npc = HoveredNPC();
 
         if (npc.has_value()) {
-            m_hands.SelectTarget().Send(1000);
+            m_hands.SelectTarget().Send(500);
         }
 
         m_state = State::Search;
@@ -82,7 +82,7 @@ void Brain::Process()
             if (npc.has_value()) {
                 std::cout << "Go to target" << std::endl;
                 // TODO: moving of the selected target can be detected
-                m_hands.GoTo({npc.value().center.x, npc.value().center.y}).Send(5000);
+                m_hands.GoTo({npc.value().center.x, npc.value().center.y}).Send(4000);
             }
 
             m_state = State::PickUp;

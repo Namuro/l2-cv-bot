@@ -39,6 +39,16 @@ l2-cv-bot.exe ^
     --target_hp_color_from_hsv  0,60,80     ^
     --target_hp_color_to_hsv    2,220,170   ^
 
+    %= key bindings =%      ^
+    --attack_key        F1  ^
+    --next_target_key   F2  ^
+    --spoil_key         F3  ^
+    --sweep_key         F4  ^
+    --pick_up_key       F5  ^
+    --restore_hp_key    F6  ^
+    --restore_mp_key    F7  ^
+    --restore_cp_key    F8  ^
+
     --debug true ^
     --window %1
 

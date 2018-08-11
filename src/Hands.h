@@ -5,6 +5,15 @@
 class Hands : public Input
 {
 public:
+    KeyboardKey m_attack_key        = KeyboardKey::F1;
+    KeyboardKey m_next_target_key   = KeyboardKey::F2;
+    KeyboardKey m_spoil_key         = KeyboardKey::F3;
+    KeyboardKey m_sweep_key         = KeyboardKey::F4;
+    KeyboardKey m_pick_up_key       = KeyboardKey::F5;
+    KeyboardKey m_restore_hp_key    = KeyboardKey::F6;
+    KeyboardKey m_restore_mp_key    = KeyboardKey::F7;
+    KeyboardKey m_restore_cp_key    = KeyboardKey::F8;
+
     struct Rect { int x, y, width, height; };
 
     Hands() :
@@ -26,14 +35,14 @@ public:
     Hands &SelectTarget()   { LeftMouseButtonClick(); return *this; }
     Hands &CancelTarget()   { PressKeyboardKey(KeyboardKey::Escape); return *this; }
     Hands &ResetCamera()    { MoveMouseSmoothly(WindowCenter()).RightMouseButtonClick(); return *this; }
-    Hands &Attack()         { PressKeyboardKey(KeyboardKey::F1); return *this; }
-    Hands &NextTarget()     { PressKeyboardKey(KeyboardKey::F2); return *this; }
-    Hands &Spoil()          { PressKeyboardKey(KeyboardKey::F3, 200); return *this; }
-    Hands &Sweep()          { PressKeyboardKey(KeyboardKey::F4, 200); return *this; }
-    Hands &PickUp()         { PressKeyboardKey(KeyboardKey::F5, 3500); return *this; }
-    Hands &RestoreHP()      { PressKeyboardKey(KeyboardKey::F6, 200); return *this; }
-    Hands &RestoreMP()      { PressKeyboardKey(KeyboardKey::F7, 200); return *this; }
-    Hands &RestoreCP()      { PressKeyboardKey(KeyboardKey::F8, 200); return *this; }
+    Hands &Attack()         { PressKeyboardKey(m_attack_key); return *this; }
+    Hands &NextTarget()     { PressKeyboardKey(m_next_target_key); return *this; }
+    Hands &Spoil()          { PressKeyboardKey(m_spoil_key, 200); return *this; }
+    Hands &Sweep()          { PressKeyboardKey(m_sweep_key, 200); return *this; }
+    Hands &PickUp()         { PressKeyboardKey(m_pick_up_key, 3500); return *this; }
+    Hands &RestoreHP()      { PressKeyboardKey(m_restore_hp_key, 200); return *this; }
+    Hands &RestoreMP()      { PressKeyboardKey(m_restore_mp_key, 200); return *this; }
+    Hands &RestoreCP()      { PressKeyboardKey(m_restore_cp_key, 200); return *this; }
 
     Hands &LookAround()
     {

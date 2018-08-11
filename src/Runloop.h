@@ -31,4 +31,5 @@ private:
     void DrawWorldInfo(cv::Mat &image) const;
     int ShowDebugWindow(cv::Mat &image);
     void ConfigureEyes();
+    void ConfigureHands();
 };

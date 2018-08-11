@@ -6,6 +6,7 @@
 void Runloop::Run()
 {
     ConfigureEyes();
+    ConfigureHands();
 
     const auto title = m_options.String("--window", "Lineage II");
     const auto debug = m_options.Bool("--debug", true);
@@ -257,4 +258,16 @@ void Runloop::ConfigureEyes()
     m_eyes.m_target_hp_max_width        = m_options.Int("--target_hp_max_width", m_eyes.m_target_hp_max_width);
     m_eyes.m_target_hp_color_from_hsv   = ::VectorToScalar(m_options.IntVector("--target_hp_color_from_hsv"), m_eyes.m_target_hp_color_from_hsv);
     m_eyes.m_target_hp_color_to_hsv     = ::VectorToScalar(m_options.IntVector("--target_hp_color_to_hsv"), m_eyes.m_target_hp_color_to_hsv);
+}
+
+void Runloop::ConfigureHands()
+{
+    m_hands.m_attack_key        = ::StringToKeyboardKey(m_options.String("--attack_key"), m_hands.m_attack_key);
+    m_hands.m_next_target_key   = ::StringToKeyboardKey(m_options.String("--next_target_key"), m_hands.m_next_target_key);
+    m_hands.m_spoil_key         = ::StringToKeyboardKey(m_options.String("--spoil_key"), m_hands.m_spoil_key);
+    m_hands.m_sweep_key         = ::StringToKeyboardKey(m_options.String("--sweep_key"), m_hands.m_sweep_key);
+    m_hands.m_pick_up_key       = ::StringToKeyboardKey(m_options.String("--pick_up_key"), m_hands.m_pick_up_key);
+    m_hands.m_restore_hp_key    = ::StringToKeyboardKey(m_options.String("--restore_hp_key"), m_hands.m_restore_hp_key);
+    m_hands.m_restore_mp_key    = ::StringToKeyboardKey(m_options.String("--restore_mp_key"), m_hands.m_restore_mp_key);
+    m_hands.m_restore_cp_key    = ::StringToKeyboardKey(m_options.String("--restore_cp_key"), m_hands.m_restore_cp_key);
 }

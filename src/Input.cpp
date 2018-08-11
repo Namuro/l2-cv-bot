@@ -5,6 +5,10 @@
 
 Input &Input::MoveMouseSmoothly(const Point &point, Point from, int step, int interval)
 {
+    if (step == 0) {
+        step = 1;
+    }
+
     const auto distance = std::hypot(point.x - from.x, point.y - from.y);
     const auto steps = distance / step;
 
@@ -30,6 +34,10 @@ Input &Input::MoveMouseSmoothly(const Point &point, Point from, int step, int in
 
 Input &Input::PressKeyboardKey(KeyboardKey key, int duration, int delay)
 {
+    if (delay == 0) {
+        delay = 1;
+    }
+
     const auto times = duration / delay + 1;
 
     for (std::size_t i = 0; i < times; ++i) {
@@ -45,6 +53,10 @@ Input &Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, 
 {
     if (keys.empty()) {
         return *this;
+    }
+
+    if (delay == 0) {
+        delay = 1;
     }
 
     const auto times = duration / delay + 1;
