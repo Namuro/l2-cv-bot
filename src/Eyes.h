@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <optional>
+#include <array>
 
 #include <opencv2/opencv.hpp>
 
@@ -26,6 +27,12 @@ public:
         bool Hovered() const { return state == State::Hovered; }
     };
 
+    struct FarNPC
+    {
+        cv::Point center;
+        cv::Rect rect;
+    };
+
     // NPC detection
     int m_npc_name_min_height = 8;
     int m_npc_name_max_height = 16;
@@ -35,6 +42,13 @@ public:
     cv::Scalar m_npc_name_color_to_hsv = {0, 0, 255};
     double m_npc_name_color_threshold = 0.2;
     int m_npc_name_center_offset = 17;
+
+    // far NPC detection
+    int m_far_npc_min_height = 20;
+    int m_far_npc_max_height = 200;
+    int m_far_npc_min_width = 20;
+    int m_far_npc_max_width = 200;
+    int m_far_npc_limit = 10;
 
     // selected target detection
     int m_target_circle_area_height = 25;
@@ -63,6 +77,12 @@ public:
     cv::Scalar m_target_hp_color_from_hsv = {0, 60, 80};
     cv::Scalar m_target_hp_color_to_hsv = {2, 220, 170};
 
+    Eyes() :
+        m_frame{0},
+        m_frames{},
+        m_diffs{}
+    {}
+
     const std::optional<cv::Rect> &TargetHPBar() const { return m_target_hp_bar; }
     const std::optional<struct MyBars> &MyBars() const { return m_my_bars; }
 
@@ -73,10 +93,15 @@ public:
     bool IsReady() const            { return m_my_bars.has_value(); }
 
     std::vector<NPC> DetectNPCs() const;
+    std::vector<FarNPC> DetectFarNPCs();
     std::optional<Me> DetectMe() const;
     std::optional<Target> DetectTarget() const;
 
 private:
+    std::size_t m_frame;
+    std::array<cv::Mat, 3> m_frames;
+    std::array<cv::Mat, 15> m_diffs;
+
     cv::Mat m_bgr;
     cv::Mat m_hsv;
     std::optional<struct MyBars> m_my_bars;

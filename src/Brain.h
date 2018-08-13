@@ -23,6 +23,7 @@ public:
     {}
 
     const std::vector<::Eyes::NPC> &NPCs() const        { return m_npcs; }
+    const std::vector<::Eyes::FarNPC> &FarNPCs() const  { return m_far_npcs; }
     const std::optional<::Eyes::Me> &Me() const         { return m_me; }
     const std::optional<::Eyes::Target> &Target() const { return m_target; }
 
@@ -46,6 +47,7 @@ private:
     std::set<std::uint32_t> m_ignored_npcs;
 
     std::vector<::Eyes::NPC> m_npcs;
+    std::vector<::Eyes::FarNPC> m_far_npcs;
     std::optional<::Eyes::Me> m_me;
     std::optional<::Eyes::Target> m_target;
 

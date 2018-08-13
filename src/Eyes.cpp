@@ -75,6 +75,96 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs() const
     return npcs;
 }
 
+std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
+{
+    cv::Mat gray;
+    cv::cvtColor(m_hsv, gray, cv::COLOR_BGR2GRAY); // hsv as rgb to gray
+    
+    // diff current frame with previous frames
+    cv::Mat diff_sum;
+
+    for (const auto &frame : m_frames) {
+        if (frame.empty()) {
+            continue;
+        }
+
+        cv::Mat diff;
+        cv::absdiff(frame, gray, diff);
+
+        if (diff_sum.empty()) {
+            diff_sum = diff;
+        } else {
+            cv::bitwise_or(diff, diff_sum, diff_sum);
+        }
+    }
+
+    m_diffs[m_frame % m_diffs.size()] = diff_sum;
+    m_frames[m_frame % m_frames.size()] = gray;
+    ++m_frame;
+
+    // expand diff areas
+    if (!diff_sum.empty()) {
+        cv::threshold(diff_sum, diff_sum, 5, 255, cv::THRESH_BINARY);
+        const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {21, 21});
+        cv::dilate(diff_sum, diff_sum, kernel);
+    }
+
+    // multiply all diffs
+    cv::Mat mask;
+
+    for (const auto &diff : m_diffs) {
+        if (diff.empty()) {
+            continue;
+        }
+
+        if (mask.empty()) {
+            mask = diff;
+        } else {
+            cv::bitwise_and(diff, mask, mask);
+        }
+    }
+
+    if (mask.empty()) {
+        return {};
+    }
+
+    // remove noise
+    const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {15, 15});
+    cv::erode(mask, mask, kernel);
+    cv::dilate(mask, mask, kernel);
+
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+    std::vector<FarNPC> npcs;
+
+    for (const auto &contour : contours) {
+        const auto rect = cv::boundingRect(contour);
+
+        if (rect.height < m_far_npc_min_height || rect.height > m_far_npc_max_height ||
+            rect.width < m_far_npc_min_width || rect.width > m_far_npc_max_width
+        ) {
+            continue;
+        }
+
+        FarNPC npc = {};
+        npc.rect = rect;
+        npc.center = {npc.rect.x + npc.rect.width / 2, npc.rect.y + npc.rect.height / 2};
+        npcs.push_back(npc);
+    }
+
+    // return only nearest NPCs
+    std::sort(npcs.begin(), npcs.end(), [](const FarNPC &a, const FarNPC &b) {
+        return a.rect.y > b.rect.y;
+    });
+
+    if (npcs.size() > m_far_npc_limit) {
+        npcs.erase(npcs.begin() + m_far_npc_limit, npcs.end());
+    }
+
+    return npcs;
+}
+
 std::optional<Eyes::Me> Eyes::DetectMe() const
 {
     if (!m_my_bars.has_value()) {

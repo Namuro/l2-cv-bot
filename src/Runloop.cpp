@@ -75,6 +75,7 @@ void Runloop::Run()
 void Runloop::DrawWorldInfo(cv::Mat &image) const
 {
     const auto npcs = m_brain.NPCs();
+    const auto far_npcs = m_brain.FarNPCs();
     const auto me = m_brain.Me().value_or(::Eyes::Me());
     const auto target = m_brain.Target().value_or(::Eyes::Target());
 
@@ -178,6 +179,11 @@ void Runloop::DrawWorldInfo(cv::Mat &image) const
             1,
             cv::LINE_AA
         );
+    }
+
+    // far NPCs
+    for (const auto &npc : far_npcs) {
+        cv::rectangle(image, npc.rect, {0, 255, 255});
     }
 }
 

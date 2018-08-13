@@ -36,9 +36,9 @@ public:
     Hands &CancelTarget()   { PressKeyboardKey(KeyboardKey::Escape); return *this; }
     Hands &ResetCamera()    { MoveMouseSmoothly(WindowCenter()).RightMouseButtonClick(); return *this; }
     Hands &Attack()         { PressKeyboardKey(m_attack_key); return *this; }
-    Hands &NextTarget()     { PressKeyboardKey(m_next_target_key, 200); return *this; }
-    Hands &Spoil()          { PressKeyboardKey(m_spoil_key, 200); return *this; }
-    Hands &Sweep()          { PressKeyboardKey(m_sweep_key, 200); return *this; }
+    Hands &NextTarget()     { PressKeyboardKey(m_next_target_key, 250); return *this; }
+    Hands &Spoil()          { PressKeyboardKey(m_spoil_key, 250); return *this; }
+    Hands &Sweep()          { PressKeyboardKey(m_sweep_key, 250); return *this; }
     Hands &PickUp()         { PressKeyboardKey(m_pick_up_key, 3500); return *this; }
     Hands &RestoreHP()      { PressKeyboardKey(m_restore_hp_key); return *this; }
     Hands &RestoreMP()      { PressKeyboardKey(m_restore_mp_key); return *this; }

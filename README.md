@@ -27,7 +27,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 Default keyboard layout:
 
 * F1 - Primary attack
-* ~~F2 - Next target~~
+* F2 - Next target
 * F3 - Spoil
 * F4 - Sweep
 * F5 - Pick up

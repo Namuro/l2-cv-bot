@@ -11,6 +11,8 @@ void Brain::Init()
 
 void Brain::Process()
 {
+    m_far_npcs = m_eyes.DetectFarNPCs();
+
     if (m_eyes.IsReady()) {
         m_npcs = m_eyes.DetectNPCs();
         m_me = m_eyes.DetectMe();
@@ -39,6 +41,8 @@ void Brain::Process()
 
     m_eyes.DetectMyBarsOnce();
     m_eyes.DetectTargetHPBarOnce();
+
+    //return;
 
     const auto target = m_target.value_or(::Eyes::Target{});
 
