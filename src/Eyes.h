@@ -33,6 +33,8 @@ public:
         cv::Rect rect;
     };
 
+    int m_blind_spot_radius = 100;
+
     // NPC detection
     int m_npc_name_min_height = 8;
     int m_npc_name_max_height = 16;
@@ -86,7 +88,7 @@ public:
     const std::optional<cv::Rect> &TargetHPBar() const { return m_target_hp_bar; }
     const std::optional<struct MyBars> &MyBars() const { return m_my_bars; }
 
-    void Blink(const cv::Mat &bgr)  { m_bgr = bgr.clone(); cv::cvtColor(bgr, m_hsv, cv::COLOR_BGR2HSV); }
+    void Blink(const cv::Mat &bgr);
     void DetectMyBarsOnce()         { if (!m_my_bars.has_value()) m_my_bars = DetectMyBars(); }
     void DetectTargetHPBarOnce()    { if (!m_target_hp_bar.has_value()) m_target_hp_bar = DetectTargetHPBar(); }
     void Reset()                    { m_my_bars = {}; m_target_hp_bar = {}; }

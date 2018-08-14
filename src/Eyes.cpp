@@ -2,6 +2,13 @@
 
 #include <limits>
 
+void Eyes::Blink(const cv::Mat &bgr)
+{
+    m_bgr = bgr.clone();
+    cv::circle(m_bgr, {m_bgr.cols / 2, m_bgr.rows / 2}, m_blind_spot_radius, 0, -1);
+    cv::cvtColor(m_bgr, m_hsv, cv::COLOR_BGR2HSV);
+}
+
 std::vector<Eyes::NPC> Eyes::DetectNPCs() const
 {
     // extract regions with white NPC names
@@ -52,31 +59,15 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs() const
         npcs.push_back(npc);
     }
 
-    // remove myself from NPCs
-    auto min_distance = std::numeric_limits<double>::max();
-    decltype(npcs)::const_iterator min_it = npcs.end();
-
-    for (auto it = npcs.begin(); it != npcs.end(); ++it) {
-        const auto npc = *it;
-        const auto x = std::abs(npc.center.x - m_hsv.cols / 2);
-        const auto y = std::abs(npc.center.y - m_hsv.rows / 2 + 50);
-        const auto distance = std::hypot(x, y);
-
-        if (distance < min_distance) {
-            min_distance = distance;
-            min_it = it;
-        }
-    }
-
-    if (min_it != npcs.end()) {
-        npcs.erase(min_it);
-    }
-
     return npcs;
 }
 
 std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
 {
+    if (m_far_npc_limit <= 0) {
+        return {};
+    }
+
     cv::Mat gray;
     cv::cvtColor(m_hsv, gray, cv::COLOR_BGR2GRAY); // hsv as rgb to gray
     
@@ -154,8 +145,8 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
     }
 
     // return only nearest NPCs
-    std::sort(npcs.begin(), npcs.end(), [](const FarNPC &a, const FarNPC &b) {
-        return a.rect.y > b.rect.y;
+    std::sort(npcs.begin(), npcs.end(), [this](const FarNPC &a, const FarNPC &b) {
+        return std::abs(a.center.y - m_hsv.rows / 2) < std::abs(b.center.y - m_hsv.rows / 2);
     });
 
     if (npcs.size() > m_far_npc_limit) {

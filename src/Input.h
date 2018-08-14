@@ -147,49 +147,49 @@ public:
         m_threads       {0}
     {}
 
-    Input &MoveMouse(const Point &point)
-        { AddEvent(MouseMoveEvent{point.x, point.y}); m_mouse_position = point; return *this; }
+    void MoveMouse(const Point &point)
+        { AddEvent(MouseMoveEvent{point.x, point.y}); m_mouse_position = point; }
 
-    Input &MoveMouseSmoothly(const Point &point, Point from, int step = 30, int interval = 5);
-    Input &MoveMouseSmoothly(const Point &point) { MoveMouseSmoothly(point, m_mouse_position); return *this; }
+    void MoveMouseSmoothly(const Point &point, Point from, int step = 30, int interval = 5);
+    void MoveMouseSmoothly(const Point &point) { MoveMouseSmoothly(point, m_mouse_position); }
 
-    Input &MoveMouseSmoothlyBy(const Point &point)
-        { MoveMouseSmoothly({m_mouse_position.x + point.x, m_mouse_position.y + point.y}); return *this; }
+    void MoveMouseSmoothlyBy(const Point &point)
+        { MoveMouseSmoothly({m_mouse_position.x + point.x, m_mouse_position.y + point.y}); }
 
-    Input &LeftMouseButtonClick(int delay = 50)
-        { LeftMouseButtonDown(); Delay(delay); LeftMouseButtonUp(); return *this; }
+    void LeftMouseButtonClick(int delay = 50)
+        { LeftMouseButtonDown(); Delay(delay); LeftMouseButtonUp(); }
 
-    Input &RightMouseButtonClick(int delay = 50)
-        { RightMouseButtonDown(); Delay(delay); RightMouseButtonUp(); return *this; }
+    void RightMouseButtonClick(int delay = 50)
+        { RightMouseButtonDown(); Delay(delay); RightMouseButtonUp(); }
 
-    Input &LeftMouseButtonDoubleClick(int delay = 50)
-        { LeftMouseButtonClick(delay); Delay(delay); LeftMouseButtonClick(delay); return *this; }
+    void LeftMouseButtonDoubleClick(int delay = 50)
+        { LeftMouseButtonClick(delay); Delay(delay); LeftMouseButtonClick(delay); }
 
-    Input &RightMouseButtonDoubleClick(int delay = 50)
-        { RightMouseButtonClick(delay); Delay(delay); RightMouseButtonClick(delay); return *this; }
+    void RightMouseButtonDoubleClick(int delay = 50)
+        { RightMouseButtonClick(delay); Delay(delay); RightMouseButtonClick(delay); }
 
-    Input &LeftMouseButtonDown()
-        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::LeftDown); return *this; }
+    void LeftMouseButtonDown()
+        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::LeftDown); }
 
-    Input &LeftMouseButtonUp()
-        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::LeftUp); return *this; }
+    void LeftMouseButtonUp()
+        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::LeftUp); }
 
-    Input &RightMouseButtonDown()
-        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightDown); return *this; }
+    void RightMouseButtonDown()
+        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightDown); }
 
-    Input &RightMouseButtonUp()
-        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightUp); return *this; }
+    void RightMouseButtonUp()
+        { AddMouseButtonEvent(::Intercept::MouseButtonEvent::RightUp); }
 
-    Input &KeyboardKeyDown(KeyboardKey key)
-        { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Down); return *this; }
+    void KeyboardKeyDown(KeyboardKey key)
+        { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Down); }
 
-    Input &KeyboardKeyUp(KeyboardKey key)
-        { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Up); return *this; }
+    void KeyboardKeyUp(KeyboardKey key)
+        { AddKeyboardKeyEvent(key, ::Intercept::KeyboardKeyEvent::Up); }
 
-    Input &Delay(int delay) { AddEvent(DelayEvent{delay}); return *this; }
+    void Delay(int delay) { AddEvent(DelayEvent{delay}); }
 
-    Input &PressKeyboardKey(KeyboardKey key, int duration = 0, int delay = 50);
-    Input &PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int duration = 0, int delay = 50);
+    void PressKeyboardKey(KeyboardKey key, int duration = 0, int delay = 50);
+    void PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int duration = 0, int delay = 50);
     
     Point MousePosition() const;
     bool MouseMoved(int delta = 0);

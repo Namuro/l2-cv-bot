@@ -23,37 +23,34 @@ public:
 
     void SetWindowRect(const Rect &rect) { m_window_rect = rect; }
 
-    Hands &ResetUI()
-        { PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L}); return *this; }
+    void ResetUI()
+        { PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L}); }
 
-    Hands &MoveMouseToTarget(const Point &point)
-        { MoveMouseSmoothly(WindowPoint(point)); return *this; }
+    void MoveMouseToTarget(const Point &point)
+        { MoveMouseSmoothly(WindowPoint(point)); }
 
-    Hands &GoTo(const Point &point)
-        { MoveMouseSmoothly(WindowPoint(point)).Delay(200).LeftMouseButtonClick(); return *this; }
+    void GoTo(const Point &point)
+        { MoveMouseSmoothly(WindowPoint(point)); Delay(200); LeftMouseButtonClick(); }
 
-    Hands &SelectTarget()   { LeftMouseButtonClick(); return *this; }
-    Hands &CancelTarget()   { PressKeyboardKey(KeyboardKey::Escape); return *this; }
-    Hands &ResetCamera()    { MoveMouseSmoothly(WindowCenter()).RightMouseButtonClick(); return *this; }
-    Hands &Attack()         { PressKeyboardKey(m_attack_key); return *this; }
-    Hands &NextTarget()     { PressKeyboardKey(m_next_target_key, 250); return *this; }
-    Hands &Spoil()          { PressKeyboardKey(m_spoil_key, 250); return *this; }
-    Hands &Sweep()          { PressKeyboardKey(m_sweep_key, 250); return *this; }
-    Hands &PickUp()         { PressKeyboardKey(m_pick_up_key, 3500); return *this; }
-    Hands &RestoreHP()      { PressKeyboardKey(m_restore_hp_key); return *this; }
-    Hands &RestoreMP()      { PressKeyboardKey(m_restore_mp_key); return *this; }
-    Hands &RestoreCP()      { PressKeyboardKey(m_restore_cp_key); return *this; }
+    void SelectTarget() { LeftMouseButtonClick(); }
+    void CancelTarget() { PressKeyboardKey(KeyboardKey::Escape); }
+    void ResetCamera()  { MoveMouseSmoothly(WindowCenter()); RightMouseButtonClick(); }
+    void Attack()       { PressKeyboardKey(m_attack_key); }
+    void NextTarget()   { PressKeyboardKey(m_next_target_key, 250); }
+    void Spoil()        { PressKeyboardKey(m_spoil_key, 250); }
+    void Sweep()        { PressKeyboardKey(m_sweep_key, 250); }
+    void PickUp()       { PressKeyboardKey(m_pick_up_key, 3500); }
+    void RestoreHP()    { PressKeyboardKey(m_restore_hp_key); }
+    void RestoreMP()    { PressKeyboardKey(m_restore_mp_key); }
+    void RestoreCP()    { PressKeyboardKey(m_restore_cp_key); }
 
-    Hands &LookAround()
+    void LookAround()
     {
         const auto center = WindowCenter();
-
-        MoveMouseSmoothly({center.x + 40, center.y + 40}).
-            LeftMouseButtonClick().
-            Delay(500).
-            RightMouseButtonClick();
-
-        return *this;
+        MoveMouseSmoothly({center.x + 40, center.y + 40});
+        LeftMouseButtonClick();
+        Delay(500);
+        RightMouseButtonClick();
     }
 
 private:

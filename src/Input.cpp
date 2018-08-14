@@ -3,7 +3,7 @@
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
 
-Input &Input::MoveMouseSmoothly(const Point &point, Point from, int step, int interval)
+void Input::MoveMouseSmoothly(const Point &point, Point from, int step, int interval)
 {
     if (step == 0) {
         step = 1;
@@ -13,7 +13,7 @@ Input &Input::MoveMouseSmoothly(const Point &point, Point from, int step, int in
     const auto steps = distance / step;
 
     if (steps == 0) {
-        return *this;
+        return;
     }
 
     const auto dx = (point.x - from.x) / steps;
@@ -29,10 +29,9 @@ Input &Input::MoveMouseSmoothly(const Point &point, Point from, int step, int in
     }
 
     MoveMouse(point);
-    return *this;
 }
 
-Input &Input::PressKeyboardKey(KeyboardKey key, int duration, int delay)
+void Input::PressKeyboardKey(KeyboardKey key, int duration, int delay)
 {
     if (delay == 0) {
         delay = 1;
@@ -45,14 +44,12 @@ Input &Input::PressKeyboardKey(KeyboardKey key, int duration, int delay)
         Delay(delay);
         KeyboardKeyUp(key);
     }
-
-    return *this;
 }
 
-Input &Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int duration, int delay)
+void Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, int duration, int delay)
 {
     if (keys.empty()) {
-        return *this;
+        return;
     }
 
     if (delay == 0) {
@@ -68,12 +65,10 @@ Input &Input::PressKeyboardKeyCombination(const std::vector<KeyboardKey> &keys, 
 
         Delay(delay);
 
-        for (auto i = keys.size() - 1; i-- > 0;) {
-            KeyboardKeyUp(keys[i]);
+        for (auto j = keys.size() - 1; j-- > 0;) {
+            KeyboardKeyUp(keys[j]);
         }
     }
-
-    return *this;
 }
 
 Input::Point Input::MousePosition() const

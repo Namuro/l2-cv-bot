@@ -6,7 +6,9 @@ void Brain::Init()
 {
     std::cout << "Reset UI" << std::endl;
     m_hands.Delay(500);
-    m_hands.ResetUI().ResetCamera().Send(500);
+    m_hands.ResetUI();
+    m_hands.ResetCamera();
+    m_hands.Send(500);
 }
 
 void Brain::Process()
@@ -22,15 +24,18 @@ void Brain::Process()
             const auto me = m_me.value();
 
             if (me.hp < 70) {
-                m_hands.RestoreHP().Send();
+                m_hands.RestoreHP();
+                m_hands.Send();
             }
 
             if (me.mp < 70) {
-                m_hands.RestoreMP().Send();
+                m_hands.RestoreMP();
+                m_hands.Send();
             }
 
             if (me.cp < 70) {
-                m_hands.RestoreCP().Send();
+                m_hands.RestoreCP();
+                m_hands.Send();
             }
         }
     }
@@ -42,7 +47,7 @@ void Brain::Process()
     m_eyes.DetectMyBarsOnce();
     m_eyes.DetectTargetHPBarOnce();
 
-    //return;
+    return;
 
     const auto target = m_target.value_or(::Eyes::Target{});
 
@@ -50,8 +55,11 @@ void Brain::Process()
         if (target.hp > 0) {
             std::cout << "Attack target" << std::endl;
             m_npc_id = 0;
-            m_hands.Spoil().Attack().Delay(500);
-            m_hands.ResetCamera().Send();
+            m_hands.Spoil();
+            m_hands.Attack();
+            m_hands.Delay(500);
+            m_hands.ResetCamera();
+            m_hands.Send();
             m_state = State::Attack;
         } else {
             IgnoreNPC();
@@ -62,39 +70,48 @@ void Brain::Process()
             if (npc.has_value()) {
                 std::cout << "Check target" << std::endl;
                 m_npc_id = npc.value().CenterId();
-                m_hands.MoveMouseToTarget({npc.value().center.x, npc.value().center.y}).Send(250);
+                m_hands.MoveMouseToTarget({npc.value().center.x, npc.value().center.y});
+                m_hands.Send(250);
                 m_state = State::Check;
             } else {
                 std::cout << "Look around" << std::endl;
                 m_ignored_npcs.clear();
-                m_hands.NextTarget().LookAround().Send(500);
+                m_hands.NextTarget();
+                m_hands.LookAround();
+                m_hands.Send(500);
             }
         }
     } else if (m_state == State::Check) {
         const auto npc = HoveredNPC();
 
         if (npc.has_value()) {
-            m_hands.SelectTarget().Send(500);
+            m_hands.SelectTarget();
+            m_hands.Send(500);
         }
 
         m_state = State::Search;
     } else if (m_state == State::Attack) {
         if (target.hp > 0) {
-            m_hands.Attack().Send(200);
+            m_hands.Attack();
+            m_hands.Send(200);
         } else if (!BRAIN_LOCKED(1000)) {
             const auto npc = SelectedNPC();
 
             if (npc.has_value()) {
                 std::cout << "Go to target" << std::endl;
                 // TODO: moving of the selected target can be detected
-                m_hands.GoTo({npc.value().center.x, npc.value().center.y}).Send(4000);
+                m_hands.GoTo({npc.value().center.x, npc.value().center.y});
+                m_hands.Send(4000);
             }
 
             m_state = State::PickUp;
         }
     } else if (m_state == State::PickUp) {
         std::cout << "Pick up loot" << std::endl;
-        m_hands.Sweep().PickUp().CancelTarget().Send(500);
+        m_hands.Sweep();
+        m_hands.PickUp();
+        m_hands.CancelTarget();
+        m_hands.Send(500);
         m_state = State::Search;
     }
 }
