@@ -2,11 +2,14 @@
 
 #include <limits>
 
-void Eyes::Blink(const cv::Mat &bgr)
+void Eyes::Open(const cv::Mat &bgr)
 {
     m_bgr = bgr.clone();
+    
+    // hide myself
     cv::circle(m_bgr, {m_bgr.cols / 2, m_bgr.rows / 2}, m_blind_spot_radius, 0, -1);
     cv::cvtColor(m_bgr, m_hsv, cv::COLOR_BGR2HSV);
+    cv::cvtColor(m_hsv, m_gray, cv::COLOR_BGR2GRAY); // hsv as rgb to gray
 }
 
 std::vector<Eyes::NPC> Eyes::DetectNPCs() const
@@ -67,20 +70,19 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
     if (m_far_npc_limit <= 0) {
         return {};
     }
-
-    cv::Mat gray;
-    cv::cvtColor(m_hsv, gray, cv::COLOR_BGR2GRAY); // hsv as rgb to gray
     
-    // diff current frame with previous frames
+    // diff current frame with 3 previous frames
     cv::Mat diff_sum;
 
-    for (const auto &frame : m_frames) {
+    for (decltype(m_frames)::size_type i = m_frame; i-- > m_frame - 3;) {
+        const auto frame = m_frames[i % m_frames.size()];
+
         if (frame.empty()) {
             continue;
         }
 
         cv::Mat diff;
-        cv::absdiff(frame, gray, diff);
+        cv::absdiff(frame, m_gray, diff);
 
         if (diff_sum.empty()) {
             diff_sum = diff;
@@ -88,10 +90,6 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
             cv::bitwise_or(diff, diff_sum, diff_sum);
         }
     }
-
-    m_diffs[m_frame % m_diffs.size()] = diff_sum;
-    m_frames[m_frame % m_frames.size()] = gray;
-    ++m_frame;
 
     // expand diff areas
     if (!diff_sum.empty()) {
@@ -114,6 +112,8 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
             cv::bitwise_and(diff, mask, mask);
         }
     }
+
+    m_diffs[m_frame % m_diffs.size()] = diff_sum;
 
     if (mask.empty()) {
         return {};
@@ -156,8 +156,12 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
     return npcs;
 }
 
-std::optional<Eyes::Me> Eyes::DetectMe() const
+std::optional<Eyes::Me> Eyes::DetectMe()
 {
+    if (!m_my_bars.has_value()) {
+        m_my_bars = DetectMyBars();
+    }
+
     if (!m_my_bars.has_value()) {
         return {};
     }
@@ -169,8 +173,12 @@ std::optional<Eyes::Me> Eyes::DetectMe() const
     return me;
 }
 
-std::optional<Eyes::Target> Eyes::DetectTarget() const
+std::optional<Eyes::Target> Eyes::DetectTarget()
 {
+    if (!m_target_hp_bar.has_value()) {
+        m_target_hp_bar = DetectTargetHPBar();
+    }
+
     if (!m_target_hp_bar.has_value()) {
         return {};
     }

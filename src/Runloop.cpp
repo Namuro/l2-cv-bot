@@ -45,14 +45,15 @@ void Runloop::Run()
             std::cout << "Screenshot saved to shot.png" << std::endl;
         }
 
-        m_eyes.Blink(image.value());
         m_hands.SetWindowRect({rect.x, rect.y, rect.width, rect.height});
+        m_eyes.Open(image.value());
 
         if (first) {
             m_brain.Init();
         }
 
         m_brain.Process();
+        m_eyes.Close();
 
         if (debug) {
             DrawWorldInfo(image.value());

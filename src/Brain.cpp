@@ -14,38 +14,32 @@ void Brain::Init()
 void Brain::Process()
 {
     m_far_npcs = m_eyes.DetectFarNPCs();
+    m_npcs = m_eyes.DetectNPCs();
+    m_me = m_eyes.DetectMe();
+    m_target = m_eyes.DetectTarget();
 
-    if (m_eyes.IsReady()) {
-        m_npcs = m_eyes.DetectNPCs();
-        m_me = m_eyes.DetectMe();
-        m_target = m_eyes.DetectTarget();
+    if (m_me.has_value()) {
+        const auto me = m_me.value();
 
-        if (m_me.has_value()) {
-            const auto me = m_me.value();
+        if (me.hp < 70) {
+            m_hands.RestoreHP();
+            m_hands.Send();
+        }
 
-            if (me.hp < 70) {
-                m_hands.RestoreHP();
-                m_hands.Send();
-            }
+        if (me.mp < 70) {
+            m_hands.RestoreMP();
+            m_hands.Send();
+        }
 
-            if (me.mp < 70) {
-                m_hands.RestoreMP();
-                m_hands.Send();
-            }
-
-            if (me.cp < 70) {
-                m_hands.RestoreCP();
-                m_hands.Send();
-            }
+        if (me.cp < 70) {
+            m_hands.RestoreCP();
+            m_hands.Send();
         }
     }
 
     if (!m_hands.IsReady()) {
         return;
     }
-
-    m_eyes.DetectMyBarsOnce();
-    m_eyes.DetectTargetHPBarOnce();
 
     return;
 

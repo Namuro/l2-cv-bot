@@ -80,34 +80,32 @@ public:
     cv::Scalar m_target_hp_color_to_hsv = {2, 220, 170};
 
     Eyes() :
-        m_frame{0},
         m_frames{},
-        m_diffs{}
+        m_frame{0},
+        m_diffs {}
     {}
 
     const std::optional<cv::Rect> &TargetHPBar() const { return m_target_hp_bar; }
     const std::optional<struct MyBars> &MyBars() const { return m_my_bars; }
 
-    void Blink(const cv::Mat &bgr);
-    void DetectMyBarsOnce()         { if (!m_my_bars.has_value()) m_my_bars = DetectMyBars(); }
-    void DetectTargetHPBarOnce()    { if (!m_target_hp_bar.has_value()) m_target_hp_bar = DetectTargetHPBar(); }
-    void Reset()                    { m_my_bars = {}; m_target_hp_bar = {}; }
-    bool IsReady() const            { return m_my_bars.has_value(); }
+    void Open(const cv::Mat &bgr);
+    void Close()    { m_frames[m_frame++ % m_frames.size()] = m_gray.clone(); }
+    void Reset()    { m_my_bars = {}; m_target_hp_bar = {}; }
 
     std::vector<NPC> DetectNPCs() const;
     std::vector<FarNPC> DetectFarNPCs();
-    std::optional<Me> DetectMe() const;
-    std::optional<Target> DetectTarget() const;
+    std::optional<Me> DetectMe();
+    std::optional<Target> DetectTarget();
 
 private:
-    std::size_t m_frame;
-    std::array<cv::Mat, 3> m_frames;
-    std::array<cv::Mat, 15> m_diffs;
-
     cv::Mat m_bgr;
     cv::Mat m_hsv;
+    cv::Mat m_gray;
+    std::array<cv::Mat, 5> m_frames;
+    decltype(m_frames)::size_type m_frame;
     std::optional<struct MyBars> m_my_bars;
     std::optional<cv::Rect> m_target_hp_bar;
+    std::array<cv::Mat, 15> m_diffs;
 
     std::optional<struct MyBars> DetectMyBars() const;
     std::optional<cv::Rect> DetectTargetHPBar() const;
