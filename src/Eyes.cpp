@@ -9,7 +9,6 @@ void Eyes::Open(const cv::Mat &bgr)
     // hide myself
     cv::circle(m_bgr, {m_bgr.cols / 2, m_bgr.rows / 2}, m_blind_spot_radius, 0, -1);
     cv::cvtColor(m_bgr, m_hsv, cv::COLOR_BGR2HSV);
-    cv::cvtColor(m_hsv, m_gray, cv::COLOR_BGR2GRAY); // hsv as rgb to gray
 }
 
 std::vector<Eyes::NPC> Eyes::DetectNPCs() const
@@ -74,15 +73,15 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
     // diff current frame with 3 previous frames
     cv::Mat diff_sum;
 
-    for (decltype(m_frames)::size_type i = m_frame; i-- > m_frame - 3;) {
-        const auto frame = m_frames[i % m_frames.size()];
+    for (decltype(m_hsv_frames)::size_type i = m_frame; i-- > m_frame - 3;) {
+        const auto frame = m_hsv_frames[i % m_hsv_frames.size()];
 
         if (frame.empty()) {
             continue;
         }
 
         cv::Mat diff;
-        cv::absdiff(frame, m_gray, diff);
+        cv::absdiff(frame, m_hsv, diff);
 
         if (diff_sum.empty()) {
             diff_sum = diff;
@@ -93,6 +92,7 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
 
     // expand diff areas
     if (!diff_sum.empty()) {
+        cv::cvtColor(diff_sum, diff_sum, cv::COLOR_BGR2GRAY);
         cv::threshold(diff_sum, diff_sum, 5, 255, cv::THRESH_BINARY);
         const auto kernel = cv::getStructuringElement(cv::MORPH_RECT, {21, 21});
         cv::dilate(diff_sum, diff_sum, kernel);

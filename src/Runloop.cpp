@@ -229,6 +229,8 @@ int Runloop::ShowDebugWindow(cv::Mat &image)
 
 void Runloop::ConfigureEyes()
 {
+    m_eyes.m_blind_spot_radius = m_options.Int("--blind_spot_radius", m_eyes.m_blind_spot_radius);
+
     // NPC detection
     m_eyes.m_npc_name_min_height        = m_options.Int("--npc_name_min_height", m_eyes.m_npc_name_min_height);
     m_eyes.m_npc_name_max_height        = m_options.Int("--npc_name_max_height", m_eyes.m_npc_name_max_height);

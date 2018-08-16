@@ -80,16 +80,16 @@ public:
     cv::Scalar m_target_hp_color_to_hsv = {2, 220, 170};
 
     Eyes() :
-        m_frames{},
-        m_frame{0},
-        m_diffs {}
+        m_hsv_frames{},
+        m_frame     {0},
+        m_diffs     {}
     {}
 
     const std::optional<cv::Rect> &TargetHPBar() const { return m_target_hp_bar; }
     const std::optional<struct MyBars> &MyBars() const { return m_my_bars; }
 
     void Open(const cv::Mat &bgr);
-    void Close()    { m_frames[m_frame++ % m_frames.size()] = m_gray.clone(); }
+    void Close()    { m_hsv_frames[m_frame++ % m_hsv_frames.size()] = m_hsv.clone(); }
     void Reset()    { m_my_bars = {}; m_target_hp_bar = {}; }
 
     std::vector<NPC> DetectNPCs() const;
@@ -100,9 +100,9 @@ public:
 private:
     cv::Mat m_bgr;
     cv::Mat m_hsv;
-    cv::Mat m_gray;
-    std::array<cv::Mat, 5> m_frames;
-    decltype(m_frames)::size_type m_frame;
+    std::array<cv::Mat, 5> m_hsv_frames;
+    std::array<cv::Mat, 5>::size_type m_frame;
+
     std::optional<struct MyBars> m_my_bars;
     std::optional<cv::Rect> m_target_hp_bar;
     std::array<cv::Mat, 15> m_diffs;

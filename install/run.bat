@@ -2,6 +2,8 @@
 
 l2-cv-bot.exe ^
 
+    --blind_spot_radius 100 ^
+
     %= NPC detection =%                 ^
     --npc_name_min_height       8       ^
     --npc_name_max_height       16      ^
