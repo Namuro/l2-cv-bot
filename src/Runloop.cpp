@@ -140,16 +140,28 @@ void Runloop::DrawWorldInfo(cv::Mat &image) const
         cv::LINE_AA
     );
 
-    // NPCs debug info
+    // NPCs
     for (const auto &npc : npcs) {
         cv::rectangle(image, npc.rect, {255, 255, 0});
         cv::circle(image, npc.center, 10, {0, 255, 255});
 
-        // id
+        // name id
         cv::putText(
             image,
-            "id: " + std::to_string(npc.name_id),
+            "name id: " + std::to_string(npc.name_id),
             {npc.rect.x, npc.rect.y - 5},
+            cv::FONT_HERSHEY_PLAIN,
+            0.8,
+            {255, 255, 255},
+            1,
+            cv::LINE_AA
+        );
+
+        // tracking id
+        cv::putText(
+            image,
+            "tracking id: " + std::to_string(npc.tracking_id),
+            {npc.rect.x, npc.rect.y - 20},
             cv::FONT_HERSHEY_PLAIN,
             0.8,
             {255, 255, 255},
@@ -161,7 +173,7 @@ void Runloop::DrawWorldInfo(cv::Mat &image) const
         cv::putText(
             image,
             "selected: " + std::to_string(npc.Selected()),
-            {npc.rect.x, npc.rect.y - 20},
+            {npc.rect.x, npc.rect.y - 35},
             cv::FONT_HERSHEY_PLAIN,
             0.8,
             {255, 255, 255},
@@ -173,7 +185,7 @@ void Runloop::DrawWorldInfo(cv::Mat &image) const
         cv::putText(
             image,
             "hovered: " + std::to_string(npc.Hovered()),
-            {npc.rect.x, npc.rect.y - 35},
+            {npc.rect.x, npc.rect.y - 50},
             cv::FONT_HERSHEY_PLAIN,
             0.8,
             {255, 255, 255},
@@ -185,6 +197,17 @@ void Runloop::DrawWorldInfo(cv::Mat &image) const
     // far NPCs
     for (const auto &npc : far_npcs) {
         cv::rectangle(image, npc.rect, {0, 255, 255});
+
+        cv::putText(
+            image,
+            std::to_string(npc.tracking_id),
+            {npc.rect.x, npc.rect.y + 10},
+            cv::FONT_HERSHEY_PLAIN,
+            0.8,
+            {0, 255, 255},
+            1,
+            cv::LINE_AA
+        );
     }
 }
 

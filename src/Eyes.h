@@ -13,27 +13,29 @@ public:
     struct Me { int hp, mp, cp; };
     struct Target { int hp; };
 
-    struct NPC
+    struct TrackableNPC {
+        cv::Point center;
+        std::uint32_t tracking_id;
+    };
+
+    struct NPC : TrackableNPC
     {
         enum class State { Default = 0, Hovered = 1, Selected = 2 };
 
         State state;
         std::uint32_t name_id;
-        cv::Point center;
         cv::Rect rect;
 
+        std::uint32_t Id() const { return tracking_id > 0 ? tracking_id : CenterId(); }
         std::uint32_t CenterId() const { return center.x << 16 | center.y; }
         bool Selected() const { return state == State::Selected; }
         bool Hovered() const { return state == State::Hovered; }
     };
 
-    struct FarNPC
-    {
-        cv::Point center;
-        cv::Rect rect;
-    };
+    struct FarNPC : TrackableNPC { cv::Rect rect; };
 
     int m_blind_spot_radius = 100;
+    int m_npc_tracking_distance = 30;
 
     // NPC detection
     int m_npc_name_min_height = 8;
@@ -92,7 +94,7 @@ public:
     void Close()    { m_hsv_frames[m_frame++ % m_hsv_frames.size()] = m_hsv.clone(); }
     void Reset()    { m_my_bars = {}; m_target_hp_bar = {}; }
 
-    std::vector<NPC> DetectNPCs() const;
+    std::vector<NPC> DetectNPCs();
     std::vector<FarNPC> DetectFarNPCs();
     std::optional<Me> DetectMe();
     std::optional<Target> DetectTarget();
@@ -100,17 +102,22 @@ public:
 private:
     cv::Mat m_bgr;
     cv::Mat m_hsv;
-    std::array<cv::Mat, 5> m_hsv_frames;
-    std::array<cv::Mat, 5>::size_type m_frame;
+    std::array<cv::Mat, 5> m_hsv_frames; // previous frames buffer
+    std::array<cv::Mat, 5>::size_type m_frame; // current frame index
 
     std::optional<struct MyBars> m_my_bars;
     std::optional<cv::Rect> m_target_hp_bar;
-    std::array<cv::Mat, 15> m_diffs;
+    std::array<cv::Mat, 15> m_diffs; // used for far NPCs detection
+    std::vector<NPC> m_npcs; // previously detected NPCs
+    std::vector<FarNPC> m_far_npcs; // previously detected far NPCs
 
     std::optional<struct MyBars> DetectMyBars() const;
     std::optional<cv::Rect> DetectTargetHPBar() const;
     std::vector<std::vector<cv::Point>> FindMyBarContours(const cv::Mat &mask) const;
     NPC::State DetectNPCState(const cv::Rect &rect) const;
+
+    template<typename T>
+    void CalculateTrackingIds(std::vector<T> &npcs) const;
 
     static bool IsRectInImage(const cv::Mat &image, const cv::Rect &rect)
         { return (rect & cv::Rect{0, 0, image.cols, image.rows}) == rect; }

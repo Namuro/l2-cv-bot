@@ -11,7 +11,7 @@ void Eyes::Open(const cv::Mat &bgr)
     cv::cvtColor(m_bgr, m_hsv, cv::COLOR_BGR2HSV);
 }
 
-std::vector<Eyes::NPC> Eyes::DetectNPCs() const
+std::vector<Eyes::NPC> Eyes::DetectNPCs()
 {
     // extract regions with white NPC names
     cv::Mat white;
@@ -60,7 +60,10 @@ std::vector<Eyes::NPC> Eyes::DetectNPCs() const
         npc.state = DetectNPCState(rect);
         npcs.push_back(npc);
     }
+    
+    CalculateTrackingIds(npcs);
 
+    m_npcs = npcs;
     return npcs;
 }
 
@@ -73,7 +76,7 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
     // diff current frame with 3 previous frames
     cv::Mat diff_sum;
 
-    for (decltype(m_hsv_frames)::size_type i = m_frame; i-- > m_frame - 3;) {
+    for (decltype(m_frame) i = m_frame; i-- > m_frame - 3;) {
         const auto frame = m_hsv_frames[i % m_hsv_frames.size()];
 
         if (frame.empty()) {
@@ -153,6 +156,9 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
         npcs.erase(npcs.begin() + m_far_npc_limit, npcs.end());
     }
 
+    CalculateTrackingIds(npcs);
+
+    m_far_npcs = npcs;
     return npcs;
 }
 
@@ -348,6 +354,34 @@ Eyes::NPC::State Eyes::DetectNPCState(const cv::Rect &rect) const
     }
 
     return NPC::State::Default;
+}
+
+template<typename T>
+void Eyes::CalculateTrackingIds(std::vector<T> &npcs) const
+{
+    std::uint32_t max_tracking_id = 0;
+
+    for (auto &npc : npcs) {
+        npc.tracking_id = 0;
+
+        for (const auto &prev_npc : m_npcs) {
+            const auto distance = std::hypot(prev_npc.center.x - npc.center.x, prev_npc.center.y - npc.center.y);
+
+            if (distance <= m_npc_tracking_distance) {
+                npc.tracking_id = prev_npc.tracking_id;
+                max_tracking_id = (std::max)(max_tracking_id, prev_npc.tracking_id);
+                break;
+            }
+        }
+    }
+
+    std::uint32_t tracking_id = max_tracking_id;
+
+    for (auto &npc : npcs) {
+        if (npc.tracking_id == 0) {
+            npc.tracking_id = ++tracking_id;
+        }
+    }
 }
 
 int Eyes::CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color)
