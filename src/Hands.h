@@ -37,8 +37,8 @@ public:
     void ResetCamera()  { MoveMouseSmoothly(WindowCenter()); RightMouseButtonClick(); }
     void Attack()       { PressKeyboardKey(m_attack_key); }
     void NextTarget()   { PressKeyboardKey(m_next_target_key); }
-    void Spoil()        { PressKeyboardKey(m_spoil_key); }
-    void Sweep()        { PressKeyboardKey(m_sweep_key); }
+    void Spoil()        { PressKeyboardKey(m_spoil_key, 200); }
+    void Sweep()        { PressKeyboardKey(m_sweep_key, 200); }
     void PickUp()       { PressKeyboardKey(m_pick_up_key, 3500); }
     void RestoreHP()    { PressKeyboardKey(m_restore_hp_key); }
     void RestoreMP()    { PressKeyboardKey(m_restore_mp_key); }

@@ -51,7 +51,7 @@ Default keyboard layout:
 Current version developed and tested using Windows 10 and Gracia Epilogue client, so with another Windows or Lineage II client it may not work.
 
 * Edit `run.bat` file to customize CV or keyboard layout for another client. Note that for colors are used HSV and **B**G**R** color models.
-* Edit `Brain.cpp` to customize bot behavior. Custom runtime behavior scripts currently not supported.
+* Edit `Brain.cpp` to customize bot behavior and timings. Custom runtime behavior scripts currently not supported.
 * OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`, `Intercept.cpp`.
 
 ## Building
