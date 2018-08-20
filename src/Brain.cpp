@@ -19,8 +19,6 @@ void Brain::Process()
     m_me = m_eyes.DetectMe();
     m_target = m_eyes.DetectTarget();
 
-    return;
-
     if (m_me.has_value()) {
         const auto me = m_me.value();
 
@@ -74,10 +72,6 @@ void Brain::Process()
             m_search_attempt = 0;
         }
     } else if (m_state == State::FarSearch) {
-        if (LOCKED(1000)) {
-            return;
-        }
-
         const auto npc = FarNPC();
 
         if (npc.has_value()) {
@@ -90,7 +84,7 @@ void Brain::Process()
             ++m_search_attempt;
             m_hands.LookAround();
             m_hands.NextTarget();
-            m_hands.Send(500);
+            m_hands.Send(2000);
             ClearIgnoredNPCs();
         } else {
             m_state = State::NextTarget;
@@ -140,12 +134,12 @@ void Brain::Process()
     }
 }
 
-std::optional<::Eyes::NPC> Brain::HoveredNPC() const
+std::optional<::Eyes::NPC> Brain::UnselectedNPC() const
 {
     const auto npcs = FilteredNPCs();
 
     for (const auto &npc : npcs) {
-        if (npc.Hovered()) {
+        if (!npc.Selected()) {
             return npc;
         }
     }
@@ -166,12 +160,10 @@ std::optional<::Eyes::NPC> Brain::SelectedNPC() const
     return {};
 }
 
-std::optional<::Eyes::NPC> Brain::UnselectedNPC() const
+std::optional<::Eyes::NPC> Brain::HoveredNPC() const
 {
-    const auto npcs = FilteredNPCs();
-
-    for (const auto &npc : npcs) {
-        if (!npc.Selected()) {
+    for (const auto &npc : m_npcs) {
+        if (npc.Hovered()) {
             return npc;
         }
     }

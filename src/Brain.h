@@ -60,9 +60,9 @@ private:
     std::optional<::Eyes::Me> m_me;
     std::optional<::Eyes::Target> m_target;
 
-    std::optional<::Eyes::NPC> HoveredNPC() const;
-    std::optional<::Eyes::NPC> SelectedNPC() const;
     std::optional<::Eyes::NPC> UnselectedNPC() const;
+    std::optional<::Eyes::NPC> SelectedNPC() const;
+    std::optional<::Eyes::NPC> HoveredNPC() const;
     std::optional<::Eyes::FarNPC> FarNPC() const;
     std::vector<::Eyes::NPC> FilteredNPCs() const;
     void IgnoreNPC(std::uint32_t npc_id) { m_ignored_npc_ids.insert(npc_id); m_ignored_npc_id = npc_id; }
