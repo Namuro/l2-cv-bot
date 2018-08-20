@@ -16,6 +16,7 @@ public:
     struct TrackableNPC {
         cv::Point center;
         std::uint32_t tracking_id;
+        virtual std::uint32_t Id() const = 0;
     };
 
     struct NPC : TrackableNPC
@@ -26,60 +27,64 @@ public:
         std::uint32_t name_id;
         cv::Rect rect;
 
-        std::uint32_t Id() const { return tracking_id > 0 ? tracking_id : CenterId(); }
-        std::uint32_t CenterId() const { return center.x << 16 | center.y; }
-        bool Selected() const { return state == State::Selected; }
-        bool Hovered() const { return state == State::Hovered; }
+        std::uint32_t Id() const override   { return tracking_id > 0 ? tracking_id : CenterId(); }
+        std::uint32_t CenterId() const      { return center.x << 16 | center.y; }
+        bool Selected() const               { return state == State::Selected; }
+        bool Hovered() const                { return state == State::Hovered; }
     };
 
-    struct FarNPC : TrackableNPC { cv::Rect rect; };
+    struct FarNPC : TrackableNPC
+    {
+        cv::Rect rect;
+        std::uint32_t Id() const override { return tracking_id; }
+    };
 
-    int m_blind_spot_radius = 100;
+    int m_blind_spot_radius     = 100;
     int m_npc_tracking_distance = 30;
 
     // NPC detection
-    int m_npc_name_min_height = 8;
-    int m_npc_name_max_height = 16;
-    int m_npc_name_min_width = 20;
-    int m_npc_name_max_width = 250;
-    cv::Scalar m_npc_name_color_from_hsv = {0, 0, 240};
-    cv::Scalar m_npc_name_color_to_hsv = {0, 0, 255};
-    double m_npc_name_color_threshold = 0.2;
-    int m_npc_name_center_offset = 17;
+    int m_npc_name_min_height               = 8;
+    int m_npc_name_max_height               = 16;
+    int m_npc_name_min_width                = 20;
+    int m_npc_name_max_width                = 250;
+    cv::Scalar m_npc_name_color_from_hsv    = {0, 0, 240};
+    cv::Scalar m_npc_name_color_to_hsv      = {0, 0, 255};
+    double m_npc_name_color_threshold       = 0.2;
+    int m_npc_name_center_offset            = 17;
 
     // far NPC detection
-    int m_far_npc_min_height = 20;
-    int m_far_npc_max_height = 200;
-    int m_far_npc_min_width = 20;
-    int m_far_npc_max_width = 200;
-    int m_far_npc_limit = 10;
+    int m_far_npc_min_height    = 20;
+    int m_far_npc_max_height    = 200;
+    int m_far_npc_min_width     = 20;
+    int m_far_npc_max_width     = 200;
+    int m_far_npc_limit         = 10;
 
     // selected target detection
-    int m_target_circle_area_height = 25;
-    int m_target_circle_area_width = 25;
-    cv::Scalar m_target_gray_circle_color_bgr = {57, 60, 66, 255};
-    cv::Scalar m_target_blue_circle_color_bgr = {107, 48, 0, 255};
-    cv::Scalar m_target_red_circle_color_bgr = {0, 4, 132, 255};
+    int m_target_circle_area_height             = 25;
+    int m_target_circle_area_width              = 25;
+    cv::Scalar m_target_gray_circle_color_bgr   = {57, 60, 66, 255};
+    cv::Scalar m_target_blue_circle_color_bgr   = {107, 48, 0, 255};
+    cv::Scalar m_target_red_circle_color_bgr    = {0, 4, 132, 255};
 
     // my HP/MP/CP bars detection
-    int m_my_bar_min_height = 10;
-    int m_my_bar_max_height = 20;
-    int m_my_bar_min_width = 140;
-    int m_my_bar_max_width = 400;
-    cv::Scalar m_my_hp_color_from_hsv = {2, 90, 120};
-    cv::Scalar m_my_hp_color_to_hsv = {5, 220, 170};
-    cv::Scalar m_my_mp_color_from_hsv = {105, 100, 130};
-    cv::Scalar m_my_mp_color_to_hsv = {110, 255, 170};
-    cv::Scalar m_my_cp_color_from_hsv = {16, 100, 120};
-    cv::Scalar m_my_cp_color_to_hsv = {22, 255, 200};
+    int m_my_bar_min_height             = 10;
+    int m_my_bar_max_height             = 20;
+    int m_my_bar_min_width              = 140;
+    int m_my_bar_max_width              = 400;
+    cv::Scalar m_my_hp_color_from_hsv   = {2, 90, 120};
+    cv::Scalar m_my_hp_color_to_hsv     = {5, 220, 170};
+    cv::Scalar m_my_mp_color_from_hsv   = {105, 100, 130};
+    cv::Scalar m_my_mp_color_to_hsv     = {110, 255, 170};
+    cv::Scalar m_my_cp_color_from_hsv   = {16, 100, 120};
+    cv::Scalar m_my_cp_color_to_hsv     = {22, 255, 200};
 
     // target HP bar detection
-    int m_target_hp_min_height = 3;
-    int m_target_hp_max_height = 7;
-    int m_target_hp_min_width = m_my_bar_min_width;
-    int m_target_hp_max_width = m_my_bar_max_width;
-    cv::Scalar m_target_hp_color_from_hsv = {0, 60, 80};
-    cv::Scalar m_target_hp_color_to_hsv = {2, 220, 170};
+    int m_target_hp_min_height              = 3;
+    int m_target_hp_max_height              = 7;
+    int m_target_hp_min_width               = m_my_bar_min_width;
+    int m_target_hp_max_width               = m_my_bar_max_width;
+    cv::Scalar m_target_hp_color_from_hsv   = {0, 60, 80};
+    cv::Scalar m_target_hp_color_to_hsv     = {2, 220, 170};
 
     Eyes() :
         m_hsv_frames{},

@@ -364,12 +364,12 @@ void Eyes::CalculateTrackingIds(std::vector<T> &npcs) const
     for (auto &npc : npcs) {
         npc.tracking_id = 0;
 
-        for (const auto &prev_npc : m_npcs) {
-            const auto distance = std::hypot(prev_npc.center.x - npc.center.x, prev_npc.center.y - npc.center.y);
+        for (const auto &previous_npc : m_npcs) {
+            const auto distance = std::hypot(previous_npc.center.x - npc.center.x, previous_npc.center.y - npc.center.y);
 
             if (distance <= m_npc_tracking_distance) {
-                npc.tracking_id = prev_npc.tracking_id;
-                max_tracking_id = (std::max)(max_tracking_id, prev_npc.tracking_id);
+                npc.tracking_id = previous_npc.tracking_id;
+                max_tracking_id = (std::max)(max_tracking_id, previous_npc.tracking_id);
                 break;
             }
         }

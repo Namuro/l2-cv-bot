@@ -6,9 +6,9 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 ## Features
 
-* NPC detection
+* Near and far NPC detection
 * HP/MP/CP monitoring
-* Mouse and keyboard emulation
+* Mouse and keyboard emulation using driver
 * ~~Stuck resolving~~
 * ~~TTS alarm subsystem (captcha, low HP, CP decreasing, etc.)~~
 * ~~Custom behavior support (LUA scripts)~~
@@ -31,9 +31,9 @@ Default keyboard layout:
 * F3 - Spoil
 * F4 - Sweep
 * F5 - Pick up
-* F6 - Restore HP
-* F7 - Restore MP
-* F8 - Restore CP
+* F6 - Restore HP when <70%
+* F7 - Restore MP when <70%
+* F8 - Restore CP when <70%
 
 ## Command line options
 

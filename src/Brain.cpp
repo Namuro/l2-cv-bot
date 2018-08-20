@@ -2,9 +2,10 @@
 
 #include <iostream>
 
+#define LOCKED(ms) Locked(ms, __FILE__, __LINE__)
+
 void Brain::Init()
 {
-    std::cout << "Reset UI" << std::endl;
     m_hands.Delay(500);
     m_hands.ResetUI();
     m_hands.ResetCamera();
@@ -13,67 +14,87 @@ void Brain::Init()
 
 void Brain::Process()
 {
-    m_far_npcs = m_eyes.DetectFarNPCs();
     m_npcs = m_eyes.DetectNPCs();
+    m_far_npcs = m_eyes.DetectFarNPCs();
     m_me = m_eyes.DetectMe();
     m_target = m_eyes.DetectTarget();
+
+    return;
 
     if (m_me.has_value()) {
         const auto me = m_me.value();
 
-        if (me.hp < 70) {
+        if (me.hp < 70 && !LOCKED(1000)) {
             m_hands.RestoreHP();
             m_hands.Send();
         }
 
-        if (me.mp < 70) {
+        if (me.mp < 70 && !LOCKED(1000)) {
             m_hands.RestoreMP();
             m_hands.Send();
         }
 
-        if (me.cp < 70) {
+        if (me.cp < 70 && !LOCKED(1000)) {
             m_hands.RestoreCP();
             m_hands.Send();
         }
+    }
+
+    const auto target = m_target.value_or(::Eyes::Target{});
+
+    if (target.hp > 0) {
+        m_state = State::Attack;
     }
 
     if (!m_hands.IsReady()) {
         return;
     }
 
-    return;
+    if (m_state == State::NextTarget) {
+        m_hands.NextTarget();
+        m_hands.Send(500);
+        m_state = State::NearSearch;
+    } else if (m_state == State::NearSearch) {
+        const auto npc = UnselectedNPC();
 
-    const auto target = m_target.value_or(::Eyes::Target{});
-
-    if (m_state == State::Search) {
-        if (target.hp > 0) {
-            std::cout << "Attack target" << std::endl;
-            m_npc_id = 0;
-            m_hands.Spoil();
-            m_hands.Attack();
-            m_hands.Delay(500);
-            m_hands.ResetCamera();
-            m_hands.Send();
-            m_state = State::Attack;
+        if (npc.has_value()) {
+            IgnoreNPC(npc.value().Id());
+            m_hands.MoveMouseTo({npc.value().center.x, npc.value().center.y});
+            m_hands.Send(500);
+            m_previous_state = m_state;
+            m_state = State::Check;
+        } else if (m_search_attempt < m_search_attempts) {
+            ++m_search_attempt;
+            m_hands.LookAround();
+            m_hands.NextTarget();
+            m_hands.Send(500);
+            ClearIgnoredNPCs();
         } else {
-            IgnoreNPC();
+            m_state = State::FarSearch;
+            m_search_attempt = 0;
+        }
+    } else if (m_state == State::FarSearch) {
+        if (LOCKED(1000)) {
+            return;
+        }
 
-            std::cout << "Search target" << std::endl;
-            const auto npc = UnselectedNPC();
+        const auto npc = FarNPC();
 
-            if (npc.has_value()) {
-                std::cout << "Check target" << std::endl;
-                m_npc_id = npc.value().CenterId();
-                m_hands.MoveMouseToTarget({npc.value().center.x, npc.value().center.y});
-                m_hands.Send(250);
-                m_state = State::Check;
-            } else {
-                std::cout << "Look around" << std::endl;
-                m_ignored_npcs.clear();
-                m_hands.NextTarget();
-                m_hands.LookAround();
-                m_hands.Send(500);
-            }
+        if (npc.has_value()) {
+            IgnoreNPC(npc.value().Id());
+            m_hands.MoveMouseTo({npc.value().center.x, npc.value().center.y});
+            m_hands.Send(500);
+            m_previous_state = m_state;
+            m_state = State::Check;
+        } else if (m_search_attempt < m_search_attempts) {
+            ++m_search_attempt;
+            m_hands.LookAround();
+            m_hands.NextTarget();
+            m_hands.Send(500);
+            ClearIgnoredNPCs();
+        } else {
+            m_state = State::NextTarget;
+            m_search_attempt = 0;
         }
     } else if (m_state == State::Check) {
         const auto npc = HoveredNPC();
@@ -83,30 +104,39 @@ void Brain::Process()
             m_hands.Send(500);
         }
 
-        m_state = State::Search;
+        m_state = m_previous_state;
     } else if (m_state == State::Attack) {
         if (target.hp > 0) {
-            m_hands.Attack();
-            m_hands.Send(200);
-        } else if (!BRAIN_LOCKED(1000)) {
+            if (m_first_attack) {
+                m_first_attack = false;
+                UnignoreNPC();
+                m_hands.Spoil();
+                m_hands.Attack();
+                m_hands.Delay(500);
+                m_hands.ResetCamera();
+                m_hands.Send();
+            } else {
+                m_hands.Attack();
+                m_hands.Send(250);
+            }
+        } else if (!LOCKED(1000)) {
+            m_first_attack = true;
             const auto npc = SelectedNPC();
 
             if (npc.has_value()) {
-                std::cout << "Go to target" << std::endl;
-                // TODO: moving of the selected target can be detected
                 m_hands.GoTo({npc.value().center.x, npc.value().center.y});
-                m_hands.Send(4000);
+                m_hands.Send(4000); // TODO: moving of the selected target can be detected
             }
 
             m_state = State::PickUp;
         }
     } else if (m_state == State::PickUp) {
-        std::cout << "Pick up loot" << std::endl;
         m_hands.Sweep();
+        m_hands.Delay(500);
         m_hands.PickUp();
         m_hands.CancelTarget();
-        m_hands.Send(500);
-        m_state = State::Search;
+        m_hands.Send();
+        m_state = State::NextTarget;
     }
 }
 
@@ -149,12 +179,23 @@ std::optional<::Eyes::NPC> Brain::UnselectedNPC() const
     return {};
 }
 
+std::optional<::Eyes::FarNPC> Brain::FarNPC() const
+{
+    for (const auto &npc : m_far_npcs) {
+        if (m_ignored_npc_ids.find(npc.Id()) == m_ignored_npc_ids.end()) {
+            return npc;
+        }
+    }
+
+    return {};
+}
+
 std::vector<::Eyes::NPC> Brain::FilteredNPCs() const
 {
     std::vector<::Eyes::NPC> npcs;
 
     for (const auto &npc : m_npcs) {
-        if (m_ignored_npcs.find(npc.CenterId()) == m_ignored_npcs.end()) {
+        if (m_ignored_npc_ids.find(npc.Id()) == m_ignored_npc_ids.end()) {
             npcs.push_back(npc);
         }
     }
@@ -177,13 +218,4 @@ bool Brain::Locked(int ms, const std::string &file, int line)
     }
 
     return true;
-}
-
-void Brain::IgnoreNPC()
-{
-    if (m_npc_id != 0) {
-        std::cout << "Temporary ignore target" << std::endl;
-        m_ignored_npcs.insert(m_npc_id);
-        m_npc_id = 0;
-    }
 }

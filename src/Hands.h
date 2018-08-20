@@ -26,19 +26,19 @@ public:
     void ResetUI()
         { PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L}); }
 
-    void MoveMouseToTarget(const Point &point)
+    void MoveMouseTo(const Point &point)
         { MoveMouseSmoothly(WindowPoint(point)); }
 
     void GoTo(const Point &point)
-        { MoveMouseSmoothly(WindowPoint(point)); Delay(200); LeftMouseButtonClick(); }
+        { MoveMouseTo(point); Delay(200); LeftMouseButtonClick(); }
 
     void SelectTarget() { LeftMouseButtonClick(); }
     void CancelTarget() { PressKeyboardKey(KeyboardKey::Escape); }
     void ResetCamera()  { MoveMouseSmoothly(WindowCenter()); RightMouseButtonClick(); }
     void Attack()       { PressKeyboardKey(m_attack_key); }
-    void NextTarget()   { PressKeyboardKey(m_next_target_key, 250); }
-    void Spoil()        { PressKeyboardKey(m_spoil_key, 250); }
-    void Sweep()        { PressKeyboardKey(m_sweep_key, 250); }
+    void NextTarget()   { PressKeyboardKey(m_next_target_key); }
+    void Spoil()        { PressKeyboardKey(m_spoil_key); }
+    void Sweep()        { PressKeyboardKey(m_sweep_key); }
     void PickUp()       { PressKeyboardKey(m_pick_up_key, 3500); }
     void RestoreHP()    { PressKeyboardKey(m_restore_hp_key); }
     void RestoreMP()    { PressKeyboardKey(m_restore_mp_key); }

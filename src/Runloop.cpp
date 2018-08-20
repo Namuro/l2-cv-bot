@@ -7,6 +7,7 @@ void Runloop::Run()
 {
     ConfigureEyes();
     ConfigureHands();
+    ConfigureBrain();
 
     const auto title = m_options.String("--window", "Lineage II");
     const auto debug = m_options.Bool("--debug", true);
@@ -252,7 +253,8 @@ int Runloop::ShowDebugWindow(cv::Mat &image)
 
 void Runloop::ConfigureEyes()
 {
-    m_eyes.m_blind_spot_radius = m_options.Int("--blind_spot_radius", m_eyes.m_blind_spot_radius);
+    m_eyes.m_blind_spot_radius      = m_options.Int("--blind_spot_radius", m_eyes.m_blind_spot_radius);
+    m_eyes.m_npc_tracking_distance  = m_options.Int("--npc_tracking_distance", m_eyes.m_npc_tracking_distance);
 
     // NPC detection
     m_eyes.m_npc_name_min_height        = m_options.Int("--npc_name_min_height", m_eyes.m_npc_name_min_height);
@@ -302,4 +304,9 @@ void Runloop::ConfigureHands()
     m_hands.m_restore_hp_key    = ::StringToKeyboardKey(m_options.String("--restore_hp_key"), m_hands.m_restore_hp_key);
     m_hands.m_restore_mp_key    = ::StringToKeyboardKey(m_options.String("--restore_mp_key"), m_hands.m_restore_mp_key);
     m_hands.m_restore_cp_key    = ::StringToKeyboardKey(m_options.String("--restore_cp_key"), m_hands.m_restore_cp_key);
+}
+
+void Runloop::ConfigureBrain()
+{
+    m_brain.m_search_attempts = m_options.Int("--search_attempts", m_brain.m_search_attempts);
 }

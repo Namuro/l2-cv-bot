@@ -32,4 +32,5 @@ private:
     int ShowDebugWindow(cv::Mat &image);
     void ConfigureEyes();
     void ConfigureHands();
+    void ConfigureBrain();
 };
