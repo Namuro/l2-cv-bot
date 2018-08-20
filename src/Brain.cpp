@@ -103,6 +103,7 @@ void Brain::Process()
         if (target.hp > 0) {
             if (m_first_attack) {
                 m_first_attack = false;
+                m_search_attempt = 0;
                 UnignoreNPC();
                 m_hands.Spoil();
                 m_hands.Attack();
