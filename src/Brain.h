@@ -10,7 +10,7 @@
 class Brain
 {
 public:
-    int m_search_attempts = 10;
+    int m_search_attempts = 7;
 
     Brain(::Eyes &eyes, ::Hands &hands) :
         m_state             {State::NextTarget},

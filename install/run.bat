@@ -2,7 +2,7 @@
 
 l2-cv-bot.exe ^
 
-    --search_attempts       10  ^
+    --search_attempts       7   ^
     --blind_spot_radius     100 ^
     --npc_tracking_distance 30  ^
 
@@ -40,8 +40,8 @@ l2-cv-bot.exe ^
     --target_hp_max_height      7           ^
     --target_hp_min_width       140         ^
     --target_hp_max_width       400         ^
-    --target_hp_color_from_hsv  0,60,80     ^
-    --target_hp_color_to_hsv    2,220,170   ^
+    --target_hp_color_from_hsv  0,100,100     ^
+    --target_hp_color_to_hsv    2,220,140   ^
 
     %= key bindings =%      ^
     --attack_key        F1  ^

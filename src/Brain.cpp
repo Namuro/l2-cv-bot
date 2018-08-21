@@ -57,11 +57,10 @@ void Brain::Process()
         m_hands.Send(500);
         m_state = State::NearSearch;
     } else if (m_state == State::NearSearch) {
-        std::cout << "Near search" << std::endl;
         const auto npc = UnselectedNPC();
 
         if (npc.has_value()) {
-            std::cout << "Found NPC" << std::endl;
+            std::cout << "Near search: Found NPC" << std::endl;
             IgnoreNPC(npc.value().Id());
             m_hands.MoveMouseTo({npc.value().center.x, npc.value().center.y});
             m_hands.Send(500);
@@ -69,7 +68,7 @@ void Brain::Process()
             m_state = State::Check;
         } else if (m_search_attempt < m_search_attempts) {
             ++m_search_attempt;
-            std::cout << "Look around attempt: " << m_search_attempt << std::endl;
+            std::cout << "Near search: Look around attempt: " << m_search_attempt << std::endl;
             m_hands.LookAround();
             m_hands.NextTarget();
             m_hands.Send(500);
@@ -79,11 +78,10 @@ void Brain::Process()
             m_search_attempt = 0;
         }
     } else if (m_state == State::FarSearch) {
-        std::cout << "Far search" << std::endl;
         const auto npc = FarNPC();
 
         if (npc.has_value()) {
-            std::cout << "Found NPC" << std::endl;
+            std::cout << "Far search: Found NPC" << std::endl;
             IgnoreNPC(npc.value().Id());
             m_hands.MoveMouseTo({npc.value().center.x, npc.value().center.y});
             m_hands.Send(500);
@@ -91,7 +89,7 @@ void Brain::Process()
             m_state = State::Check;
         } else if (m_search_attempt < m_search_attempts) {
             ++m_search_attempt;
-            std::cout << "Look around attempt: " << m_search_attempt << std::endl;
+            std::cout << "Far search: Look around attempt: " << m_search_attempt << std::endl;
             m_hands.LookAround();
             m_hands.NextTarget();
             m_hands.Send(2000);
@@ -143,7 +141,6 @@ void Brain::Process()
         m_hands.Sweep();
         m_hands.Delay(500);
         m_hands.PickUp();
-        m_hands.CancelTarget();
         m_hands.Send();
         m_state = State::NextTarget;
     }

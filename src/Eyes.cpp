@@ -195,7 +195,8 @@ std::optional<Eyes::Target> Eyes::DetectTarget()
     target.hp = CalcBarPercentValue(
         m_hsv(m_target_hp_bar.value()),
         m_target_hp_color_from_hsv,
-        m_target_hp_color_to_hsv
+        m_target_hp_color_to_hsv,
+        true
     );
 
     return target;
@@ -385,23 +386,36 @@ void Eyes::CalculateTrackingIds(std::vector<T> &npcs) const
     }
 }
 
-int Eyes::CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color)
-{
+int Eyes::CalcBarPercentValue(
+    const cv::Mat &bar,
+    const cv::Scalar &from_color,
+    const cv::Scalar &to_color,
+    bool whole_bar
+) {
     CV_Assert(bar.rows >= 1);
     CV_Assert(bar.depth() == CV_8U);
     CV_Assert(bar.channels() >= 3);
 
-    // loop mid row until first pixel with color in desired range
     const auto row = bar.ptr<uchar>(bar.rows / 2);
     auto channel = (bar.cols - 1) * bar.channels();
     auto cols = bar.cols;
+    auto color_found = false;
 
-    for (; channel > 0; channel -= bar.channels(), cols--) {
+    // loop mid row
+    for (; channel > 0; channel -= bar.channels()) {
         if (row[channel + 0] >= from_color[0] && row[channel + 0] <= to_color[0] &&
             row[channel + 1] >= from_color[1] && row[channel + 1] <= to_color[1] &&
             row[channel + 2] >= from_color[2] && row[channel + 2] <= to_color[2]
         ) {
-            break;
+            if (!whole_bar) {
+                break;
+            } else {
+                color_found = true;
+            }
+        } else if (color_found) {
+            return 0;
+        } else {
+            cols--;
         }
     }
 

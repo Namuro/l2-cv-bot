@@ -83,8 +83,8 @@ public:
     int m_target_hp_max_height              = 7;
     int m_target_hp_min_width               = m_my_bar_min_width;
     int m_target_hp_max_width               = m_my_bar_max_width;
-    cv::Scalar m_target_hp_color_from_hsv   = {0, 60, 80};
-    cv::Scalar m_target_hp_color_to_hsv     = {2, 220, 170};
+    cv::Scalar m_target_hp_color_from_hsv   = {0, 100, 100};
+    cv::Scalar m_target_hp_color_to_hsv     = {2, 220, 140};
 
     Eyes() :
         m_hsv_frames{},
@@ -127,6 +127,12 @@ private:
     static bool IsRectInImage(const cv::Mat &image, const cv::Rect &rect)
         { return (rect & cv::Rect{0, 0, image.cols, image.rows}) == rect; }
 
-    static int CalcBarPercentValue(const cv::Mat &bar, const cv::Scalar &from_color, const cv::Scalar &to_color);
+    static int CalcBarPercentValue(
+        const cv::Mat &bar,
+        const cv::Scalar &from_color,
+        const cv::Scalar &to_color,
+        bool whole_bar = false
+    );
+
     static std::uint32_t Hash(const cv::Mat &image);
 };
