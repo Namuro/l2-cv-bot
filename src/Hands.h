@@ -24,17 +24,14 @@ public:
     void SetWindowRect(const Rect &rect) { m_window_rect = rect; }
 
     void ResetUI()
-        { PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L}); }
+        { MoveMouseSmoothly(WindowCenter()); PressKeyboardKeyCombination({KeyboardKey::LeftAlt, KeyboardKey::L}); }
 
-    void MoveMouseTo(const Point &point)
-        { MoveMouseSmoothly(WindowPoint(point)); }
-
-    void GoTo(const Point &point)
-        { MoveMouseTo(point); Delay(200); LeftMouseButtonClick(); }
+    void MoveMouseTo(const Point &point)    { MoveMouseSmoothly(WindowPoint(point)); }
+    void GoTo(const Point &point)           { MoveMouseTo(point); Delay(200); LeftMouseButtonClick(); }
 
     void SelectTarget() { LeftMouseButtonClick(); }
     void CancelTarget() { PressKeyboardKey(KeyboardKey::Escape); }
-    void ResetCamera()  { MoveMouseSmoothly(WindowCenter()); RightMouseButtonClick(); }
+    void ResetCamera()  { RightMouseButtonClick(); }
     void Attack()       { PressKeyboardKey(m_attack_key); }
     void NextTarget()   { PressKeyboardKey(m_next_target_key); }
     void Spoil()        { PressKeyboardKey(m_spoil_key, 200); }
@@ -50,7 +47,7 @@ public:
         MoveMouseSmoothly({center.x + 40, center.y + 40});
         LeftMouseButtonClick();
         Delay(500);
-        RightMouseButtonClick();
+        ResetCamera();
     }
 
 private:

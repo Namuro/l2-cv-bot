@@ -8,7 +8,7 @@ Simple Lineage II bot that uses CV to find possible targets and monitor HP/MP/CP
 
 * Near and far NPC detection
 * HP/MP/CP monitoring
-* Mouse and keyboard emulation using driver
+* Mouse and keyboard emulation
 * ~~Stuck resolving~~
 * ~~TTS alarm subsystem (captcha, low HP, CP decreasing, etc.)~~
 * ~~Custom behavior support (LUA scripts)~~
@@ -33,7 +33,7 @@ Default keyboard layout:
 * F5 - Pick up
 * F6 - Restore HP when <70%
 * F7 - Restore MP when <70%
-* F8 - Restore CP when <70%
+* F8 - Restore CP when <90%
 
 ## Command line options
 
@@ -50,8 +50,8 @@ Default keyboard layout:
 
 Current version developed and tested using Windows 10 and Gracia Epilogue client, so with another Windows or Lineage II client it may not work.
 
-* Edit `run.bat` file to customize CV or keyboard layout for another client. Note that for colors are used HSV and **B**G**R** color models.
-* Edit `Brain.cpp` to customize bot behavior and timings. Custom runtime behavior scripts currently not supported.
+* Edit `run.bat` to customize CV or keyboard layout for another client. Note that for colors are used HSV and **B**G**R** color models.
+* Edit `Brain.cpp` to customize bot behavior and timings. Custom runtime behavior scripts currently aren't supported.
 * OS related stuff placed in these files: `Window.cpp`, `Capture.cpp`, `Input.cpp`, `Intercept.cpp`.
 
 ## Building

@@ -1,5 +1,8 @@
 #include "Utils.h"
 
+#include <map>
+#include <chrono>
+
 std::optional<cv::Mat> BitmapToImage(const Capture::Bitmap &bitmap)
 {
     if (bitmap.data == nullptr ||
@@ -55,4 +58,23 @@ cv::Scalar VectorToScalar(const std::vector<int> &vector, const cv::Scalar &defa
     if (string == "0") return ::Input::KeyboardKey::Zero;
 
     return default;
+}
+
+std::map<std::string, std::chrono::time_point<std::chrono::steady_clock>> m_locks;
+
+bool Locked(int ms, const std::string &file, int line)
+{
+    const auto key = file + ":" + std::to_string(line);
+    const auto lock = m_locks.find(key);
+    const auto now = std::chrono::steady_clock::now();
+
+    if (lock == m_locks.end()) {
+        m_locks[key] = now + std::chrono::milliseconds(ms);
+        return true;
+    } else if (lock->second < now) {
+        m_locks.erase(lock);
+        return false;
+    }
+
+    return true;
 }
