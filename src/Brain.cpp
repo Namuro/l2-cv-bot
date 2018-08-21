@@ -19,6 +19,8 @@ void Brain::Process()
     m_me = m_eyes.DetectMe();
     m_target = m_eyes.DetectTarget();
 
+    return;
+
     if (m_me.has_value()) {
         const auto me = m_me.value();
 

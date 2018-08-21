@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-template <int Cap>
+template <int S>
 class FPS
 {
 public:
@@ -17,11 +17,11 @@ public:
 private:
     std::int64_t m_frame;
     std::chrono::time_point<std::chrono::steady_clock> m_time;
-    std::array<std::int64_t, Cap> m_times;
+    std::array<std::int64_t, S> m_times;
 };
 
-template <int Cap>
-double FPS<Cap>::Get()
+template <int S>
+double FPS<S>::Get()
 {
     // add frame time to ring buffer
     const auto now = std::chrono::steady_clock::now();

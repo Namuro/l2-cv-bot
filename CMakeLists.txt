@@ -8,7 +8,7 @@ add_executable(
     l2-cv-bot
     src/main.cpp
     src/Runloop.cpp
-    src/Utils.h
+    src/Utils.cpp
     src/Options.cpp
     src/Window.cpp
     src/Capture.cpp

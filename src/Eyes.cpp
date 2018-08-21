@@ -136,7 +136,8 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
         const auto rect = cv::boundingRect(contour);
 
         if (rect.height < m_far_npc_min_height || rect.height > m_far_npc_max_height ||
-            rect.width < m_far_npc_min_width || rect.width > m_far_npc_max_width
+            rect.width < m_far_npc_min_width || rect.width > m_far_npc_max_width ||
+            rect.y + rect.height > m_hsv.rows / 2
         ) {
             continue;
         }
@@ -149,7 +150,7 @@ std::vector<Eyes::FarNPC> Eyes::DetectFarNPCs()
 
     // return only nearest NPCs
     std::sort(npcs.begin(), npcs.end(), [this](const FarNPC &a, const FarNPC &b) {
-        return std::abs(a.center.y - m_hsv.rows / 2) < std::abs(b.center.y - m_hsv.rows / 2);
+        return (std::min)(a.rect.width, a.rect.height) > (std::min)(b.rect.width, b.rect.height);
     });
 
     if (npcs.size() > m_far_npc_limit) {

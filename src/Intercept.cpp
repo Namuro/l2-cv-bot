@@ -23,7 +23,7 @@ Intercept::Intercept() :
         throw InterceptionDriverNotFoundError{};
     }
 
-    m_context = {context, InterceptionContextDestroyer()};
+    m_context = {context, InterceptionContextDestroyer{}};
 
     // find default keyboard device
     for (::InterceptionDevice device = 0; device < INTERCEPTION_MAX_KEYBOARD; ++device) {
